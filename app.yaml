@@ -1,0 +1,6 @@
+runtime: python
+env: flex
+entrypoint: gunicorn -b :$PORT mycustomdjango.wsgi
+
+runtime_config:
+  python_version: 2
