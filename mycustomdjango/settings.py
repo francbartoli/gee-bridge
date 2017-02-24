@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'helloworld',
+    'gdstorage',
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#
+# Google Drive Storage Settings
+#
+# Path to the json file key
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'MyCustomDjango-dbd004fbce00.json'
