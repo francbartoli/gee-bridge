@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'helloworld',
     'gdstorage',
+    'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [
