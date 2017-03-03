@@ -16,6 +16,7 @@ class Rasterbucket(models.Model):
     raster_data = models.FileField(
         upload_to=GOOGLE_DRIVE_UPLOAD_FOLDER,
         # default='myraster',
+        blank=True,
         storage=gd_storage)
     # owner = models.ForeignKey(
     #     'auth.User',
