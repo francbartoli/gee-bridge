@@ -16,6 +16,6 @@ class RasterbucketSerializer(serializers.ModelSerializer):
 
         model = Rasterbucket
         fields = (
-            'id', 'name',  # 'items',
+            'id', 'name', 'raster_data',  # 'items',
             'date_created', 'date_modified',)  # 'created_by')
         read_only_fields = ('date_created', 'date_modified')

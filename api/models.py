@@ -17,11 +17,11 @@ class Rasterbucket(models.Model):
         upload_to=GOOGLE_DRIVE_UPLOAD_FOLDER,
         # default='myraster',
         storage=gd_storage)
-    owner = models.ForeignKey(
-        'auth.User',
-        # default=DEFAULT_OWNER,
-        related_name='rasterbuckets',
-        on_delete=models.CASCADE)
+    # owner = models.ForeignKey(
+    #     'auth.User',
+    #     # default=DEFAULT_OWNER,
+    #     related_name='rasterbuckets',
+    #     on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
