@@ -33,21 +33,23 @@ class ViewTestCase(TestCase):
         self.client = APIClient()
         self.rasterbucket_data = {'name': 'dem processing result'}
         self.response = self.client.post(
-            reverse('create'),
+            reverse('api.rasterbuckets'),
             self.rasterbucket_data,
             format="json")
 
     def test_api_can_create_a_rasterbucket(self):
         """Test the api has raster bucket creation capability."""
+
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
 
     def test_api_can_get_a_rasterbucket(self):
         """Test the api can get a given rasterbucket."""
         rasterbucket = Rasterbucket.objects.get()
         response = self.client.get(
-            reverse('details'),
+            reverse('api.rasterbuckets'),
             kwargs={'pk': rasterbucket.id}, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertContains(response, rasterbucket)
 
     def test_api_can_update_rasterbucket(self):
@@ -58,6 +60,7 @@ class ViewTestCase(TestCase):
             reverse('details', kwargs={'pk': rasterbucket.id}),
             change_rasterbucket, format='json'
         )
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_api_can_delete_rasterbucket(self):
@@ -68,4 +71,4 @@ class ViewTestCase(TestCase):
             format='json',
             follow=True)
 
-        self.assertEquals(response.status_code, status.HTTP_201_CREATED)
+        self.assertEquals(response.status_code, status.HTTP_204_NO_CONTENT)
