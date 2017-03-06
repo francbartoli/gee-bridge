@@ -27,10 +27,10 @@ class RasterbucketSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """A user serializer to aid in authentication and authorization."""
 
-    rasterbucket = serializers.PrimaryKeyRelatedField(
+    rasterbuckets = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Rasterbucket.objects.all())
 
     class Meta:
         """Map this serializer to the default django user model."""
         model = User
-        fields = ('id', 'username', 'rasterbucket')
+        fields = ('id', 'username', 'rasterbuckets')
