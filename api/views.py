@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics, permissions
+from .permissions import IsOwner
 from .serializers import RasterbucketSerializer
 from .models import Rasterbucket
 
@@ -10,6 +11,8 @@ class CreateView(generics.ListCreateAPIView):
     """This class defines the create behavior of our rest api"""
     queryset = Rasterbucket.objects.all()
     serializer_class = RasterbucketSerializer
+    permission_classes = (
+        permissions.IsAuthenticated, IsOwner)
 
     def perform_create(self, serializer):
         """Save the post data when creating a new rasterbucket."""
@@ -21,3 +24,6 @@ class DetailsView(generics.RetrieveUpdateDestroyAPIView):
         view with Read, Update and Delete"""
     queryset = Rasterbucket.objects.all()
     serializer_class = RasterbucketSerializer
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner)
