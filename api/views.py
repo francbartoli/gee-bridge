@@ -13,7 +13,7 @@ class CreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         """Save the post data when creating a new rasterbucket."""
-        serializer.save()
+        serializer.save(owner=self.request.user)
 
 
 class DetailsView(generics.RetrieveUpdateDestroyAPIView):

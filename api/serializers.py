@@ -1,10 +1,12 @@
 from rest_framework import serializers
-from .models import Rasterbucket#, RasterbucketItem
+from .models import Rasterbucket  # , RasterbucketItem
 
 
 class RasterbucketSerializer(serializers.ModelSerializer):
     """Define an actionable rasterbucket api representation
     with child items."""
+
+    owner = serializers.ReadOnlyField(source='owner.username')
 
     # items = RasterbucketItemSerializer(many=True, read_only=True)
     # created_by = serializers.ReadOnlyField(source='created_by.username')
@@ -16,6 +18,6 @@ class RasterbucketSerializer(serializers.ModelSerializer):
 
         model = Rasterbucket
         fields = (
-            'id', 'name', 'raster_data',  # 'items',
+            'id', 'name', 'raster_data', 'owner',  # 'items',
             'date_created', 'date_modified',)  # 'created_by')
         read_only_fields = ('date_created', 'date_modified')

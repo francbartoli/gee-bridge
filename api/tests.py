@@ -13,10 +13,10 @@ class ModelTestCase(TestCase):
 
     def setUp(self):
         """Define the test client and other test variables."""
-        # user = User.objects.create(username="nerd")
+        user = User.objects.create(username="simpleuser")
         self.name = "Write world class rasters"
         # specify owner of a rasterbucket
-        self.rasterbucket = Rasterbucket(name=self.name)  # , owner=user)
+        self.rasterbucket = Rasterbucket(name=self.name, owner=user)
 
     def test_model_can_create_a_rasterbucket(self):
         """Test the rasterbucket model can create a rasterbucket."""
@@ -30,8 +30,15 @@ class ViewTestCase(TestCase):
     """Test suite for the api views."""
     def setUp(self):
         """Define the test client and other test variables."""
+        user = User.objects.create(username="simpleuser")
+
+        # Initialize client and force it to use authentication
         self.client = APIClient()
-        self.rasterbucket_data = {'name': 'dem processing result'}
+        self.client.force_authenticate(user=user)
+
+        self.rasterbucket_data = {
+            'name': 'dem processing result',
+            'owner': user.id}
         self.response = self.client.post(
             reverse('api.rasterbuckets'),
             self.rasterbucket_data,
@@ -42,9 +49,17 @@ class ViewTestCase(TestCase):
 
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
 
+    def test_authorization_is_enforced(self):
+        """Test that the api has user authorization."""
+        my_client = APIClient()
+        res = my_client.get(
+            reverse('api.rasterbuckets'),
+            kwargs={'pk': 3}, format="json")
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_api_can_get_a_rasterbucket(self):
         """Test the api can get a given rasterbucket."""
-        rasterbucket = Rasterbucket.objects.get()
+        rasterbucket = Rasterbucket.objects.get(id=1)
         response = self.client.get(
             reverse('api.rasterbuckets'),
             kwargs={'pk': rasterbucket.id}, format='json')
@@ -58,8 +73,7 @@ class ViewTestCase(TestCase):
         change_rasterbucket = {'name': 'A new raster bucket'}
         response = self.client.put(
             reverse('details', kwargs={'pk': rasterbucket.id}),
-            change_rasterbucket, format='json'
-        )
+            change_rasterbucket, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
