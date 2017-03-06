@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Rasterbucket  # , RasterbucketItem
+from django.contrib.auth.models import User
 
 
 class RasterbucketSerializer(serializers.ModelSerializer):
@@ -21,3 +22,15 @@ class RasterbucketSerializer(serializers.ModelSerializer):
             'id', 'name', 'raster_data', 'owner',  # 'items',
             'date_created', 'date_modified',)  # 'created_by')
         read_only_fields = ('date_created', 'date_modified')
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """A user serializer to aid in authentication and authorization."""
+
+    rasterbucket = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Rasterbucket.objects.all())
+
+    class Meta:
+        """Map this serializer to the default django user model."""
+        model = User
+        fields = ('id', 'username', 'rasterbucket')

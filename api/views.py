@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions
 from .permissions import IsOwner
-from .serializers import RasterbucketSerializer
+from .serializers import RasterbucketSerializer, UserSerializer
 from .models import Rasterbucket
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -27,3 +28,15 @@ class DetailsView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (
         permissions.IsAuthenticated,
         IsOwner)
+
+
+class UserView(generics.ListAPIView):
+    """View to list the user queryset."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetailsView(generics.RetrieveAPIView):
+    """View to retrieve a user instance."""
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
