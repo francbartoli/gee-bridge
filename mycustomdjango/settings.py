@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import datetime
+import ee
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,8 +22,8 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
-# STATIC_URL = '/static/'
-STATIC_URL = 'http://storage.googleapis.com/mycustomdjango/static/'
+STATIC_URL = '/static/'
+# STATIC_URL = 'http://storage.googleapis.com/mycustomdjango/static/'
 
 # STATICFILES_DIRS = (
 #     os.path.join(PROJECT_ROOT, 'static'),
@@ -54,7 +55,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_swagger',
-    'api'
+    'api',
+    'gee_agent'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -164,3 +166,16 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'MyCustomDjango-dbd004fbce00.json'
 # GEE hostname
 GEE_PUBLIC_BASE_URL = 'https://earthengine.googleapis.com/map/'
 GEE_MAP_TILES_PATTERN = '/z/x/y?token='
+#
+# GEE authentication
+# The service account email address authorized by your Google contact.
+EE_ACCOUNT = 'mycustomdjango@appspot.gserviceaccount.com'
+# The private key associated with your service account in Privacy Enhanced
+# Email format (deprecated version .pem suffix, new version .json suffix).
+EE_PRIVATE_KEY_FILE = 'MyCustomDjango-dbd004fbce00.json'
+# Service account scope for GEE
+GOOGLE_SERVICE_ACCOUNT_SCOPES = ['https://www.googleapis.com/auth/fusiontables',
+                                 'https://www.googleapis.com/auth/earthengine']
+EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
+                                              EE_PRIVATE_KEY_FILE,
+                                              GOOGLE_SERVICE_ACCOUNT_SCOPES)
