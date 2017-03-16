@@ -1,9 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, permissions
 from .permissions import IsOwner
-from .serializers import RasterbucketSerializer, UserSerializer
-from .models import Rasterbucket
+from .models import Rasterbucket, RasterbucketService, GEEMapService
 from django.contrib.auth.models import User
+from .serializers import RasterbucketSerializer, RasterbucketServiceSerializer, UserSerializer, GEEMapServiceSerializer
 
 # Create your views here.
 
@@ -28,6 +28,74 @@ class DetailsView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (
         permissions.IsAuthenticated,
         IsOwner)
+
+
+class RasterbucketServiceCreateView(generics.ListCreateAPIView):
+    """Defines the rasterbucket service creation behavior"""
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner)
+    queryset = RasterbucketService.objects.all()
+    serializer_class = RasterbucketServiceSerializer
+
+    def perform_create(self, serializer):
+        """"""
+        pk = self.kwargs.get('pk')
+        rasterbucket = get_object_or_404(
+            Rasterbucket,
+            pk=pk,
+            owner=self.request.user)
+        serializer.save(
+            rasterbucket=rasterbucket,
+            owner=self.request.user)
+
+
+class RasterbucketServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Defines an actionable rasterbucket service view
+       with Read, Update and Delete"""
+    queryset = RasterbucketService
+    serializer_class = RasterbucketServiceSerializer
+
+    def get_object(self):
+        """specifies the object used for `update`,
+         `retrieve`, `destroy` actions"""
+        return get_object_or_404(
+            RasterbucketService,
+            pk=self.kwargs.get('pk_service'))
+
+
+class GEEMapServiceCreateView(generics.ListCreateAPIView):
+    """Defines the GEE map service creation behavior"""
+    permission_classes = (
+        permissions.IsAuthenticated,
+        IsOwner)
+    queryset = GEEMapService.objects.all()
+    serializer_class = GEEMapServiceSerializer
+
+    def perform_create(self, serializer):
+        """"""
+        pk = self.kwargs.get('pk')
+        rasterbucketservice = get_object_or_404(
+            RasterbucketService,
+            pk=pk,
+            owner=self.request.user)
+        serializer.save(
+            rasterbucketservice=rasterbucketservice,
+            owner=self.request.user)
+
+
+class GEEMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Defines an actionable GEE map service view
+       with Read, Update and Delete"""
+    queryset = GEEMapService
+    serializer_class = GEEMapServiceSerializer
+
+    def get_object(self):
+        """specifies the object used for `update`,
+         `retrieve`, `destroy` actions"""
+        return get_object_or_404(
+            GEEMapService,
+            pk=self.kwargs.get('pk_map'))
 
 
 class UserView(generics.ListAPIView):

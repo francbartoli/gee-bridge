@@ -1,19 +1,50 @@
 from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
-from .views import CreateView, DetailsView, UserView, UserDetailsView
-from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_swagger.views import get_swagger_view
+from rest_framework_jwt import views as jwt_views
+from rest_framework.schemas import get_schema_view
+from api import views as api_views
+
+schema_view = get_schema_view(title='Rasterbucket API')
+swagger_view = get_swagger_view(title='Rasterbucket API')
 
 urlpatterns = {
-    url(r'^auth/', include('rest_framework.urls',
-        namespace='rest_framework')),
-    url(r'^users/$', UserView.as_view(), name="users"),
-    url(r'users/(?P<pk>[0-9]+)/$',
-        UserDetailsView.as_view(), name="user_details"),
-    url(r'^rasterbuckets/$', CreateView.as_view(),
+    url(r'^schema/$',
+        schema_view,
+        name="schema"),
+    url(r'^docs/',
+        swagger_view,
+        name="docs"),
+
+    url(r'^auth/signup/$',
+        api_views.UserView.as_view(),
+        name="signup"),
+    url(r'^auth/$',
+        jwt_views.obtain_jwt_token,
+        name='login'),
+    url(r'^auth_verify/$',
+        jwt_views.verify_jwt_token),
+
+    url(r'^rasterbuckets/$',
+        api_views.CreateView.as_view(),
         name='api.rasterbuckets'),
     url(r'^rasterbuckets/(?P<pk>[0-9]+)/$',
-        DetailsView.as_view(), name="details"),
-    url(r'^get-token/', obtain_auth_token),
+        api_views.DetailsView.as_view(),
+        name="api.rasterbuckets.details"),
+
+    url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/$',
+        api_views.RasterbucketServiceCreateView.as_view(),
+        name="api.rasterbuckets.services"),
+    url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/$',
+        api_views.RasterbucketServiceDetailView.as_view(),
+        name="api.rasterbuckets.services.details"),
+
+    url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/maps/$',
+        api_views.GEEMapServiceCreateView.as_view(),
+        name="api.rasterbuckets.services.geemapservices.create"),
+    url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
+        api_views.GEEMapServiceDetailView.as_view(),
+        name="api.rasterbuckets.services.geemapservice.detail")
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)
