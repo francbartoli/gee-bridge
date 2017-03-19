@@ -26,10 +26,10 @@ urlpatterns = {
         jwt_views.verify_jwt_token),
 
     url(r'^rasterbuckets/$',
-        api_views.CreateView.as_view(),
+        api_views.RasterbucketCreateView.as_view(),
         name='api.rasterbuckets'),
     url(r'^rasterbuckets/(?P<pk>[0-9]+)/$',
-        api_views.DetailsView.as_view(),
+        api_views.RasterbucketDetailsView.as_view(),
         name="api.rasterbuckets.details"),
 
     url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/$',
@@ -43,8 +43,8 @@ urlpatterns = {
         api_views.GEEMapServiceCreateView.as_view(),
         name="api.rasterbuckets.services.geemapservices.create"),
     url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
-        api_views.GEEMapServiceDetailView.as_view(),
-        name="api.rasterbuckets.services.geemapservice.detail")
+        api_views.MapServiceDetailView.as_view(),
+        name="api.rasterbuckets.services.mapservice.detail")
 }
 
 urlpatterns = format_suffix_patterns(urlpatterns)

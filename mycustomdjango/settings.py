@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'polymorphic',
     'helloworld',
     'gdstorage',
     'rest_framework',
@@ -164,8 +165,8 @@ GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'MyCustomDjango-dbd004fbce00.json'
 # Google Earth Engine Settings
 #
 # GEE hostname
-GEE_PUBLIC_BASE_URL = 'https://earthengine.googleapis.com/map/'
-GEE_MAP_TILES_PATTERN = '/z/x/y?token='
+GEE_PUBLIC_BASE_URL = 'https://earthengine.googleapis.com/'
+GEE_MAP_TILES_PATTERN = '/map/z/x/y?token='
 #
 # GEE authentication
 # The service account email address authorized by your Google contact.
@@ -179,3 +180,10 @@ GOOGLE_SERVICE_ACCOUNT_SCOPES = ['https://www.googleapis.com/auth/fusiontables',
 EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
                                               EE_PRIVATE_KEY_FILE,
                                               GOOGLE_SERVICE_ACCOUNT_SCOPES)
+
+# Proxy GEE tiles server
+PROXY_BASE_URL = GEE_PUBLIC_BASE_URL
+PROXY_LOCATION = '/maps/'
+
+# Base url
+BASE_URL = 'http://localhost:8000'

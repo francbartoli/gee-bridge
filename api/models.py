@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from polymorphic.models import PolymorphicModel
 from gdstorage.storage import GoogleDriveStorage
 from django.db.models.signals import post_save, pre_save
 from django.contrib.auth.models import User
@@ -8,6 +9,7 @@ from rest_framework.authtoken.models import Token
 from django.dispatch import receiver
 from mycustomdjango import settings
 import re
+import uuid
 
 # Define Google Drive Storage
 gd_storage = GoogleDriveStorage()
@@ -71,7 +73,7 @@ class RasterbucketService(BaseModel):
         return 'Rasterbucket Service : {}'.format(self.name)
 
 
-class BaseServiceModel(models.Model):
+class BaseServiceModel(PolymorphicModel):
     """An abstract model of the Service table"""
     url = models.CharField(max_length=255, blank=True, unique=False)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -80,19 +82,32 @@ class BaseServiceModel(models.Model):
     rasterbucketservice = models.ForeignKey(
         RasterbucketService,
         on_delete=models.CASCADE,
-        related_name='mapservices')
+        related_name='maps')
 
     class Meta:
-        abstract = True
+        pass
+        # abstract = True
 
 
 class GEEMapService(BaseServiceModel):
     """A model of the Map service table"""
     mapid = models.CharField(max_length=255, blank=False, unique=True)
     token = models.CharField(max_length=255, blank=False, unique=True)
+    hashid = models.UUIDField(default=uuid.uuid4)
 
     def __str__(self):
         return 'GEE Map Service : {}'.format(self.url)
+
+
+class TileMapService(BaseServiceModel):
+    """A model of the Tile Map service table"""
+    friendly_name = models.CharField(max_length=255, blank=True, unique=False)
+    geemap = models.OneToOneField(GEEMapService,
+                                  related_name='geemap',
+                                  on_delete=models.CASCADE)
+
+    def __str__(self):
+        return 'Tile Map Service : {}'.format(self.friendly_name)
 
 
 # This receiver handles token creation when a new user is created.
@@ -111,4 +126,18 @@ def create_geemap_url(sender, instance, *args, **kwargs):
     instance.url = url
 
 
+@receiver(post_save, sender=GEEMapService)
+def create_tilemap(sender, instance, created, **kwargs):
+    uid = str(instance.hashid)
+    url = settings.BASE_URL + settings.PROXY_LOCATION + instance.owner.username + '/' + instance.rasterbucketservice.name + '/' + instance.rasterbucketservice.name + '/' + uid
+    name = instance.rasterbucketservice.rasterbucket.name + instance.rasterbucketservice.name
+    if created:
+        TileMapService.objects.create(geemap=instance,
+                                      owner=instance.owner,
+                                      rasterbucketservice=instance.rasterbucketservice,
+                                      url=url,
+                                      friendly_name=name)
+
+
 pre_save.connect(create_geemap_url, sender=GEEMapService)
+post_save.connect(create_tilemap, sender=GEEMapService)
