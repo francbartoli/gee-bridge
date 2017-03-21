@@ -58,7 +58,9 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'api',
     'httpproxy',
-    'gee_agent'
+    'gee_agent',
+    'mapclient',
+    'channels'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -191,3 +193,11 @@ PROXY_LOCATION = '/maps/'
 
 # Base url
 BASE_URL = 'http://localhost:8000'
+
+# Channels
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgiref.inmemory.ChannelLayer',
+        'ROUTING': 'mapclient.routing.channel_routing',
+    },
+}

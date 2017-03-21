@@ -17,11 +17,15 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 import helloworld.views
+import mapclient.views
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^$', helloworld.views.index),
     url(r'^api/v1/', include('api.urls')),
     # url(r'^maps/', include('gee_agent.urls'))
-    url(r'^maps/', include('gee_agent.urls'))
+    url(r'^maps/', include('gee_agent.urls')),
+    # url from mapclient
+    url(r'^', include('mapclient.urls'))
 ]
