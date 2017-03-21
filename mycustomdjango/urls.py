@@ -21,5 +21,7 @@ import helloworld.views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # url(r'^$', helloworld.views.index),
-    url(r'^api/v1/', include('api.urls'))
+    url(r'^api/v1/', include('api.urls')),
+    # url(r'^maps/', include('gee_agent.urls'))
+    url(r'^maps/', include('gee_agent.urls'))
 ]

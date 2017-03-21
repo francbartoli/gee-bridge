@@ -8,7 +8,7 @@ from api import views as api_views
 schema_view = get_schema_view(title='Rasterbucket API')
 swagger_view = get_swagger_view(title='Rasterbucket API')
 
-urlpatterns = {
+urlpatterns = [
     url(r'^schema/$',
         schema_view,
         name="schema"),
@@ -45,6 +45,6 @@ urlpatterns = {
     url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
         api_views.MapServiceDetailView.as_view(),
         name="api.rasterbuckets.services.mapservice.detail")
-}
+]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

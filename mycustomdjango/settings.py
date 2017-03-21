@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'api',
+    'httpproxy',
     'gee_agent'
 ]
 
@@ -155,6 +156,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Shapefile directory for Gaul
+SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
+
 #
 # Google Drive Storage Settings
 #
@@ -182,7 +186,7 @@ EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
                                               GOOGLE_SERVICE_ACCOUNT_SCOPES)
 
 # Proxy GEE tiles server
-PROXY_BASE_URL = GEE_PUBLIC_BASE_URL
+PROXY_BASE_URL = 'https://earthengine.googleapis.com/map' # GEE_PUBLIC_BASE_URL
 PROXY_LOCATION = '/maps/'
 
 # Base url
