@@ -7,3 +7,7 @@ local_settings.py
 static
 MyCustomDjango-dbd004fbce00.json
 *.sqlite3
+
+###React###
+node_modules
+webpack-stats.json

@@ -8,6 +8,7 @@ urlpatterns = [
         {'template_name': 'login.html'}),
     url(r'^logout/$', auth_views.logout,
         {'next_page': '/'}),
+    url(r'^webmap/$', MapView.as_view()),
 
     url(r'^$', HomeView.as_view())
 ]

@@ -60,7 +60,8 @@ INSTALLED_APPS = [
     'httpproxy',
     'gee_agent',
     'mapclient',
-    'channels'
+    'channels',
+    'webpack_loader'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -157,6 +158,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 # Shapefile directory for Gaul
 SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
@@ -200,4 +204,21 @@ CHANNEL_LAYERS = {
         'BACKEND': 'asgiref.inmemory.ChannelLayer',
         'ROUTING': 'mapclient.routing.channel_routing',
     },
+}
+
+# Standard login
+LOGIN_REDIRECT_URL = '/webmap/'
+LOGIN_URL = '/login/'
+
+# Mapclient
+MAP_TYPES = (
+    ('TMS', 'tms'),
+)
+
+# React
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': os.path.join('bundles/'),  # '/static/bundles/',  # end with slash
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json')
+    }
 }
