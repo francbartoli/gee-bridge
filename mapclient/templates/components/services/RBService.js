@@ -24,12 +24,6 @@ class RBService {
           results.push(tileConfig);
         }
       }
-      var addTileConfig;
-      //addTileConfig.tileFormat = 'PNG';
-      //addTileConfig.standard = 'XYZ';
-      //addTileConfig.name = 'prova';
-      //addTileConfig.endpoint = 'http://localhost:8000/maps/tms/map/2ea065644d3e505e7780172808fbd7cb/{z}/{x}/{y}?token=3257eb89f1ccfa18669350a1b1e9fbf9';
-      //results.push(addTileConfig);
       callback.call(this, results);
     }, function() {
       callback.call(this, []);

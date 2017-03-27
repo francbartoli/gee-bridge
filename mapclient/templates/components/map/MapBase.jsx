@@ -38,8 +38,8 @@ var map = new ol.Map({
   layers: [groupBase],
   controls: [new ol.control.Attribution({collapsible: true})],
   view: new ol.View({
-    center: [0, 0],
-    zoom: 2
+    center: [42, 12],
+    zoom: 3
   })
 });
 
@@ -76,7 +76,6 @@ class MapBase extends React.Component {
               break;
             }
           }
-          groupBase
           me.setState({
             tileServices: tileServices
           });
@@ -106,13 +105,15 @@ class MapBase extends React.Component {
         return (
           <IntlProvider locale="en">
             <div className="row">
-                <Websocket ref="socket" url={this.props.socket}
-                    onMessage={this.handleData.bind(this)} reconnect={true}/>
-                <span>Map Components will go here....</span>
+              <Websocket ref="socket" url={this.props.socket}
+                  onMessage={this.handleData.bind(this)} reconnect={true}/>
+              <span>Map Components will go here....</span>
+              <div className="row">
                 <MapPanel id='map' map={map} useHistory={false} />
                 <div><LayerList addBaseMap={{tileServices: this.state.tileServices}} showOnStart={true} showZoomTo={true} allowReordering={true} expandOnHover={false} map={map} /></div>
                 <div id='home-button'><HomeButton map={map} /></div>
                 <div id='zoom-buttons'><Zoom map={map} /></div>
+              </div>
             </div>
           </IntlProvider>
         )
