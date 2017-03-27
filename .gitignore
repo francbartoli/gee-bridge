@@ -11,3 +11,4 @@ MyCustomDjango-dbd004fbce00.json
 ###React###
 node_modules
 webpack-stats.json
+static/bundles/mapclient-*
