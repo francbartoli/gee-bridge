@@ -8,6 +8,12 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 
 
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.

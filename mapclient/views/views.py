@@ -33,7 +33,7 @@ class MapView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MapView, self).get_context_data(**kwargs)
-        # get current open games to prepopulate the list
+        # get current completed processes to prepopulate the list
 
         # we're creating a list of processes
         # that contains just the id (for the link) and the creator

@@ -5,12 +5,13 @@ import json
 from django.contrib.auth.models import User
 from jsonfield import JSONField
 from datetime import datetime
+from django.utils import timezone
 from mycustomdjango import settings
 # Create your models here.
 
 
 class Algorithm(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, default='wapor')
     arguments = JSONField(default={})
 
     def __unicode__(self):
@@ -34,7 +35,9 @@ class Process(models.Model):
 
     @staticmethod
     def get_completed_processes():
-        return Process.objects.filter(algorithm=None, completed=None)
+        # return Process.objects.filter(algorithm=None, completed=None)
+        now = timezone.now()
+        return Process.objects.filter(completed__lte=now).exclude(completed__isnull=True)
 
     @staticmethod
     def created_count(user):
