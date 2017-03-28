@@ -37,7 +37,7 @@ class MapConsumer(JsonWebsocketConsumer):
 
         action = content['action']
         if action == 'create_process':
-            # create a new game using the part of the channel name
+            # create a new process using the part of the channel name
             Process.create_new(self.message.user)
 
     def disconnect(self, message, **kwargs):

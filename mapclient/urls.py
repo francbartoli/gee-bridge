@@ -18,5 +18,5 @@ urlpatterns += [
     url(r'^currentuser/', CurrentUserView.as_view()),
 ]
 router = DefaultRouter()
-router.register(r'processes', UserProcessViewSet, 'map_processes')
+router.register(r'process', UserProcessViewSet, 'map_processes')
 urlpatterns += router.urls

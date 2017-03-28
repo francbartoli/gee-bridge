@@ -22,7 +22,7 @@ class UserProcessViewSet(viewsets.ViewSet):
     """
 
     def list(self, request):
-        queryset = Process.get_processes_for_user(self.request.user)
+        queryset = Process.get_processes_for_consumer(self.request.user)
         serializer = ProcessSerializer(
             queryset, many=True, context={'request': request})
         return Response(serializer.data)
