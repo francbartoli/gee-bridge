@@ -14,6 +14,7 @@ import Zoom from 'boundless-sdk/components/Zoom'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import RBOverlayMapConfigService from '../services/RBOverlayMapConfigService'
 import RBService from '../services/RBService'
+import MapProcesses from './MapProcesses'
 
 // Needed for onTouchTap
 // Can go away when react 1.0 release
@@ -48,13 +49,21 @@ class MapBase extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user_process_list: [],
-            available_process_list: [],
+            map_process_list: [],
+            completed_process_list: [],
             tileServices: []
         }
 
         // bind button click
         this.sendSocketMessage = this.sendSocketMessage.bind(this);
+    }
+
+    getMapProcesses(){
+        this.serverRequest = $.get('http://localhost:8000/process/?format=json', function (result) {
+           this.setState({
+            map_process_list: result,
+             })
+        }.bind(this))
     }
 
     static childContextTypes = {
@@ -80,6 +89,7 @@ class MapBase extends React.Component {
             tileServices: tileServices
           });
         });
+        this.getMapProcesses()
     }
 
     componentWillUnmount() {
@@ -89,9 +99,9 @@ class MapBase extends React.Component {
     handleData(data) {
         //receives messages from the connected websocket
         let result = JSON.parse(data)
-
-
-        // we've received an updated list of available process
+        // new processes, so get an updated list of this processes's map
+        this.getMapProcesses()
+        // we've received an updated list of completed process
         this.setState({completed_process_list: result})
     }
 
@@ -107,7 +117,12 @@ class MapBase extends React.Component {
             <div className="row">
               <Websocket ref="socket" url={this.props.socket}
                   onMessage={this.handleData.bind(this)} reconnect={true}/>
-              <span>Map Components will go here....</span>
+              <div className="row">
+                <div className="col-lg-4">
+                  <MapProcesses user={this.props.current_user} process_list={this.state.map_process_list}
+                               sendSocketMessage={this.sendSocketMessage} />
+                </div>
+              </div>
               <div className="row">
                 <MapPanel id='map' map={map} useHistory={false} />
                 <div><LayerList addBaseMap={{tileServices: this.state.tileServices}} showOnStart={true} showZoomTo={true} allowReordering={true} expandOnHover={false} map={map} /></div>

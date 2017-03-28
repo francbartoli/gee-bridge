@@ -32,7 +32,13 @@ class MapConsumer(JsonWebsocketConsumer):
         Called when a message is received with either text or bytes
         filled out.
         """
-        http_user = True
+        # http_user = True
+        channel_session_user = True
+
+        action = content['action']
+        if action == 'create_process':
+            # create a new game using the part of the channel name
+            Process.create_new(self.message.user)
 
     def disconnect(self, message, **kwargs):
         """

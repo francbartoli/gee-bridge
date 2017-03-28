@@ -9,10 +9,18 @@ from mycustomdjango import settings
 # Create your models here.
 
 
+class Algorithm(models.Model):
+    name = models.CharField(max_length=100)
+    arguments = JSONField(default={})
+
+    def __unicode__(self):
+        return 'Algorithm {0}'.format(self.name)
+
+
 class Process(models.Model):
     creator = models.ForeignKey(User, related_name='creator')
     algorithm = models.ForeignKey(
-        User, related_name='algorithm', null=True, blank=True)
+        Algorithm, related_name='algorithm', null=True, blank=True)
     arguments = JSONField(default={})
     result = JSONField(default={})
 
@@ -134,7 +142,7 @@ class Process(models.Model):
 
         message = {'process': process_serializer.data,
                    'log': log_serializer.data,
-                   'maps': square_serializer.data}
+                   'maps': map_serializer.data}
 
         process_group = 'process-{0}'.format(self.id)
         Group(process_group).send({'text': json.dumps(message)})

@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 from mapclient.views import *
+from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     url(r'^register/', CreateUserView.as_view()),
@@ -12,3 +13,10 @@ urlpatterns = [
 
     url(r'^$', HomeView.as_view())
 ]
+
+urlpatterns += [
+    url(r'^currentuser/', CurrentUserView.as_view()),
+]
+router = DefaultRouter()
+router.register(r'processes', UserProcessViewSet, 'map_processes')
+urlpatterns += router.urls
