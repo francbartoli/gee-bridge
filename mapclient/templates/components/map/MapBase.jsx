@@ -59,7 +59,7 @@ class MapBase extends React.Component {
     }
 
     getMapProcesses(){
-        this.serverRequest = $.get('http://localhost:8000/process/?format=json', function (result) {
+        this.serverRequest = $.get('http://localhost:8000/processes/?format=json', function (result) {
            this.setState({
             map_process_list: result,
              })
@@ -108,6 +108,7 @@ class MapBase extends React.Component {
     sendSocketMessage(message){
         // sends message to channels back-end
        const socket = this.refs.socket
+       console.log('sendSocketMessage:' + 'sono passato.' + 'websocket=' + socket.url)
        socket.state.ws.send(JSON.stringify(message))
     }
 
@@ -115,8 +116,6 @@ class MapBase extends React.Component {
         return (
           <IntlProvider locale="en">
             <div className="row">
-              <Websocket ref="socket" url={this.props.socket}
-                  onMessage={this.handleData.bind(this)} reconnect={true}/>
               <div className="row">
                 <div className="col-lg-4">
                   <MapProcesses user={this.props.current_user} process_list={this.state.map_process_list}
@@ -129,6 +128,8 @@ class MapBase extends React.Component {
                 <div id='home-button'><HomeButton map={map} /></div>
                 <div id='zoom-buttons'><Zoom map={map} /></div>
               </div>
+              <Websocket ref="socket" url={this.props.socket}
+                  onMessage={this.handleData.bind(this)} reconnect={true}/>
             </div>
           </IntlProvider>
         )

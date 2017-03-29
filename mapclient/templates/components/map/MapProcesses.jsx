@@ -50,7 +50,7 @@ class MapProcesses extends React.Component{
                                 <span className="badge pull-left">{process.id}</span>&nbsp;&nbsp;
                                 <span>{process.creator.username}</span> triggers <span>{this.renderAlgorithm(process)}</span>
 
-                                <a className="btn btn-sm btn-primary pull-right" href={"/process/"+process.id+"/"}>{this.renderButton(process)}</a>
+                                <a className="btn btn-sm btn-primary pull-right" href={"/processes/"+process.id+"/"}>{this.renderButton(process)}</a>
                             </li>
                     }, this)
 

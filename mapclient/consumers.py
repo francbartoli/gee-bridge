@@ -18,12 +18,14 @@ class MapConsumer(JsonWebsocketConsumer):
         Called to return the list of groups to automatically add/remove
         this connection to/from.
         """
+        print("adding to connection group map")
         return ["map"]
 
     def connect(self, message, **kwargs):
         """
         Perform things on connection start
         """
+        import ipdb; ipdb.set_trace()
         self.message.reply_channel.send({"accept": True})
         pass
 
@@ -33,7 +35,7 @@ class MapConsumer(JsonWebsocketConsumer):
         filled out.
         """
         # http_user = True
-        channel_session_user = True
+        self.channel_session_user = True
 
         action = content['action']
         if action == 'create_process':

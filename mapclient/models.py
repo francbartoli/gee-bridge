@@ -68,6 +68,7 @@ class Process(models.Model):
         new_process = Process(creator=user,
                               algorithm=algorithm,
                               arguments=arguments)
+        import ipdb; ipdb.set_trace()
         new_process.save()
         # for each row, create the proper number of cells based on rows
         # for row in range(process.rows):

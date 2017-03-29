@@ -41,8 +41,10 @@ class MapView(TemplateView):
             'creator': process.creator.username,
             'id': process.pk}
             for process in Process.get_completed_processes()]
+        print completed_processes
         # for the consumer's processes,
         # we're returning a list of processes
         consumer_processes = Process.get_processes_for_consumer(self.request.user)
+        print consumer_processes
 
         return context

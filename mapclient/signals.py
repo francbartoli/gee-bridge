@@ -17,7 +17,7 @@ def new_process_handler(**kwargs):
     sends it down to all channels in the 'map' group
     """
     # if new
-    if kwargs['completed']:
+    if kwargs['created']:
         # send the latest list to all channels in the "map" group
         # the Group's send method requires a dict
         # we pass "text" as the key and then serialize the list 
