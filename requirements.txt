@@ -9,8 +9,10 @@ Automat==0.5.0
 backports.shutil-get-terminal-size==1.0.0
 cffi==1.9.1
 channels==1.1.1
+click==6.7
 constantly==15.1.0
-coreapi==2.2.4
+coreapi==2.3.0
+coreapi-cli==1.0.6
 coreschema==0.0.4
 cryptography==1.8.1
 cycler==0.10.0
@@ -38,9 +40,9 @@ ipdb==0.10.2
 ipython==5.3.0
 ipython-genutils==0.1.0
 itypes==1.1.0
-Jinja2==2.9.5
+Jinja2==2.9.6
 jsonfield==2.0.1
-MarkupSafe==0.23
+MarkupSafe==1.0
 matplotlib==2.0.0
 msgpack-python==0.4.8
 numpy==1.12.0
