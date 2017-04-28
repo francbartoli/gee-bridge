@@ -44,6 +44,7 @@ urlpatterns = [
     url(r'^auth/password/reset/confirm',
         djoser_views.PasswordResetConfirmView.as_view(),
         name='API password reset confirmation'),
+    url(r'^auth/social/', include('rest_framework_social_oauth2.urls')),
 
     # Rasterbucket
     url(r'^rasterbuckets/$',
