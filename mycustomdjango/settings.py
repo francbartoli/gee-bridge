@@ -55,13 +55,15 @@ INSTALLED_APPS = [
     'gdstorage',
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
     'rest_framework_swagger',
     'api',
     'httpproxy',
     'gee_agent',
     'mapclient',
     'channels',
-    'webpack_loader'
+    'webpack_loader',
+    'webmapping'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -139,6 +141,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Api registration and password management
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
@@ -169,7 +176,8 @@ SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
 # Google Drive Storage Settings
 #
 # Path to the json file key
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = 'MyCustomDjango-dbd004fbce00.json'
+GOOGLE_JSON_KEY_DIR = os.path.join(BASE_DIR, "google")
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
 
 #
 # Google Earth Engine Settings
@@ -183,7 +191,7 @@ GEE_MAP_TILES_PATTERN = '/map/z/x/y?token='
 EE_ACCOUNT = 'mycustomdjango@appspot.gserviceaccount.com'
 # The private key associated with your service account in Privacy Enhanced
 # Email format (deprecated version .pem suffix, new version .json suffix).
-EE_PRIVATE_KEY_FILE = 'MyCustomDjango-dbd004fbce00.json'
+EE_PRIVATE_KEY_FILE = os.path.join(GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
 # Service account scope for GEE
 GOOGLE_SERVICE_ACCOUNT_SCOPES = ['https://www.googleapis.com/auth/fusiontables',
                                  'https://www.googleapis.com/auth/earthengine']
@@ -205,6 +213,15 @@ CHANNEL_LAYERS = {
         'ROUTING': 'mapclient.routing.channel_routing',
     },
 }
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'asgi_redis.RedisChannelLayer',
+#         'CONFIG': {
+#             'hosts': [('localhost', 6379)],
+#         },
+#         'ROUTING': 'webmapping.routing.channel_routing',
+#     },
+# }
 
 # Standard login
 LOGIN_REDIRECT_URL = '/webmap/'

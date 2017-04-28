@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_jwt import views as jwt_views
+from djoser import views as djoser_views
 from rest_framework.schemas import get_schema_view
 from api import views as api_views
 
@@ -16,6 +17,7 @@ urlpatterns = [
         swagger_view,
         name="docs"),
 
+    # Security
     url(r'^auth/signup/$',
         api_views.UserView.as_view(),
         name="signup"),
@@ -24,7 +26,26 @@ urlpatterns = [
         name='login'),
     url(r'^auth_verify/$',
         jwt_views.verify_jwt_token),
+    url(r'^auth/login',
+        jwt_views.obtain_jwt_token,
+        name='API login'),  # using JSON web token
+    url(r'^auth/me',
+        djoser_views.UserView.as_view(),
+        name='API user'),
+    url(r'^auth/register',
+        djoser_views.RegistrationView.as_view(),
+        name='API register'),
+    url(r'^auth/activate',
+        djoser_views.ActivationView.as_view(),
+        name='API activate'),
+    url(r'^auth/password/reset',
+        djoser_views.PasswordResetView.as_view(),
+        name='API password reset'),
+    url(r'^auth/password/reset/confirm',
+        djoser_views.PasswordResetConfirmView.as_view(),
+        name='API password reset confirmation'),
 
+    # Rasterbucket
     url(r'^rasterbuckets/$',
         api_views.RasterbucketCreateView.as_view(),
         name='api.rasterbuckets'),

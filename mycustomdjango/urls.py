@@ -18,6 +18,7 @@ from django.contrib import admin
 
 import helloworld.views
 import mapclient.views
+import webmapping.views
 
 
 urlpatterns = [
@@ -27,5 +28,7 @@ urlpatterns = [
     # url(r'^maps/', include('gee_agent.urls'))
     url(r'^maps/', include('gee_agent.urls')),
     # url from mapclient
-    url(r'^', include('mapclient.urls'))
+    url(r'^', include('mapclient.urls')),
+    # url from webmapping
+    url(r'^', include('webmapping.urls')),
 ]
