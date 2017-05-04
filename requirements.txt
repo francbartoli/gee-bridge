@@ -31,6 +31,7 @@ django-webpack-loader==0.4.1
 djangorestframework==3.6.2
 djangorestframework-jwt==1.10.0
 djoser==0.5.4
+drfpasswordless==1.0.8
 earthengine-api==0.1.107
 enum34==1.1.6
 functools32==3.2.3.post2

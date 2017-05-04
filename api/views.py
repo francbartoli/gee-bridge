@@ -1,11 +1,81 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, permissions
+# from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.schemas import SchemaGenerator
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
+from rest_framework.renderers import CoreJSONRenderer
+from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 from .permissions import IsOwner
 from api import models
 from django.contrib.auth.models import User
 from api import serializers
 
 # Create your views here.
+
+
+# CBF
+# class Process(APIView):
+#     """
+#     List all processes, or create a new process.
+#     """
+#     def get(self, request, format=None):
+#         processes = Process.objects.all()
+#         serializer = ProcessSerializer(processes, many=True)
+#         return Response(serializer.data)
+
+#     def post(self, request, format=None):
+#         serializer = ProcessSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view()
+@renderer_classes([OpenAPIRenderer, SwaggerUIRenderer])
+def schema_view(request):
+    generator = SchemaGenerator(title='Rasterbucket process API')
+    return Response(generator.get_schema(request=request))
+
+
+@api_view(['GET', 'POST'])
+@permission_classes((permissions.IsAuthenticated, IsOwner, ))
+def process_list(request):
+    if request.method == 'GET':
+        processes = models.Process.objects.all()
+        serializer = serializers.ProcessSerializer(processes, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = serializers.ProcessSerializer(data=request.data)
+        if serializer.is_valid():  # TODO add more validation
+        # see https://richardtier.com/2014/03/24/json-schema-validation-with-django-rest-framework/
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes((permissions.IsAuthenticated, IsOwner, ))
+def process_detail(request, id):
+    process = get_object_or_404(models.Process, pk=id)
+
+    if request.method == 'GET':
+        serializer = serializers.ProcessSerializer(process)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = serializers.ProcessSerializer(process, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        process.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RasterbucketCreateView(generics.ListCreateAPIView):

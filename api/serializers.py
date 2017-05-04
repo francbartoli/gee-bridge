@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
+import json
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -115,6 +116,25 @@ class RasterbucketSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'raster_data', 'owner', 'services',
             'date_created', 'date_modified')
+        read_only_fields = (
+            'date_created',
+            'date_modified')
+
+
+class ProcessSerializer(serializers.ModelSerializer):
+    """Define an actionable process api representation
+    with json data for input and output."""
+
+    owner = serializers.ReadOnlyField(source='owner.username')
+    input_data = serializers.JSONField()
+
+    class Meta:
+        """Meta class."""
+
+        model = models.Process
+        fields = (
+            'id', 'name', 'input_data', 'owner',
+            'output_data', 'date_created', 'date_modified')
         read_only_fields = (
             'date_created',
             'date_modified')

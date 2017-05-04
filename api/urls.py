@@ -49,6 +49,14 @@ urlpatterns = [
     url(r'^auth/social/',
         include('rest_framework_social_oauth2.urls')),
 
+    # Process
+    url(r'^processes/$',
+        api_views.process_list,
+        name='api.processes'),
+    url(r'^processes/(?P<id>[^/]+)$',
+        api_views.process_detail,
+        name='api.processes.detail'),
+
     # Rasterbucket
     url(r'^rasterbuckets/$',
         api_views.RasterbucketCreateView.as_view(),

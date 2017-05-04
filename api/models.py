@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 from gdstorage.storage import GoogleDriveStorage
 from django.db.models.signals import post_save, pre_save
@@ -10,6 +11,7 @@ from django.dispatch import receiver
 from mycustomdjango import settings
 import re
 import uuid
+import collections
 
 # Define Google Drive Storage
 gd_storage = GoogleDriveStorage()
@@ -41,6 +43,30 @@ class BaseModel(models.Model):
         for word in query_terms:
             query_object = models.Q(**{"name__icontains": word})
             return cls.objects.filter(query_object).order_by('date_created')
+
+
+class Process(BaseModel):
+    """This class represents the process model"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    owner = models.ForeignKey(
+        'auth.User',
+        default=DEFAULT_OWNER,
+        related_name='processes',
+        on_delete=models.CASCADE)
+    input_data = JSONField(null=True,
+                           blank=True,
+                           default={},
+                           load_kwargs={'object_pairs_hook': collections.OrderedDict}
+                           )
+    output_data = JSONField(null=True,
+                            blank=True,
+                            default={},
+                            load_kwargs={'object_pairs_hook': collections.OrderedDict}
+                            )
+
+    def __str__(self):
+        """Return a human readable representation of the model instance."""
+        return "{}".format(self.name)
 
 
 class Rasterbucket(BaseModel):
