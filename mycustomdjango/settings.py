@@ -135,6 +135,9 @@ DATABASES = {
     }
 }
 
+# JSONField
+USE_NATIVE_JSONFIELD = True
+
 # Email configuration
 # python -m smtpd -n -c DebuggingServer localhost:1025
 EMAIL_HOST = 'localhost'

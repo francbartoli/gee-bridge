@@ -23,6 +23,7 @@ django-appconf==1.0.2
 django-braces==1.11.0
 django-googledrive-storage==1.3.4
 django-http-proxy==0.4.3
+django-jsonfield-compat==0.4.4
 django-oauth-toolkit==0.12.0
 django-polymorphic==1.1
 django-rest-framework-social-oauth2==1.0.5
@@ -47,6 +48,7 @@ ipython-genutils==0.1.0
 itypes==1.1.0
 Jinja2==2.9.6
 jsonfield==2.0.1
+jsonpickle==0.9.4
 MarkupSafe==1.0
 matplotlib==2.0.0
 msgpack-python==0.4.8
