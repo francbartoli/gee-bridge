@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
-import json
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -127,6 +126,7 @@ class ProcessSerializer(serializers.ModelSerializer):
 
     owner = serializers.ReadOnlyField(source='owner.username')
     input_data = serializers.JSONField()
+    output_data = serializers.JSONField()
 
     class Meta:
         """Meta class."""

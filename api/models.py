@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+# from jsonfield_compat.fields import JSONField
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 from gdstorage.storage import GoogleDriveStorage
@@ -11,6 +12,8 @@ from django.dispatch import receiver
 from mycustomdjango import settings
 import re
 import uuid
+from jsonpickle import encode, decode
+# import json
 import collections
 
 # Define Google Drive Storage
@@ -167,3 +170,19 @@ def create_tilemap(sender, instance, created, **kwargs):
 
 pre_save.connect(create_geemap_url, sender=GEEMapService)
 post_save.connect(create_tilemap, sender=GEEMapService)
+
+
+@receiver(post_save, sender=Process)
+def run_process(sender, instance, created, **kwargs):
+    from webmapping.process.wapor import Wapor
+    wapor = Wapor()
+    cmd_result = wapor.run()
+    # TODO async
+    output_data = cmd_result
+    if created:
+        Process.objects.filter(id=instance.id
+                               ).update(output_data=output_data
+                                        )
+
+
+post_save.connect(run_process, sender=Process)
