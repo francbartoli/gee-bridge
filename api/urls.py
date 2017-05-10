@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^docs/',
         swagger_view,
         name="docs"),
+    url(r'^live-api/',
+        include('rest_framework_docs.urls')),
 
     # Security
     url(r'^auth/signup/$',
