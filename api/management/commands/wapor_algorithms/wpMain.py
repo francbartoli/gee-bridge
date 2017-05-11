@@ -16,22 +16,8 @@ def valid_date(s):
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
 
+
 def main(args=None):
-
-    logger = logging.getLogger("wpWin")
-    logger.setLevel(level=logging.DEBUG)
-
-    formatter = logging.Formatter("%(levelname) -4s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s")
-
-    fh = logging.FileHandler('wapor.log')
-    fh.setLevel(logging.ERROR)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
 
     parser = argparse.ArgumentParser(description='Water Productivity using Google Earth Engine')
 
@@ -70,7 +56,25 @@ def main(args=None):
                         help="Increase output verbosity",
                         action="store_true")
 
-    results = parser.parse_args()
+    return parser.parse_args()
+
+
+def run(results):
+
+    logger = logging.getLogger("wpWin")
+    logger.setLevel(level=logging.DEBUG)
+
+    formatter = logging.Formatter("%(levelname) -4s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s")
+
+    fh = logging.FileHandler('wapor.log')
+    fh.setLevel(logging.ERROR)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
     analysis_level_1 = L1WaterProductivity()
 
@@ -126,5 +130,7 @@ def main(args=None):
 
     # analysis_level_1.image_export(results.export, wp_gb)
 
+
 if __name__ == '__main__':
-    main()
+    results = main()
+    run(results)

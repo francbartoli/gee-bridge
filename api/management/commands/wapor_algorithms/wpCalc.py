@@ -13,12 +13,12 @@
 
 import ee
 import time
-from ee import mapclient
+# from ee import mapclient
 import sys
 import os
 import glob
 import datetime
-import pandas as pd
+# import pandas as pd
 import logging
 
 from osgeo import ogr
@@ -204,8 +204,7 @@ class L1WaterProductivity(WaterProductivityCalc):
         """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass"""
         pass
 
-
-    def map_id_getter(self,**outputs_id):
+    def map_id_getter(self, **outputs_id):
 
         """Generate a map id and a token for the calcualted WPbm raster file"""
 
