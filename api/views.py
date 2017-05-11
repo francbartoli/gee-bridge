@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 # from utils import swagger_tools
-from .permissions import IsOwner
+from .permissions import IsOwner, IsOwnerOrReadOnly
 from api import models
 from django.contrib.auth.models import User
 from api import serializers
@@ -30,7 +30,8 @@ class ProcessList(GenericAPIView):
     renderer_classes = (JSONRenderer,
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
-                        SwaggerUIRenderer,)
+                        SwaggerUIRenderer, )
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
         processes = models.Process.objects.all()
@@ -50,6 +51,11 @@ class ProcessDetail(GenericAPIView):
     Retrieve, update or delete a process instance.
     """
     serializer_class = serializers.ProcessSerializer
+    renderer_classes = (JSONRenderer,
+                        BrowsableAPIRenderer,
+                        OpenAPIRenderer,
+                        SwaggerUIRenderer, )
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
 
     def get_object(self, id):
         try:
