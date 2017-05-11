@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     # rest
     'rest_framework',
     'rest_framework_swagger',
+    'rest_framework_docs',
     # rest security
     'rest_framework.authtoken',
     'djoser',
@@ -108,6 +109,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mycustomdjango.wsgi.application'
 
 REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework_yaml.parsers.YAMLParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
@@ -125,6 +132,10 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000000),
 }
 
+SWAGGER_SETTINGS = {
+    'JSON_EDITOR': True,
+}
+
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -136,7 +147,7 @@ DATABASES = {
 }
 
 # JSONField
-USE_NATIVE_JSONFIELD = True
+# USE_NATIVE_JSONFIELD = True
 
 # Email configuration
 # python -m smtpd -n -c DebuggingServer localhost:1025

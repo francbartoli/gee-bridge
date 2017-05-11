@@ -53,10 +53,12 @@ urlpatterns = [
 
     # Process
     url(r'^processes/$',
-        api_views.process_list,
+        # api_views.process_list, # FBV
+        api_views.ProcessList.as_view(),
         name='api.processes'),
     url(r'^processes/(?P<id>[^/]+)$',
-        api_views.process_detail,
+        # api_views.process_detail, #FBV
+        api_views.ProcessDetail.as_view(),
         name='api.processes.detail'),
 
     # Rasterbucket
