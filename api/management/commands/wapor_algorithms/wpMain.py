@@ -17,7 +17,8 @@ def valid_date(s):
         raise argparse.ArgumentTypeError(msg)
 
 
-def main(args=None):
+def setup(args=None, parser=None):
+    # import ipdb; ipdb.set_trace()
 
     parser = argparse.ArgumentParser(description='Water Productivity using Google Earth Engine')
 
@@ -52,11 +53,13 @@ def main(args=None):
                         help="Show calculated output overlaid on Google Map"
                         )
 
-    parser.add_argument("-v", "--verbose",
-                        help="Increase output verbosity",
-                        action="store_true")
+    # parser.add_argument("-v", "--verbose",
+    #                     help="Increase output verbosity",
+    #                     action="store_true")
 
-    return parser.parse_args()
+    # return parser.parse_args()
+    # print 'wpMainParser='+str(parser.parse_args())
+    return parser
 
 
 def run(results):
@@ -132,5 +135,5 @@ def run(results):
 
 
 if __name__ == '__main__':
-    results = main()
+    results = setup().parse_args()
     run(results)
