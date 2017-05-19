@@ -5,6 +5,7 @@
 import argparse
 import datetime
 import logging
+import sys
 
 from wpCalc import L1WaterProductivity
 
@@ -74,7 +75,7 @@ def run(results):
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-    ch = logging.StreamHandler()
+    ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
