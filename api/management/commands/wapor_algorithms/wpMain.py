@@ -130,7 +130,7 @@ def run(results):
 
     if results.map_id:
         map_ids = {'agbp': agbp, 'eta': eta, 'wp_gross': wp_gb}
-        logger.debug(analysis_level_1.map_id_getter(**map_ids))
+        logger.debug("RESULT=%s" % analysis_level_1.map_id_getter(**map_ids))
 
     # analysis_level_1.image_export(results.export, wp_gb)
 
