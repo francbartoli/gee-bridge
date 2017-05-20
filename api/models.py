@@ -174,7 +174,7 @@ post_save.connect(create_tilemap, sender=GEEMapService)
 
 @receiver(post_save, sender=Process)
 def run_process(sender, instance, created, **kwargs):
-    from webmapping.process.wapor import Wapor
+    from api.process.wapor import Wapor
     wapor = Wapor()
     cmd_result = wapor.run()
     # TODO async
