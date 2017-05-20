@@ -36,27 +36,27 @@ def add_option_group(parser, lst):
     for element in lst:
         opts.append(element['commands'])
         arg = ', '.join('%s' % y for y in element['commands'])
-        print 'arg=', arg
+        # print 'arg=', arg
         try:
             element.pop("commands", None)
             kw = ', '.join('%s=%r' % x for x in element.iteritems())
-            print 'kw=', kw
+            # print 'kw=', kw
         except KeyError:
             pass
         group = parser.add_mutually_exclusive_group()
         group.add_argument(arg + ', ' + kw)
-        print 'group=', group
+        # print 'group=', group
     # print 'opts is ', opts
     # print 'group=', group
     return parser
 
 
 def add_option(parser, opts):
-    print 'opt=', opts
+    # print 'opt=', opts
     if is_optional(opts):
         # logic for optional item
         arg = ', '.join('%s' % y for y in opts['commands'])
-        print 'arg=', arg
+        # print 'arg=', arg
         # from IPython import embed; embed();
         # import ipdb; ipdb.set_trace()
         try:
@@ -70,7 +70,7 @@ def add_option(parser, opts):
                     opts['dest'] = opts.get('display_name')
             opts.pop("display_name", None)
             kw = opts
-            print 'kw=', kw
+            # print 'kw=', kw
         except KeyError:
             pass
         parser.add_argument(arg, **kw)
@@ -78,7 +78,7 @@ def add_option(parser, opts):
         # logic for positional item
         opts.pop('commands')
         pos = opts.get('display_name')
-        print 'pos=', pos
+        # print 'pos=', pos
 
         try:
             # if 'display_name' in opts:
@@ -91,7 +91,7 @@ def add_option(parser, opts):
             # opts = safe_option(opts)
             opts.pop("display_name", None)
             kw = opts
-            print 'kw=', kw
+            # print 'kw=', kw
         except KeyError:
             pass
         parser.add_argument(pos, **kw)
@@ -122,10 +122,10 @@ def is_flag(opt):
 
 def is_empty(any):
     if any:
-        print('Structure is not empty.')
+        # print('Structure is not empty.')
         return False
     else:
-        print('Structure is empty.')
+        # print('Structure is empty.')
         return True
 
 
@@ -138,13 +138,13 @@ def json2argparse(parser, options, **kwargs):
     # https://bitbucket.org/ruamel/std.argparse/
     for option in options:
         # import ipdb; ipdb.set_trace()
-        print 'option=', json.dumps(option['option'])
+        # print 'option=', json.dumps(option['option'])
         if isinstance(option['option'], list):
-            print 'list is ', option['option']
+            # print 'list is ', option['option']
             add_option_group(parser, option['option'])
 
         if isinstance(option['option'], dict):
-            print 'dict is ', option['option']
+            # print 'dict is ', option['option']
             add_option(parser, option['option'])
         else:
             pass
@@ -155,15 +155,15 @@ def json2argparse(parser, options, **kwargs):
 def read_options(fnc, **kwargs):
     """Parse an argparse parser and return an array"""
     if isinstance(fnc.__call__(), argparse.ArgumentParser):
-        print argparse2json.convert(fnc.__call__())['widgets']['primary']['contents']
+        # print argparse2json.convert(fnc.__call__())['widgets']['primary']['contents']
         datas = argparse2json.convert(fnc.__call__())['widgets']['primary']['contents']
         options = []
         for data in datas:
             opts_list = {}
-            print json.dumps(data['data'])
+            # print json.dumps(data['data'])
             opts_list['option'] = data['data']
             options.append(opts_list)
-        print 'options', json.dumps(options)
+        # print 'options', json.dumps(options)
         return options
 
 

@@ -20,7 +20,7 @@ class Command(BaseCommand):
         myoptions = read_options(wpMain.setup)
 
         # arguments = vars(wpMain.setup())
-        print '-----------------------------'
+        # print '-----------------------------'
         json2argparse(parser, myoptions)
        
         # parser.add_argument("timeframe",
@@ -57,6 +57,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # run the script
         # import ipdb; ipdb.set_trace()
-        print 'final options:', options
+        # print 'final options:', options
         arguments = argparse.Namespace(**options)
         wpMain.run(arguments)
