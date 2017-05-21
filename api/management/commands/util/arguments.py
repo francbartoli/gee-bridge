@@ -31,7 +31,7 @@ class Arguments(CommandParser):
         super(Arguments, self).__init__(self, **kwargs)
 
 
-def add_option_group(parser, lst):
+def add_option_group(parser, lst): #TODO adapt to add_option logic
     opts = []
     for element in lst:
         opts.append(element['commands'])
