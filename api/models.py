@@ -175,8 +175,35 @@ post_save.connect(create_tilemap, sender=GEEMapService)
 @receiver(post_save, sender=Process)
 def run_process(sender, instance, created, **kwargs):
     from api.process.wapor import Wapor
-    wapor = Wapor()
-    cmd_result = wapor.run()
+    input_data = instance.input_data
+    # TODO must be added also in a serializer for validation
+    if "process" not in input_data:
+            raise Exception("process must be specified")
+    args = list()
+    proc = input_data.get("process")
+    args.insert(1, proc)
+    input_data.pop("process", None)
+    arguments = input_data.get("arguments")
+    optionals = dict()
+    for argument in arguments:
+        print argument
+        if argument.get("positional"):
+            argument.pop("positional")
+            lst = argument.values()
+            if isinstance(lst, list):
+                for k in (v for elem in lst for v in elem):
+                    b = k.values()
+                    for el in b:
+                        print args
+                        # from IPython import embed; embed();
+                        args.append(el)
+        else:
+            argument.pop("positional")
+            optionals.update(argument)
+    print 'args=', args
+    print 'optionals', optionals
+    process = Wapor()
+    cmd_result = process.run(*args, **optionals)
     # TODO async
     output_data = cmd_result
     if created:

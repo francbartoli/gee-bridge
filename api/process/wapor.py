@@ -12,7 +12,7 @@ class Wapor:
     #     super(Wapor, self).__init__()
     #     for arg in args:
     #         self.arg = arg
-    def run(self):
+    def run(self, *args, **kwargs):
 
         # from IPython import embed; embed();
         old_stdout = sys.stdout
@@ -21,15 +21,24 @@ class Wapor:
         cmd = StringIO()
         sys.stdout = cmd
 
+        # Mock the input data
+        MOCK_ARGS = ("wapor",
+                     "2015-1-1",
+                     "2015-1-30",)
+
+        MOCK_KWARGS = {"map_id": True,
+                       "aggregation": "wp_gb"}
+
+        if not args:
+            args = MOCK_ARGS
+        if not kwargs:
+            kwargs = MOCK_KWARGS
+
         # Here we can call anything we like, like external modules,
         # and everything that they will send to standard output will be
         # stored on "cmd"
         # import ipdb; ipdb.set_trace()
-        call_command('wapor',
-                     '2015-1-1',
-                     '2015-1-30',
-                     map_id=True,
-                     aggregation='wp_gb')
+        call_command(*args, **kwargs)
 
         # Redirect again the std output to screen
         sys.stdout = old_stdout
