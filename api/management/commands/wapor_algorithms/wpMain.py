@@ -3,23 +3,21 @@
     Main class for activating different calculations available in wpCalc.py via argparse
 """
 import argparse
-import datetime
+#import datetime
 import logging
 import sys
-
 from wpCalc import L1WaterProductivity
 
-
-def valid_date(s):
-    try:
-        return datetime.datetime.strptime(s, "%Y-%m-%d").date()
-    except ValueError:
-        msg = "Not a valid date: '{0}'.".format(s)
-        raise argparse.ArgumentTypeError(msg)
+# def valid_date(s):
+#     try:
+#         return datetime.datetime.strptime(s, "%Y-%m-%d").date()
+#     except ValueError:
+#         msg = "Not a valid date: '{0}'.".format(s)
+#         raise argparse.ArgumentTypeError(msg)
 
 
 def setup(args=None, parser=None):
-    # import ipdb; ipdb.set_trace()
+
 
     parser = argparse.ArgumentParser(description='Water Productivity using Google Earth Engine')
 
@@ -35,8 +33,9 @@ def setup(args=None, parser=None):
                         help="Generate map id for generating tiles",
                         action="store_true")
 
-    parser.add_argument('-s', '--arealstat',
-                        help="Zonal statistics form a WaterProductivity generated in GEE for the chosen country")
+    parser.add_argument('-s', '--arealstat', #choices=['f', 'j'],
+                        help="Zonal statistics form a WaterProductivity generated in GEE "
+                             "for the chosen Country/Watershed or User Defined Area")
 
     parser.add_argument('-o', '--output',
                         choices=['csv', 'json'],
@@ -80,6 +79,16 @@ def run(results):
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
+    # results = parser.parse_args()
+    # logger.debug(results)
+
+    args_list = {k: v for k, v in vars(results).items() if v is not None}
+    logger.debug(args_list)
+    logger.debug(len(args_list['timeframe']))
+
+    # Metodo statico non devo inizializzare la classe molti saranno cosi alla fine
+    # print L1WaterProductivity.water_productivity_net_biomass_pre_calculated_annual_values(2010)
+
     analysis_level_1 = L1WaterProductivity()
 
     if len(results.timeframe) == 1:
@@ -99,7 +108,7 @@ def run(results):
     analysis_level_1.image_selection()
 
     if results.aggregation:
-        logger.debug("CHOSEN DATASET %s " % results.aggregation)
+        logger.debug("Working on %s " % results.aggregation)
         if results.aggregation == 'aet':
             eta = analysis_level_1.aet_aggregated()
         if results.aggregation == 'agbp':
@@ -121,9 +130,9 @@ def run(results):
             analysis_level_1.image_visualization(results.map, t_frac)
 
     if results.arealstat:
-        country_stats = analysis_level_1.generate_areal_stats_dekad_country(results.arealstat, wp_gb)
+        country_stats = analysis_level_1.generate_areal_stats_fusion_tables(results.arealstat, wp_gb)
         if country_stats != 'no country':
-            logger.debug(country_stats)
+            logger.debug("RESPONSE=%s" % country_stats)
         else:
             logger.debug("Country Error")
             logger.error("No country named {} in db".format(results.arealstat))
@@ -136,5 +145,8 @@ def run(results):
 
 
 if __name__ == '__main__':
+
+    # Updated upstream
     results = setup().parse_args()
     run(results)
+

@@ -51,6 +51,16 @@ class L1WaterProductivity(WaterProductivityCalc):
     _L1_AET_DEKADAL = ee.ImageCollection("projects/fao-wapor/L1_AET")
     _L1_TFRAC_DEKADAL = ee.ImageCollection("projects/fao-wapor/L1_TFRAC")
 
+    # Land Cover for calculation to be changed in future
+    _L1_LCC = ee.ImageCollection("projects/fao-wapor/L1_LCC_preliminary")
+
+    # PRE-Calculated annual data stored as collections - New Calculation allowed form 2017 onwards
+    _L1_AET_ANNUAL = ee.ImageCollection("projects/fao-wapor/L1_AET_Annual")
+    _L1_AGBP_ANNUAL = ee.ImageCollection("projects/fao-wapor/L1_AGBP_Annual")
+    _L1_T_ANNUAL = ee.ImageCollection("projects/fao-wapor/L1_T_Annual")
+    _L1_WPgb_ANNUAL = ee.ImageCollection("projects/fao-wapor/L1_WPgb_Annual")
+    _L1_WPnb_ANNUAL = ee.ImageCollection("projects/fao-wapor/L1_WPnb_Annual")
+
     def __init__(self):
 
         """ Constructor for date and dataset for WPgb"""
@@ -62,7 +72,7 @@ class L1WaterProductivity(WaterProductivityCalc):
         AET_component_3dekad = ee.Image("projects/fao-wapor/L1_TFRAC/L1_TFRAC_1003")
         # Get scale (in meters) information from first image
         self.scale_calc = AET_component_3dekad.projection().nominalScale().getInfo()
-        self.L1_logger.debug('Image scale %f ' % self.scale_calc)
+        self.L1_logger.debug('Scale used for Level 1 calculation %f ' % self.scale_calc)
 
     def date_selection(self, **kwargs):
 
@@ -202,12 +212,70 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         return agbp, eta, wp_gross_biomass
 
-    def water_productivity_net_biomass(self, L1_AGBP_calc, L1_AET_calc):
+    @staticmethod
+    def water_productivity_net_biomass_pre_calculated_annual_values(year):
+
+        """wp_net_biomass calculation simplified method using precalculated annual value fot AGBP and T"""
+
+        agbp_y = ee.Image("projects/fao-wapor/AGBP_Annual/AGBP-" + str(year))
+        t_y = ee.Image("projects/fao-wapor/T_Annual/T_Annual-" + str(year))
+
+        t_masked = t_y.select('b1_sum').gte(100)
+
+        # /********* ORIGINAL MATH ***********/
+        # Or, as you will already have calculated AET annual and AGBP annual:
+        # AGBPy/(AETy*10) where *10 is to convert mm into m³/ha
+        wp_nb_precalc = agbp_y.divide(t_masked.multiply(10))
+
+        return wp_nb_precalc
+
+    def water_productivity_net_biomass(self):
 
         """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass"""
-        pass
 
-    def map_id_getter(self, **outputs_id):
+        # TODO: metodo da cambiare e verificare
+
+        # Or, as you will already have calculated AET annual and AGBP annual:
+        # AGBPy/(AETy*10) where *10 is to convert mm into m³/ha
+        # var WPnb = AGBPy.divide(Ty.multiply(10));
+        def T_moreThan100(image):
+            return image.mask(image.select('b1_sum').gte(100))
+        t_year_coll_mt100 = self._L1_T_ANNUAL.map(T_moreThan100)
+
+        # # JOINING and Merging Final Method
+        # JOINING agbp and t annual - Start
+        Join = ee.Join.inner()
+        FilterOnStartTime = ee.Filter.equals(
+            leftField='system:time_start',
+            rightField='system:time_start'
+        )
+        AGBP_T_collection_Join = ee.ImageCollection(
+            # TODO: CAMBIARE _L1_AGBP_ANNUAL
+            Join.apply(self._L1_AGBP_ANNUAL,
+                       t_year_coll_mt100,
+                       FilterOnStartTime))
+        print("Joined collections", AGBP_T_collection_Join)
+
+        # JOINING TWO Collections - End
+
+        # MERGING JOINED agbp and t annual - Start
+        def MergeBands(element):
+            return ee.Image.cat(element.get('primary'), element.get('secondary'));
+
+        agbp_t_coll_merged = AGBP_T_collection_Join.map(MergeBands)
+        print("Merged Joined collections", agbp_t_coll_merged);
+
+        # MERGING JOINED TWO Collections - End
+
+        # /********* WPnb ****************/
+        def AGBP_T(image):
+            wp_nb = image.select('b1_sum').divide(image.select('b1_sum_1').multiply(10));
+            return ee.Image(wp_nb)
+
+        WPnb_coll = agbp_t_coll_merged.map(AGBP_T)
+        print("WPnb_coll", WPnb_coll);
+
+    def map_id_getter(self,**outputs_id):
 
         """Generate a map id and a token for the calcualted WPbm raster file"""
 
@@ -218,12 +286,6 @@ class L1WaterProductivity(WaterProductivityCalc):
             map_ids[key]['mapid'] = map_id['mapid']
             map_ids[key]['token'] = map_id['token']
             map_ids[key]['image'] = map_id['image'].getInfo()
-
-        # tilepath = ee.data.getTileUrl(map_id, 1, 0, 1)
-        # print tilepath
-        # mappa = mapclient.MapClient()
-        # mappa.addOverlay(mapclient.MakeOverlay(wpbm_calc.getMapId({'min': 0, 'max': 3000})))
-        # mappa.centerMap(17.75, 10.14, 4)
 
         return map_ids
 
@@ -263,10 +325,11 @@ class L1WaterProductivity(WaterProductivityCalc):
         mapclient.centerMap(17.75, 10.14, 4)
 
     @staticmethod
-    def generate_areal_stats_dekad_country(chosen_country, wbpm_calc):
+    def generate_areal_stats_fusion_tables(chosen_country, wbpm_calc):
 
         """Calculates several statistics for the Water Productivity calculated raster for a chosen country"""
         just_country = WaterProductivityCalc._COUNTRIES.filter(ee.Filter.eq('name', chosen_country))
+
         if just_country.size().getInfo() > 0:
             cut_poly = just_country.geometry()
             # print cut_poly.getInfo()
@@ -279,7 +342,6 @@ class L1WaterProductivity(WaterProductivityCalc):
                 maxPixels=1e9
             )
             mean = means.getInfo()
-            mean['mean'] = mean.pop('b1')
 
             reducers_min_max_sum = ee.Reducer.minMax().combine(
                 reducer2=ee.Reducer.sum(),
@@ -295,12 +357,18 @@ class L1WaterProductivity(WaterProductivityCalc):
             )
             min_max_sum = stats.getInfo()
 
-            # Display the dictionary of band means and SDs.
-            min_max_sum['min'] = min_max_sum.pop('b1_min')
-            min_max_sum['sum'] = min_max_sum.pop('b1_sum')
-            min_max_sum['max'] = min_max_sum.pop('b1_max')
-            min_max_sum.update(mean)
-            return min_max_sum
+            stats_poly = {}
+            stats_poly['response'] = {}
+            stats_poly['response']['name'] = chosen_country
+            stats_poly['response']['iso3'] = just_country.getInfo()['features'][0]['properties']['iso3']
+            stats_poly['response']['gaul_code'] = just_country.getInfo()['features'][0]['properties']['gaul_code']
+            stats_poly['response']['stats'] = {}
+            stats_poly['response']['stats']['min'] = min_max_sum.pop('b1_min')
+            stats_poly['response']['stats']['sum'] = min_max_sum.pop('b1_sum')
+            stats_poly['response']['stats']['max'] = min_max_sum.pop('b1_max')
+            stats_poly['response']['stats']['mean'] = mean.pop('b1')
+
+            return stats_poly
         else:
             return 'no country'
 
