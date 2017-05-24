@@ -38,6 +38,7 @@ drfpasswordless==1.0.8
 earthengine-api==0.1.107
 enum34==1.1.6
 functools32==3.2.3.post2
+GDAL==2.1.0
 google-api-python-client==1.6.2
 gunicorn==19.6.0
 httplib2==0.10.3
@@ -54,11 +55,12 @@ jsonpickle==0.9.4
 MarkupSafe==1.0
 matplotlib==2.0.0
 msgpack-python==0.4.8
-numpy==1.12.0
+numpy==1.12.1
 oauth2client==4.0.0
 oauthlib==2.0.1
 openapi-codec==1.3.1
 packaging==16.8
+pandas==0.20.1
 pathlib2==2.2.1
 pexpect==4.2.1
 pickleshare==0.7.4
@@ -68,7 +70,11 @@ pyasn1==0.2.2
 pyasn1-modules==0.0.8
 pycparser==2.17
 pycrypto==2.6.1
-pygdal==1.11.5.3
+# Comment until the upgrade to 2.1.3
+# Use GDAL as alternative
+# Install locally for upload to GAE
+# pip install -t lib/ pygdal==2.1.2.3
+# pygdal==2.1.2.3
 Pygments==2.2.0
 PyJWT==1.5.0
 pyOpenSSL==16.2.0
