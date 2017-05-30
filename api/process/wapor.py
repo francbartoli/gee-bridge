@@ -27,6 +27,7 @@ class Wapor:
                      "2015-1-30",)
 
         MOCK_KWARGS = {"map_id": True,
+                       "arealstat": True,
                        "aggregation": "wp_gb"}
 
         if not args:
@@ -37,13 +38,22 @@ class Wapor:
         # Here we can call anything we like, like external modules,
         # and everything that they will send to standard output will be
         # stored on "cmd"
-        # import ipdb; ipdb.set_trace()
         call_command(*args, **kwargs)
 
         # Redirect again the std output to screen
         sys.stdout = old_stdout
-        result_string = cmd.getvalue().split("RESULT=", 1)[1]
-        result = ast.literal_eval(result_string)
-        # result = json.dumps(result_string)
+        # from IPython import embed; embed();
+        lines = cmd.getvalue().split("DEBUG")
+        for line in lines:
+            print line
+            if "RESULT=" in line:
+                result_maps = ast.literal_eval(line.split("RESULT=", 1)[1])
+            else:
+                result_maps = {}
+            if "RESPONSE=" in line:
+                result_stats = ast.literal_eval(line.split("RESPONSE=", 1)[1])
+            else:
+                result_stats = {}
+        result = {"gee_maps": result_maps, "gee_stats": result_stats}
 
         return result

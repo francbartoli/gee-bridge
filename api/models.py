@@ -195,7 +195,6 @@ def run_process(sender, instance, created, **kwargs):
                     b = k.values()
                     for el in b:
                         print args
-                        # from IPython import embed; embed();
                         args.append(el)
         else:
             argument.pop("positional")
@@ -203,6 +202,7 @@ def run_process(sender, instance, created, **kwargs):
     print 'args=', args
     print 'optionals', optionals
     process = Wapor()
+    # from IPython import embed; embed();
     cmd_result = process.run(*args, **optionals)
     # TODO async
     output_data = cmd_result

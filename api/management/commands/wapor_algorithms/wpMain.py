@@ -107,9 +107,12 @@ def run(results):
     analysis_level_1.date_selection(**selection_params)
     analysis_level_1.image_selection()
 
-    selection_aggregation = list(results.aggregation)[0]
-    if selection_aggregation:
-        logger.debug("Working on %s " % results.aggregation)
+    if results.aggregation:
+        if isinstance(results.aggregation, list):
+            selection_aggregation = results.aggregation[0]
+        else:
+            selection_aggregation = results.aggregation
+        logger.debug("Working on %s " % selection_aggregation)
         if selection_aggregation == 'aet':
             eta = analysis_level_1.aet_aggregated()
         if selection_aggregation == 'agbp':
@@ -130,8 +133,11 @@ def run(results):
         if results.map == 't_frac':
             analysis_level_1.image_visualization(results.map, t_frac)
 
-    selection_country = list(results.arealstat)[0]
-    if selection_country:
+    if results.arealstat:
+        if isinstance(results.arealstat, list):
+            selection_country = results.arealstat[0]
+        else:
+            selection_country = results.arealstat
         country_stats = analysis_level_1.generate_areal_stats_fusion_tables(selection_country, wp_gb)
         if country_stats != 'no country':
             logger.debug("RESPONSE=%s" % country_stats)
