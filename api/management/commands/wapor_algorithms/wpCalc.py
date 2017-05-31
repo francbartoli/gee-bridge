@@ -24,7 +24,7 @@ import logging
 # Below 2 rows to be commented if not using appengine
 from fixpath import fix_path
 fix_path()
-from osgeo import ogr
+from lib.osgeo import ogr
 
 
 class WaterProductivityCalc(object):
