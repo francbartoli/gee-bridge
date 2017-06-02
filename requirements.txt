@@ -54,6 +54,7 @@ jsonfield==2.0.1
 jsonpickle==0.9.4
 MarkupSafe==1.0
 matplotlib==2.0.0
+meld3==1.0.2
 msgpack-python==0.4.8
 numpy==1.12.1
 oauth2client==4.0.0
@@ -95,6 +96,7 @@ six==1.10.0
 social-auth-app-django==1.1.0
 social-auth-core==1.2.0
 subprocess32==3.2.7
+supervisor==3.3.1
 traitlets==4.3.2
 Twisted==17.1.0
 txaio==2.6.1
