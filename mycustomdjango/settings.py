@@ -23,7 +23,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 
 STATIC_URL = '/static/'
-# STATIC_URL = 'http://storage.googleapis.com/mycustomdjango/static/'
+# STATIC_URL = 'https://storage.googleapis.com/mycustomdjango/static/'
 
 # STATICFILES_DIRS = (
 #     os.path.join(PROJECT_ROOT, 'static'),
@@ -119,9 +119,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework_jwt.authentication.TokenAuthentication',
         # oauth2
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
         'rest_framework_social_oauth2.authentication.SocialAuthentication',
@@ -193,8 +194,9 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_FACEBOOK_KEY = '211785359310265'
 SOCIAL_AUTH_FACEBOOK_SECRET = '9cf3dee66138dcec396e42f08966bb8f'
 
-# Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from facebook. 
-# Email is not sent by default, to get it, you must request the email permission:
+# Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from facebook.
+# Email is not sent by default, to get it, you must request
+# the email permission:
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id, name, email'
@@ -229,11 +231,13 @@ PASSWORDLESS_AUTH = {
     # The email subject
     'PASSWORDLESS_EMAIL_SUBJECT': "Your Login Token",
 
-    # A plaintext email message overridden by the html message. Takes one string.
+    # A plaintext email message overridden by the html message.
+    # Takes one string.
     'PASSWORDLESS_EMAIL_PLAINTEXT_MESSAGE': "Enter this token to sign in: %s",
 
     # The email template name.
-    'PASSWORDLESS_EMAIL_TOKEN_HTML_TEMPLATE_NAME': "passwordless_default_token_email.html",
+    'PASSWORDLESS_EMAIL_TOKEN_HTML_TEMPLATE_NAME':
+        "passwordless_default_token_email.html",
 
     # The SMS sent to mobile users logging in. Takes one string.
     'PASSWORDLESS_MOBILE_MESSAGE': "Use this code to log in: %s",
@@ -262,7 +266,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
@@ -275,7 +279,8 @@ SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
 #
 # Path to the json file key
 GOOGLE_JSON_KEY_DIR = os.path.join(BASE_DIR, "google")
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
+    GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
 
 #
 # Google Earth Engine Settings
@@ -289,10 +294,13 @@ GEE_MAP_TILES_PATTERN = '/map/z/x/y?token='
 EE_ACCOUNT = 'mycustomdjango@appspot.gserviceaccount.com'
 # The private key associated with your service account in Privacy Enhanced
 # Email format (deprecated version .pem suffix, new version .json suffix).
-EE_PRIVATE_KEY_FILE = os.path.join(GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
+EE_PRIVATE_KEY_FILE = os.path.join(
+    GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
 # Service account scope for GEE
-GOOGLE_SERVICE_ACCOUNT_SCOPES = ['https://www.googleapis.com/auth/fusiontables',
-                                 'https://www.googleapis.com/auth/earthengine']
+GOOGLE_SERVICE_ACCOUNT_SCOPES = [
+    'https://www.googleapis.com/auth/fusiontables',
+    'https://www.googleapis.com/auth/earthengine'
+]
 EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
                                               EE_PRIVATE_KEY_FILE,
                                               GOOGLE_SERVICE_ACCOUNT_SCOPES)
