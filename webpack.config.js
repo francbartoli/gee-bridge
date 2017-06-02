@@ -8,6 +8,7 @@ module.exports = {
   context: __dirname,
   entry: {
           mapclient: './mapclient/templates/components/map/index',
+          webmapping: './webmapping/templates/components/webmap/main',
   },
   output: {
       path: path.resolve('./static/bundles/'),

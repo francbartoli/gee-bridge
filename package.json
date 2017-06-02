@@ -1,7 +1,7 @@
 {
-  "name": "mycustomdjango",
+  "name": "gee_bridge",
   "version": "1.0.0",
-  "description": "My Custom Django",
+  "description": "GEE Bridge",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -29,9 +29,12 @@
     "webpack-bundle-tracker": "^0.2.0"
   },
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
     "boundless-sdk": "^0.10.25",
-    "react-tap-event-plugin": "^2.0.1",
     "intl": "^1.2.5",
-    "react-intl": "^2.1.5"
+    "react-intl": "^2.1.5",
+    "react-redux": "^5.0.3",
+    "react-tap-event-plugin": "^2.0.1",
+    "redux-actions": "^2.0.1"
   }
 }

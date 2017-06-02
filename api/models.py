@@ -9,7 +9,7 @@ from django.db.models.signals import post_save, pre_save
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.dispatch import receiver
-from mycustomdjango import settings
+from gee_bridge import settings
 import re
 import uuid
 from jsonpickle import encode, decode

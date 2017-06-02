@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from jsonfield import JSONField
 from datetime import datetime
 from django.utils import timezone
-from mycustomdjango import settings
+from gee_bridge import settings
 # Create your models here.
 
 
