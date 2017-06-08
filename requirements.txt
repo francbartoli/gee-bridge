@@ -102,4 +102,5 @@ Twisted==17.1.0
 txaio==2.6.1
 uritemplate==3.0.0
 wcwidth==0.1.7
+whitenoise==3.3.0
 zope.interface==4.3.3
