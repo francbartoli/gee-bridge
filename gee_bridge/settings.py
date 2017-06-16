@@ -281,7 +281,7 @@ SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
 # Path to the json file key
 GOOGLE_JSON_KEY_DIR = os.path.join(BASE_DIR, "google")
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-60f6bfb41ef2.json')
 
 #
 # Google Earth Engine Settings
@@ -292,11 +292,11 @@ GEE_MAP_TILES_PATTERN = '/map/z/x/y?token='
 #
 # GEE authentication
 # The service account email address authorized by your Google contact.
-EE_ACCOUNT = 'mycustomdjango@appspot.gserviceaccount.com'
+EE_ACCOUNT = 'fao-wapor@fao-wapor.iam.gserviceaccount.com'
 # The private key associated with your service account in Privacy Enhanced
 # Email format (deprecated version .pem suffix, new version .json suffix).
 EE_PRIVATE_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'MyCustomDjango-dbd004fbce00.json')
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-60f6bfb41ef2.json')
 # Service account scope for GEE
 GOOGLE_SERVICE_ACCOUNT_SCOPES = [
     'https://www.googleapis.com/auth/fusiontables',
