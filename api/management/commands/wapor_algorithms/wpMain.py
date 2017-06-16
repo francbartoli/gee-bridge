@@ -3,21 +3,15 @@
     Main class for activating different calculations available in wpCalc.py via argparse
 """
 import argparse
-#import datetime
 import logging
 import sys
+import os
+import getpass
+
 from wpCalc import L1WaterProductivity
-
-# def valid_date(s):
-#     try:
-#         return datetime.datetime.strptime(s, "%Y-%m-%d").date()
-#     except ValueError:
-#         msg = "Not a valid date: '{0}'.".format(s)
-#         raise argparse.ArgumentTypeError(msg)
-
+import wpDataManagement as dm
 
 def setup(args=None, parser=None):
-
 
     parser = argparse.ArgumentParser(description='Water Productivity using Google Earth Engine')
 
