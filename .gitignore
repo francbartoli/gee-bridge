@@ -6,6 +6,7 @@
 local_settings.py
 static
 MyCustomDjango-dbd004fbce00.json
+gee_bridge/google
 *.sqlite3
 
 ###React###
