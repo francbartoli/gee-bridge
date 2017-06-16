@@ -17,13 +17,14 @@ import time
 import sys
 import os
 import glob
-import datetime
+# import datetime
 # import pandas as pd
 import logging
-
+import json
 # Below 2 rows to be commented if not using appengine
 from fixpath import fix_path
 fix_path()
+from geojson import FeatureCollection
 from osgeo import ogr
 
 
@@ -33,7 +34,7 @@ class WaterProductivityCalc(object):
 
     _REGION = [[-25.0, -37.0], [60.0, -41.0], [58.0, 39.0], [-31.0, 38.0], [-25.0, -37.0]]
     _COUNTRIES = ee.FeatureCollection('ft:1ZDEMjtnWm_smu7l_z3fx91BbxyCRzP2A3cEMrEiP')
-    _WSHEDS = ee.FeatureCollection('ft:1IXfrLpTHX4dtdj1LcNXjJADBB-d93rkdJ9acSEWK')
+    _WSHEDS = ee.FeatureCollection('ft:1ewaO3u2S8XPYkCLNX7zsWVqKx0n11BxdjPS-G0Kz')
 
     def __init__(self):
         pass
@@ -234,7 +235,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass"""
 
         # TODO: metodo da cambiare e verificare
-
         # Or, as you will already have calculated AET annual and AGBP annual:
         # AGBPy/(AETy*10) where *10 is to convert mm into m³/ha
         # var WPnb = AGBPy.divide(Ty.multiply(10));
@@ -254,30 +254,30 @@ class L1WaterProductivity(WaterProductivityCalc):
             Join.apply(self._L1_AGBP_ANNUAL,
                        t_year_coll_mt100,
                        FilterOnStartTime))
-        print("Joined collections", AGBP_T_collection_Join)
+        self.L1_logger.debug("Joined collections", AGBP_T_collection_Join)
 
         # JOINING TWO Collections - End
 
         # MERGING JOINED agbp and t annual - Start
         def MergeBands(element):
-            return ee.Image.cat(element.get('primary'), element.get('secondary'));
+            return ee.Image.cat(element.get('primary'), element.get('secondary'))
 
         agbp_t_coll_merged = AGBP_T_collection_Join.map(MergeBands)
-        print("Merged Joined collections", agbp_t_coll_merged);
+        self.L1_logger.debug("Merged Joined collections", agbp_t_coll_merged)
 
         # MERGING JOINED TWO Collections - End
 
         # /********* WPnb ****************/
         def AGBP_T(image):
-            wp_nb = image.select('b1_sum').divide(image.select('b1_sum_1').multiply(10));
+            wp_nb = image.select('b1_sum').divide(image.select('b1_sum_1').multiply(10))
             return ee.Image(wp_nb)
 
         WPnb_coll = agbp_t_coll_merged.map(AGBP_T)
-        print("WPnb_coll", WPnb_coll);
+        self.L1_logger.debug("WPnb_coll", WPnb_coll)
 
     def map_id_getter(self,**outputs_id):
 
-        """Generate a map id and a token for the calcualted WPbm raster file"""
+        """Generate a map id and a token for the calculated WPbm raster file"""
 
         map_ids = {}
         for key, val in outputs_id.iteritems():
@@ -324,21 +324,50 @@ class L1WaterProductivity(WaterProductivityCalc):
         mapclient.addToMap(raster_plot, legend, raster_name)
         mapclient.centerMap(17.75, 10.14, 4)
 
-    @staticmethod
-    def generate_areal_stats_fusion_tables(chosen_country, wbpm_calc):
+    def generate_areal_stats(self, areal_option, query_object, wbpm_calc):
 
-        """Calculates several statistics for the Water Productivity calculated raster for a chosen country"""
-        just_country = WaterProductivityCalc._COUNTRIES.filter(ee.Filter.eq('name', chosen_country))
+        """Calculates several statistics for the Water Productivity calculated raster for a chosen dataset / name"""
+        num_areas = 0
+        if areal_option == 'c':
+            try:
+                calculation_area = WaterProductivityCalc._COUNTRIES.filter(ee.Filter.eq('name', query_object))
+                num_areas = calculation_area.size().getInfo()
+                cut_poly = calculation_area.geometry()
+            finally:
+                error = Exception('no country')
+        elif areal_option == 'w':
+            try:
+                calculation_area = WaterProductivityCalc._WSHEDS.filter(ee.Filter.eq('MAJ_NAME', query_object))
+                num_areas = calculation_area.size().getInfo()
+                cut_poly = calculation_area.geometry()
+            finally:
+                error = Exception('no watershed')
+        elif areal_option == 'g':
+            try:
+                geojson_raw = {"type": "FeatureCollection",
+                                "crs": {"type": "name" , "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}} ,
+                                "features": [{"type": "Feature",
+                                              "properties": {"area": "user_defined"},
+                                              "geometry": {"type": "Polygon",
+                                                           "coordinates": [[[8.72 , 12.28],
+                                                                            [29.34 , 0.92],
+                                                                            [20.63 , -6.24],
+                                                                            [8.72 , 12.28]]]}
+                                              }
+                                            ]
+                                }
+                data = FeatureCollection ( geojson_raw )
+                cut_poly = data['features']['features'][0]['geometry']
+                if len(cut_poly)>0:
+                    num_areas = 1
+            finally:
+                error = Exception('User defined area seems empty')
 
-        if just_country.size().getInfo() > 0:
-            cut_poly = just_country.geometry()
-            # print cut_poly.getInfo()
-            raster_nominal_scale = wbpm_calc.projection().nominalScale().getInfo()
-
+        if num_areas > 0:
             means = wbpm_calc.reduceRegion(
                 reducer=ee.Reducer.mean(),
                 geometry=cut_poly,
-                scale=raster_nominal_scale,
+                scale=self.scale_calc,
                 maxPixels=1e9
             )
             mean = means.getInfo()
@@ -353,24 +382,28 @@ class L1WaterProductivity(WaterProductivityCalc):
                 reducer=reducers_min_max_sum,
                 bestEffort=True,
                 geometry=cut_poly,
-                scale=raster_nominal_scale
+                scale=self.scale_calc
             )
             min_max_sum = stats.getInfo()
 
-            stats_poly = {}
-            stats_poly['response'] = {}
-            stats_poly['response']['name'] = chosen_country
-            stats_poly['response']['iso3'] = just_country.getInfo()['features'][0]['properties']['iso3']
-            stats_poly['response']['gaul_code'] = just_country.getInfo()['features'][0]['properties']['gaul_code']
-            stats_poly['response']['stats'] = {}
-            stats_poly['response']['stats']['min'] = min_max_sum.pop('b1_min')
-            stats_poly['response']['stats']['sum'] = min_max_sum.pop('b1_sum')
-            stats_poly['response']['stats']['max'] = min_max_sum.pop('b1_max')
-            stats_poly['response']['stats']['mean'] = mean.pop('b1')
-
-            return stats_poly
+            statistics_for_chosen_area = {}
+            statistics_for_chosen_area['response'] = {}
+            statistics_for_chosen_area['response']['name'] = query_object
+            if areal_option == 'c':
+                statistics_for_chosen_area['response']['iso3'] = calculation_area.getInfo()['features'][0]['properties']['iso3']
+                statistics_for_chosen_area['response']['gaul_code'] = calculation_area.getInfo()['features'][0]['properties']['gaul_code']
+            elif areal_option == 'w':
+                statistics_for_chosen_area['response']['wshed_code'] = int(calculation_area.getInfo()['features'][0]['properties']['MAJ_BAS'])
+                statistics_for_chosen_area['response']['wapor_code'] = calculation_area.getInfo()['features'][0]['properties']['WaPOR_bas']
+            statistics_for_chosen_area['response']['stats'] = {}
+            statistics_for_chosen_area['response']['stats']['min'] = min_max_sum.pop('b1_min')
+            statistics_for_chosen_area['response']['stats']['sum'] = min_max_sum.pop('b1_sum')
+            statistics_for_chosen_area['response']['stats']['max'] = min_max_sum.pop('b1_max')
+            statistics_for_chosen_area['response']['stats']['mean'] = mean.pop('b1')
+            return statistics_for_chosen_area
         else:
-            return 'no country'
+            self.L1_logger.error("Error: %s named %s" % (error, query_object))
+            return error
 
     def generate_tiles(self):
 
@@ -433,7 +466,7 @@ class L1WaterProductivity(WaterProductivityCalc):
                 up_dx = extent[1], extent[2]
                 low_dx = extent[1], extent[3]
 
-                cut = []
+                # cut = []
                 cut = [list(low_sx), list(up_sx), list(up_dx), list(low_dx)]
 
                 Export_WPbm = {
@@ -470,7 +503,6 @@ class L1WaterProductivity(WaterProductivityCalc):
                         scale= 250,
                         region=cut
                         ).start()
-
                 elif exp_type == 'n':
                     print("Nothing yet")
                     pass
