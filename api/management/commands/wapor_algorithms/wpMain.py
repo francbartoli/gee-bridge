@@ -27,9 +27,11 @@ def setup(args=None, parser=None):
                         help="Generate map id for generating tiles",
                         action="store_true")
 
-    parser.add_argument('-s', '--arealstat', #choices=['f', 'j'],
+    parser.add_argument('-s', '--arealstat',
+                        choices=['c', 'w', 'g'],
+                        nargs=argparse.REMAINDER,
                         help="Zonal statistics form a WaterProductivity generated in GEE "
-                             "for the chosen Country/Watershed or User Defined Area")
+                            "for the chosen Country/Watershed or User Defined Area")
 
     parser.add_argument('-o', '--output',
                         choices=['csv', 'json'],
@@ -47,12 +49,16 @@ def setup(args=None, parser=None):
                         help="Show calculated output overlaid on Google Map"
                         )
 
+    parser.add_argument ( "-u" ,
+                          "--upload" ,
+                          type=str,
+                          help="Upload or update data in Google Earth Engine"
+                          )
+
     # parser.add_argument("-v", "--verbose",
     #                     help="Increase output verbosity",
     #                     action="store_true")
 
-    # return parser.parse_args()
-    # print 'wpMainParser='+str(parser.parse_args())
     return parser
 
 
@@ -73,14 +79,14 @@ def run(results):
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # results = parser.parse_args()
-    # logger.debug(results)
-
     args_list = {k: v for k, v in vars(results).items() if v is not None}
-    logger.debug(args_list)
-    logger.debug(len(args_list['timeframe']))
+    #logger.debug(len(args_list['timeframe']))
 
-    # Metodo statico non devo inizializzare la classe molti saranno cosi alla fine
+    # def methods(**kwargs):
+    #     print kwargs
+    # methods(**vars(results))
+
+    # Static method many will be similar to reduce the verbosity of the code
     # print L1WaterProductivity.water_productivity_net_biomass_pre_calculated_annual_values(2010)
 
     analysis_level_1 = L1WaterProductivity()
@@ -127,22 +133,82 @@ def run(results):
         if results.map == 't_frac':
             analysis_level_1.image_visualization(results.map, t_frac)
 
-    if results.arealstat:
-        if isinstance(results.arealstat, list):
-            selection_country = results.arealstat[0]
-        else:
-            selection_country = results.arealstat
-        country_stats = analysis_level_1.generate_areal_stats_fusion_tables(selection_country, wp_gb)
-        if country_stats != 'no country':
-            logger.debug("RESPONSE=%s" % country_stats)
-        else:
-            logger.debug("Country Error")
-            logger.error("No country named {} in db".format(selection_country))
+    if isinstance(results.arealstat, list):
+
+        try:
+            area_stats = analysis_level_1.generate_areal_stats(results.arealstat[0], results.arealstat[1], wp_gb)
+            logger.debug("RESPONSE=%s" % area_stats)
+
+        except Exception as e:
+            if isinstance(e, UnboundLocalError):
+                logger.debug("WP_GP aggregation Error")
+                logger.error(e)
+            elif results.arealstat[0] == 'c':
+                logger.debug("Country Error")
+                logger.error("No country named {} in db".format(results.arealstat[1]))
+            elif results.arealstat[0] == 'w':
+                logger.debug("Watershed Error")
+                logger.error("No watershed named {} in db".format(results.arealstat[1]))
+            elif results.arealstat[0] == 'g':
+                logger.debug("User Defined Area format Error")
+                logger.error("Invalid GeoJson {} to parse".format(results.arealstat[1]))
+
+    else:
+
+        logger.debug("Invalid arealstat arguments format")
 
     if results.map_id:
         map_ids = {'agbp': agbp, 'eta': eta, 'wp_gross': wp_gb}
         logger.debug("RESULT=%s" % analysis_level_1.map_id_getter(**map_ids))
 
+    if results.upload:
+
+        properties = None
+        no_data = None
+
+        username_gee = raw_input('Please enter a valid GEE User Name: ')
+        password_gee = getpass.getpass('Please Enter a valid GEE Password: ')
+        data_management_session = dm.DataManagement(username_gee, password_gee)
+        active_session = data_management_session.create_google_session()
+        upload_url = data_management_session.get_upload_url(active_session)
+
+        files_repo = str(results.upload)
+        try:
+            logger.debug("File %s found" % files_repo)
+            if os.path.isfile(files_repo):
+                gee_asset = '_'.join(files_repo.split('/')[-1].split("_")[0:2])
+                # gee_file = files_repo.split ( '/' )[-1].split ( "." )[0]
+                present_assets = data_management_session.get_assets_info(gee_asset)
+                data_management_session.data_management(active_session,
+                                                        upload_url,
+                                                        present_assets,
+                                                        files_repo,
+                                                        properties,
+                                                        no_data)
+            elif os.path.isdir(files_repo):
+                new_files = []
+                root_dir = None
+                for (dirpath, dirnames, filenames) in os.walk(files_repo):
+                    new_files.extend(filenames)
+                    root_dir = dirpath
+                    break
+
+                for each_file in new_files:
+                    file_temp = root_dir + "/" + each_file
+                    gee_asset = '_'.join(each_file.split("_")[0:2])
+                    # gee_file = each_file.split ( "." )[0]
+                    present_assets = data_management_session.get_assets_info(gee_asset)
+                    data_management_session.data_management(active_session,
+                                                            upload_url,
+                                                            present_assets,
+                                                            file_temp,
+                                                            properties,
+                                                            no_data)
+        except:
+            logger.error("File %s not found" % files_repo)
+
+    args = {k: v for k, v in vars(results).items() if v is not None}
+    logger.debug("Final Check %s" % args)
     # analysis_level_1.image_export(results.export, wp_gb)
 
 
@@ -150,4 +216,5 @@ if __name__ == '__main__':
 
     # Updated upstream
     results = setup().parse_args()
+
     run(results)
