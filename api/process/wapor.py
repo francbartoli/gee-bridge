@@ -27,7 +27,7 @@ class Wapor:
                      "2015-1-30",)
 
         MOCK_KWARGS = {"map_id": True,
-                       "arealstat": True,
+                       "arealstat": ["c", "Benin"],
                        "aggregation": "wp_gb"}
 
         if not args:
