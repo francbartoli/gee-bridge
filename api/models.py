@@ -189,16 +189,27 @@ def run_process(sender, instance, created, **kwargs):
         print argument
         if argument.get("positional"):
             argument.pop("positional")
-            lst = argument.values()
-            if isinstance(lst, list):
-                for k in (v for elem in lst for v in elem):
+            poslst = argument.values()
+            if isinstance(poslst, list):
+                for k in (v for elem in poslst for v in elem):
                     b = k.values()
                     for el in b:
                         print args
                         args.append(el)
         else:
             argument.pop("positional")
-            optionals.update(argument)
+            # import ipdb; ipdb.set_trace()
+            # TODO optimization with a new key
+            optlst = argument.values()
+            if isinstance(optlst[0], bool):
+                optionals.update(argument)
+            elif (isinstance(optlst[0][0], dict) and (len(argument.keys()) == 1)):
+                # TODO
+                # must become a tuple to conserve order
+                argument[argument.keys()[0]] = optlst[0][0].values()
+                optionals.update(argument)
+            else:
+                optionals.update(argument)
     print 'args=', args
     print 'optionals', optionals
     process = Wapor()
