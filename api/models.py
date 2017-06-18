@@ -201,17 +201,21 @@ def run_process(sender, instance, created, **kwargs):
             # import ipdb; ipdb.set_trace()
             # TODO optimization with a new key
             optlst = argument.values()
+            print 'optlst=', optlst
             if isinstance(optlst[0], bool):
                 optionals.update(argument)
             elif (isinstance(optlst[0][0], dict) and (len(argument.keys()) == 1)):
-                # TODO
-                # must become a tuple to conserve order
-                argument[argument.keys()[0]] = optlst[0][0].values()
+                # from IPython import embed; embed();
+                if optlst[0][0]['option']:
+                    tpl = tuple(optlst[0][0]['option'])
+                    optlst[0][0].pop('option')
+                tpl = tpl + tuple(optlst[0][0].values())
+                argument[argument.keys()[0]] = list(tpl)
                 optionals.update(argument)
             else:
                 optionals.update(argument)
     print 'args=', args
-    print 'optionals', optionals
+    print 'optionals=', optionals
     process = Wapor()
     # from IPython import embed; embed();
     cmd_result = process.run(*args, **optionals)

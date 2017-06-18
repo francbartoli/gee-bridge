@@ -22,7 +22,7 @@ class Command(BaseCommand):
         # arguments = vars(wpMain.setup())
         # print '-----------------------------'
         json2argparse(parser, myoptions)
-       
+
         # parser.add_argument("timeframe",
         #                     nargs="*",
         #                     help="Calculate Water Productivity Annually for the chosen period"
@@ -59,4 +59,5 @@ class Command(BaseCommand):
         # import ipdb; ipdb.set_trace()
         # print 'final options:', options
         arguments = argparse.Namespace(**options)
+        # print 'final arguments:', arguments
         wpMain.run(arguments)
