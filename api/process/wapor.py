@@ -49,11 +49,11 @@ class Wapor:
             if "RESULT=" in line:
                 result_maps = ast.literal_eval(line.split("RESULT=", 1)[1])
             else:
-                result_maps = {}
+                pass
             if "RESPONSE=" in line:
                 result_stats = ast.literal_eval(line.split("RESPONSE=", 1)[1])
             else:
-                result_stats = {}
+                pass
         result = {"gee_maps": result_maps, "gee_stats": result_stats}
 
         return result
