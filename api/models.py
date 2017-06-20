@@ -207,10 +207,16 @@ def run_process(sender, instance, created, **kwargs):
                     data = argument.get(argkey)
                     option = data.get("option")
                     if (isinstance(data, dict) and (option in options)):
-                        # julail the cuccudrail Jemon the king Plutonio the star
-                        tpl = tuple(data.get("option"))
-                        data.pop("option")
-                        tpl = tpl + tuple(data.get("choices"))
+                        # julail the cuccudrail
+                        # Jemon the king
+                        # Plutonio the star
+                        Argument = namedtuple('Argument',
+                                              ['option', 'choices']
+                                              )
+                        inner_arg = Argument(data.get("option"),
+                                             data.get("choices")
+                                             )
+                        tpl = tuple(inner_arg)
                         argument[argkey] = list(tpl)
                         optionals.update(argument)
                     else:
