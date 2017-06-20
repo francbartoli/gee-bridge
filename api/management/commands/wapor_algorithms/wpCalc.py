@@ -356,7 +356,7 @@ class L1WaterProductivity(WaterProductivityCalc):
                                               }
                                             ]
                                 }
-                data = FeatureCollection ( geojson_raw )
+                data = FeatureCollection ( query_object )
                 cut_poly = data['features']['features'][0]['geometry']
                 if len(cut_poly)>0:
                     num_areas = 1
