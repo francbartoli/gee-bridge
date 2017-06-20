@@ -14,7 +14,7 @@ import re
 import uuid
 from jsonpickle import encode, decode
 # import json
-import collections
+from collections import OrderedDict, namedtuple
 
 # Define Google Drive Storage
 gd_storage = GoogleDriveStorage()
@@ -59,12 +59,12 @@ class Process(BaseModel):
     input_data = JSONField(null=True,
                            blank=True,
                            default={},
-                           load_kwargs={'object_pairs_hook': collections.OrderedDict}
+                           load_kwargs={'object_pairs_hook': OrderedDict}
                            )
     output_data = JSONField(null=True,
                             blank=True,
                             default={},
-                            load_kwargs={'object_pairs_hook': collections.OrderedDict}
+                            load_kwargs={'object_pairs_hook': OrderedDict}
                             )
 
     def __str__(self):
