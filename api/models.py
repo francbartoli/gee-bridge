@@ -198,20 +198,26 @@ def run_process(sender, instance, created, **kwargs):
                         args.append(el)
         else:
             argument.pop("positional")
-            # import ipdb; ipdb.set_trace()
-            # TODO optimization with a new key
-            optlst = argument.values()
-            print 'optlst=', optlst
-            if isinstance(optlst[0], bool):
-                optionals.update(argument)
-            elif (isinstance(optlst[0][0], dict) and (len(argument.keys()) == 1)):
-                # from IPython import embed; embed();
-                if optlst[0][0]['option']:
-                    tpl = tuple(optlst[0][0]['option'])
-                    optlst[0][0].pop('option')
-                tpl = tpl + tuple(optlst[0][0].values())
-                argument[argument.keys()[0]] = list(tpl)
-                optionals.update(argument)
+            if argument.get("choice"):
+                # import ipdb; ipdb.set_trace()
+                argument.pop("choice")
+                options = ('c', 'g', 'w')
+                try:
+                    argkey = argument.keys()[0]
+                    data = argument.get(argkey)
+                    option = data.get("option")
+                    if (isinstance(data, dict) and (option in options)):
+                        # julail the cuccudrail Jemon the king Plutonio the star
+                        tpl = tuple(data.get("option"))
+                        data.pop("option")
+                        tpl = tpl + tuple(data.get("choices"))
+                        argument[argkey] = list(tpl)
+                        optionals.update(argument)
+                    else:
+                        raise Exception("Option must be in ('c','g','w')")
+                except Exception as e:
+                    print e
+                    pass
             else:
                 optionals.update(argument)
     print 'args=', args
