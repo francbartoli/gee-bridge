@@ -220,7 +220,7 @@ def run_process(sender, instance, created, **kwargs):
                         argument[argkey] = list(tpl)
                         optionals.update(argument)
                     else:
-                        raise Exception("Option must be in ('c','g','w')")
+                        raise Exception("Option must be in " + options)
                 except Exception as e:
                     print e
                     pass
