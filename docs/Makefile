@@ -7,6 +7,9 @@ SPHINXBUILD   		= sphinx-build
 SPHINXAUTOBUILD 	= sphinx-autobuild
 PAPER         		=
 BUILDDIR      		= _build
+IMAGEDIR			= _images
+UMLDIR				= _uml
+PLANTUML			= plantuml
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -45,6 +48,7 @@ help:
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 	@echo "  dummy      to check syntax errors of document sources"
 	@echo "  livehtml   to make build and run a live autoreloaded documentation server"
+	@echo "  plantuml   to make SVG images from UML source files written in PLANTUML syntax"
 
 .PHONY: clean
 clean:
@@ -231,3 +235,9 @@ livehtml:
 	$(SPHINXAUTOBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. You can access your demo documentation server at http://127.0.0.1:8000"
+
+.PHONY: plantuml
+plantuml:
+	$(PLANTUML) -config plantuml.cfg -psvg -o ../$(IMAGEDIR)/uml/ $(UMLDIR)/*.uml
+	@echo
+	@echo "Build finished. The svg files are in $(IMAGEDIR)/uml"
