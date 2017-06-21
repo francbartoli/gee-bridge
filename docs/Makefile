@@ -7,10 +7,13 @@ SPHINXBUILD   		= sphinx-build
 SPHINXAUTOBUILD 	= sphinx-autobuild
 PAPER         		=
 BUILDDIR      		= _build
-IMAGEDIR			= _images
-UMLDIR				= _uml
-PLANTUML			= plantuml
-ERALCHEMY			= eralchemy
+ROOTDIR             = docs
+IMAGEDIR            = _images
+UMLDIR              = _uml
+PLANTUML            = plantuml
+ERALCHEMY           = eralchemy
+DJANGOCLI           = ../manage.py
+GRAPHCOMMAND        = graph_models
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -51,6 +54,8 @@ help:
 	@echo "  livehtml   to make build and run a live autoreloaded documentation server"
 	@echo "  plantuml   to make SVG images from UML source files written in PLANTUML syntax"
 	@echo "  erd        to make a PNG image of the data model from the sqlite database"
+	@echo "  djangoerd  to make a PNG image of the erd diagram from the designed models"
+
 
 .PHONY: clean
 clean:
@@ -249,3 +254,9 @@ erd:
 	$(ERALCHEMY) -i sqlite:///../db.sqlite3 -o $(IMAGEDIR)/uml/data_model.png
 	@echo
 	@echo "Build finished. The png image of the data model is in $(IMAGEDIR)/uml"
+
+.PHONY: djangoerd
+djangoerd:
+	python $(DJANGOCLI) $(GRAPHCOMMAND) api $(IMAGEDIR)/uml/api_data_model.png
+	@echo
+	@echo "Build finished. The png image of the api data model is in $(IMAGEDIR)/uml"
