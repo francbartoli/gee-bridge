@@ -23,6 +23,7 @@ decorator==4.0.11
 Django==1.10.5
 django-appconf==1.0.2
 django-braces==1.11.0
+django-extensions==1.7.9
 django-googledrive-storage==1.3.4
 django-http-proxy==0.4.3
 django-jsonfield-compat==0.4.4
