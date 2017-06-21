@@ -1,6 +1,7 @@
 alabaster==0.7.10
 appdirs==1.4.0
 appnope==0.1.0
+argh==0.26.2
 asgi-redis==1.2.0
 asgiref==1.0.1
 asn1crypto==0.22.0
@@ -8,6 +9,7 @@ attrs==16.3.0
 autobahn==0.17.2
 Automat==0.5.0
 Babel==2.4.0
+backports-abc==0.5
 backports.shutil-get-terminal-size==1.0.0
 beautifulsoup4==4.6.0
 bs4==0.0.1
@@ -66,6 +68,7 @@ Jinja2==2.9.6
 jsonfield==2.0.1
 jsonpickle==0.9.4
 jsonschema==2.6.0
+livereload==2.5.1
 MarkupSafe==1.0
 matplotlib==2.0.0
 meld3==1.0.2
@@ -77,9 +80,11 @@ openapi-codec==1.3.1
 packaging==16.8
 pandas==0.20.1
 pathlib2==2.2.1
+pathtools==0.1.2
 pexpect==4.2.1
 pickleshare==0.7.4
 plantweb==1.0.1
+port-for==0.3.1
 prompt-toolkit==1.0.13
 ptyprocess==0.5.1
 pyasn1==0.2.2
@@ -111,11 +116,13 @@ scandir==1.5
 service-identity==16.0.0
 simplegeneric==0.8.1
 simplejson==3.10.0
+singledispatch==3.4.0.3
 six==1.10.0
 snowballstemmer==1.2.1
 social-auth-app-django==1.1.0
 social-auth-core==1.2.0
 Sphinx==1.6.2
+sphinx-autobuild==0.6.0
 sphinxcontrib-dd==0.1.7
 sphinxcontrib-mermaid==0.2.1
 sphinxcontrib-plantuml==0.8.1
@@ -124,12 +131,14 @@ sphinxcontrib-websupport==1.0.1
 SQLAlchemy==1.1.11
 subprocess32==3.2.7
 supervisor==3.3.1
+tornado==4.5.1
 traitlets==4.3.2
 Twisted==17.1.0
 txaio==2.6.1
 typing==3.6.1
 uritemplate==3.0.0
 urllib3==1.21.1
+watchdog==0.8.3
 wcwidth==0.1.7
 whitenoise==3.3.0
 zope.interface==4.3.3
