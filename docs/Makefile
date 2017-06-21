@@ -2,10 +2,11 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-PAPER         =
-BUILDDIR      = _build
+SPHINXOPTS    		=
+SPHINXBUILD   		= sphinx-build
+SPHINXAUTOBUILD 	= sphinx-autobuild
+PAPER         		=
+BUILDDIR      		= _build
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -223,3 +224,9 @@ dummy:
 	$(SPHINXBUILD) -b dummy $(ALLSPHINXOPTS) $(BUILDDIR)/dummy
 	@echo
 	@echo "Build finished. Dummy builder generates no files."
+
+.PHONY: livehtml
+livehtml:
+	$(SPHINXAUTOBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. You can access your demo documentation server at http://127.0.0.1:8000"
