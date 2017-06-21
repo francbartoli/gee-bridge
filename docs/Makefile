@@ -44,6 +44,7 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 	@echo "  dummy      to check syntax errors of document sources"
+	@echo "  livehtml   to make build and run a live autoreloaded documentation server"
 
 .PHONY: clean
 clean:
