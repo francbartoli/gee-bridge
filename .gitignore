@@ -7,6 +7,7 @@ local_settings.py
 static
 google/*
 *.sqlite3
+docs/_build
 
 ###React###
 node_modules
