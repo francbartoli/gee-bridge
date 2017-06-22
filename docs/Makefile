@@ -257,6 +257,6 @@ erd:
 
 .PHONY: djangoerd
 djangoerd:
-	python $(DJANGOCLI) $(GRAPHCOMMAND) api $(IMAGEDIR)/uml/api_data_model.png
+	python $(DJANGOCLI) $(GRAPHCOMMAND) api -o $(IMAGEDIR)/uml/api_models.png
 	@echo
 	@echo "Build finished. The png image of the api data model is in $(IMAGEDIR)/uml"
