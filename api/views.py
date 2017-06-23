@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view, permission_classes, renderer_cla
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, BaseRenderer
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 # from utils import swagger_tools
-from .permissions import IsOwner, IsOwnerOrReadOnly
+from .permissions import IsOwner, IsOwnerOrReadOnly, IsOpen
 from api import models
 from django.contrib.auth.models import User
 from api import serializers
@@ -33,18 +33,6 @@ from api import serializers
 #         return codec.dump(data)
 
 
-class IsReadOnly(permissions.BasePermission):
-    """
-    Custom permission to allow anyone to view schema.
-    """
-
-    def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-
 # CBF
 class ProcessList(GenericAPIView):
     """
@@ -62,7 +50,7 @@ class ProcessList(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (IsOpen, )
 
     def get(self, request, format=None):
         """Summary
@@ -109,7 +97,7 @@ class ProcessDetail(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
+    permission_classes = (IsOpen, )
 
     def get_object(self, id):
         """Summary
@@ -190,7 +178,7 @@ class ProcessDetail(GenericAPIView):
 @api_view()
 @renderer_classes([SwaggerUIRenderer,
                    OpenAPIRenderer])
-@permission_classes([IsReadOnly])
+@permission_classes([IsOpen])
 def swagger_schema_view(request):
     generator = SchemaGenerator(title='Rasterbucket API')
     return Response(generator.get_schema(request=request))

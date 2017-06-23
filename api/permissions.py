@@ -52,3 +52,17 @@ class IsOwnerOrReadOnly(BasePermission):
 
         # Instance must have an attribute named `owner`.
         return obj.owner == request.user
+
+
+class IsOpen(BasePermission):
+    """
+    Custom permission to allow anyone to view schema.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in SAFE_METHODS:
+            return True
+        elif request.method in ('POST', 'PUT', 'DELETE'):
+            return True
