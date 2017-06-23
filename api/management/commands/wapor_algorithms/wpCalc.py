@@ -272,7 +272,7 @@ class L1WaterProductivity(WaterProductivityCalc):
                                                    .divide(10)
                                                    .multiply(imm_eta3.select('days_in_dk'))).sum()
 
-        # scale ETsum from mm/m² to m³/ha for WP calculation purposes
+        # scale ETsum from mm/m2 to m3/ha for WP calculation purposes
         eta = aet_dekad_multiplied.multiply(10)
 
         # calculate biomass water productivity and add to map
@@ -299,7 +299,7 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         # /********* ORIGINAL MATH ***********/
         # Or, as you will already have calculated AET annual and AGBP annual:
-        # AGBPy/(AETy*10) where *10 is to convert mm into m³/ha
+        # AGBPy/(AETy*10) where *10 is to convert mm into m3/ha
         wp_nb_precalc = agbp_y.divide(t_masked.multiply(10))
 
         return wp_nb_precalc
@@ -311,7 +311,7 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         # TODO: metodo da cambiare e verificare
         # Or, as you will already have calculated AET annual and AGBP annual:
-        # AGBPy/(AETy*10) where *10 is to convert mm into m³/ha
+        # AGBPy/(AETy*10) where *10 is to convert mm into m3/ha
         # var WPnb = AGBPy.divide(Ty.multiply(10));
         def T_moreThan100(image):
             """Summary
