@@ -9,6 +9,7 @@ google/*
 *.sqlite3
 docs/_build
 docs/_apidoc
+whoosh_index
 
 ###React###
 node_modules

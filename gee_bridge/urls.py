@@ -16,10 +16,6 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-import helloworld.views
-import mapclient.views
-import webmapping.views
-
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -31,4 +27,6 @@ urlpatterns = [
     url(r'^', include('mapclient.urls')),
     # url from webmapping
     url(r'^', include('webmapping.urls')),
+    # url from sphinxdoc
+    url(r'^documentation/', include('sphinxdoc.urls')),
 ]

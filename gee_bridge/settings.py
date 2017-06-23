@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'polymorphic',
     'helloworld',
     'gdstorage',
+    'sphinxdoc',
+    'haystack',
     # rest
     'rest_framework',
     'rest_framework_swagger',
@@ -346,4 +348,19 @@ WEBPACK_LOADER = {
         'BUNDLE_DIR_NAME': os.path.join('bundles/'),  # '/static/bundles/',  # end with slash
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json')
     }
+}
+
+# Django-shinxdoc with Elasticsearch back-end
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+#         'URL': 'http://127.0.0.1:9200/',
+#         'INDEX_NAME': 'haystack',
+#     },
+# }
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+    },
 }
