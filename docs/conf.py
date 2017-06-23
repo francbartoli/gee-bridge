@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
     # 'autoapi.extension',
+    'plantweb.directive',
 ]
 
 # autoapi
