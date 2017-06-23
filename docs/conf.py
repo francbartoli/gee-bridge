@@ -35,7 +35,12 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
+    # 'autoapi.extension',
 ]
+
+# autoapi
+# autoapi_type = 'python'
+# autoapi_dirs = ['../api', '../api/process', '../api/management/commands']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
