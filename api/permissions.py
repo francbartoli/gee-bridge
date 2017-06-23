@@ -1,12 +1,24 @@
+"""Summary
+"""
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from .models import Rasterbucket, Process
 
 
 class IsOwner(BasePermission):
-    """Custom permission class to allow rasterbucket owners to edit them."""
+    """Custom permission class to allow rasterbucket owners to edit them.
+    """
 
     def has_object_permission(self, request, view, obj):
-        """Return True if permission is granted to the rasterbucket owner."""
+        """Return True if permission is granted to the rasterbucket owner.
+
+        Args:
+            request (TYPE): Description
+            view (TYPE): Description
+            obj (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         if isinstance(obj, Rasterbucket):
             return obj.owner == request.user
         return obj.owner == request.user
@@ -23,6 +35,16 @@ class IsOwnerOrReadOnly(BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            view (TYPE): Description
+            obj (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         # Read permissions are allowed to any request,
         # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in SAFE_METHODS:

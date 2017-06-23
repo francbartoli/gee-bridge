@@ -1,3 +1,5 @@
+"""Summary
+"""
 from django.core.management import call_command
 from StringIO import StringIO
 # from jsonpickle import encode, decode
@@ -7,13 +9,22 @@ import ast
 
 
 class Wapor:
-    """docstring for Wapor"""
+    """docstring for Wapor
+    """
     # def __init__(self, *args):
     #     super(Wapor, self).__init__()
     #     for arg in args:
     #         self.arg = arg
     def run(self, *args, **kwargs):
+        """Summary
 
+        Args:
+            *args: Description
+            **kwargs: Description
+
+        Returns:
+            TYPE: Description
+        """
         # from IPython import embed; embed();
         old_stdout = sys.stdout
         # This variable will store everything that is sent to the

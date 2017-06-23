@@ -1,3 +1,5 @@
+"""Summary
+"""
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework.views import APIView
@@ -24,6 +26,12 @@ from api import serializers
 class ProcessList(GenericAPIView):
     """
     List all processes, or create a new process.
+
+    Attributes:
+        permission_classes (TYPE): Description
+        queryset (TYPE): Description
+        renderer_classes (TYPE): Description
+        serializer_class (TYPE): Description
     """
     serializer_class = serializers.ProcessSerializer
     queryset = models.Process.objects.all()
@@ -34,11 +42,29 @@ class ProcessList(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get(self, request, format=None):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            format (None, optional): Description
+
+        Returns:
+            TYPE: Description
+        """
         processes = models.Process.objects.all()
         serializer = serializers.ProcessSerializer(processes, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            format (None, optional): Description
+
+        Returns:
+            TYPE: Description
+        """
         serializer = serializers.ProcessSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -49,6 +75,11 @@ class ProcessList(GenericAPIView):
 class ProcessDetail(GenericAPIView):
     """
     Retrieve, update or delete a process instance.
+
+    Attributes:
+        permission_classes (TYPE): Description
+        renderer_classes (TYPE): Description
+        serializer_class (TYPE): Description
     """
     serializer_class = serializers.ProcessSerializer
     renderer_classes = (JSONRenderer,
@@ -58,17 +89,48 @@ class ProcessDetail(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly)
 
     def get_object(self, id):
+        """Summary
+
+        Args:
+            id (TYPE): Description
+
+        Returns:
+            TYPE: Description
+
+        Raises:
+            Http404: Description
+        """
         try:
             return models.Process.objects.get(id=id)
         except models.Process.DoesNotExist:
             raise Http404
 
     def get(self, request, id, format=None):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            id (TYPE): Description
+            format (None, optional): Description
+
+        Returns:
+            TYPE: Description
+        """
         process = self.get_object(id)
         serializer = serializers.ProcessSerializer(process)
         return Response(serializer.data)
 
     def put(self, request, id, format=None):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            id (TYPE): Description
+            format (None, optional): Description
+
+        Returns:
+            TYPE: Description
+        """
         process = self.get_object(id)
         serializer = serializers.ProcessSerializer(process, data=request.data)
         if serializer.is_valid():
@@ -77,6 +139,16 @@ class ProcessDetail(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id, format=None):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            id (TYPE): Description
+            format (None, optional): Description
+
+        Returns:
+            TYPE: Description
+        """
         process = self.get_object(id)
         process.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -179,20 +251,36 @@ class ProcessDetail(GenericAPIView):
 
 
 class RasterbucketCreateView(generics.ListCreateAPIView):
-    """This class defines the create behavior of our rest api"""
+    """This class defines the create behavior of our rest api
+
+    Attributes:
+        permission_classes (TYPE): Description
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
     permission_classes = (
         permissions.IsAuthenticated, IsOwner)
 
     def perform_create(self, serializer):
-        """Save the post data when creating a new rasterbucket."""
+        """Save the post data when creating a new rasterbucket.
+
+        Args:
+            serializer (TYPE): Description
+        """
         serializer.save(owner=self.request.user)
 
 
 class RasterbucketDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """This class handles the http GET, PUT and DELETE request
-        view with Read, Update and Delete"""
+    view with Read, Update and Delete
+
+    Attributes:
+        permission_classes (TYPE): Description
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
     permission_classes = (
@@ -201,7 +289,13 @@ class RasterbucketDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class RasterbucketServiceCreateView(generics.ListCreateAPIView):
-    """Defines the rasterbucket service creation behavior"""
+    """Defines the rasterbucket service creation behavior
+
+    Attributes:
+        permission_classes (TYPE): Description
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     permission_classes = (
         permissions.IsAuthenticated,
         IsOwner)
@@ -209,7 +303,10 @@ class RasterbucketServiceCreateView(generics.ListCreateAPIView):
     serializer_class = serializers.RasterbucketServiceSerializer
 
     def perform_create(self, serializer):
-        """"""
+        """
+        Args:
+            serializer (TYPE): Description
+        """
         pk = self.kwargs.get('pk_bucket')
         rasterbucket = get_object_or_404(
             models.Rasterbucket,
@@ -222,13 +319,22 @@ class RasterbucketServiceCreateView(generics.ListCreateAPIView):
 
 class RasterbucketServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Defines an actionable rasterbucket service view
-       with Read, Update and Delete"""
+    with Read, Update and Delete
+
+    Attributes:
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = models.RasterbucketService
     serializer_class = serializers.RasterbucketServiceSerializer
 
     def get_object(self):
         """specifies the object used for `update`,
-         `retrieve`, `destroy` actions"""
+        `retrieve`, `destroy` actions
+
+        Returns:
+            TYPE: Description
+        """
         return get_object_or_404(
             models.RasterbucketService,
             pk=self.kwargs.get('pk_service'))
@@ -236,20 +342,35 @@ class RasterbucketServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class MapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Defines an actionable map service view
-       with Read, Update and Delete"""
+    with Read, Update and Delete
+
+    Attributes:
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = models.BaseServiceModel
     serializer_class = serializers.MapServiceSerializer
 
     def get_object(self):
         """specifies the object used for `update`,
-         `retrieve`, `destroy` actions"""
+        `retrieve`, `destroy` actions
+
+        Returns:
+            TYPE: Description
+        """
         return get_object_or_404(
             models.BaseServiceModel,
             pk=self.kwargs.get('pk_map'))
 
 
 class GEEMapServiceCreateView(generics.ListCreateAPIView):
-    """Defines the GEE map service creation behavior"""
+    """Defines the GEE map service creation behavior
+
+    Attributes:
+        permission_classes (TYPE): Description
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     permission_classes = (
         permissions.IsAuthenticated,
         IsOwner)
@@ -257,7 +378,10 @@ class GEEMapServiceCreateView(generics.ListCreateAPIView):
     serializer_class = serializers.GEEMapServiceSerializer
 
     def perform_create(self, serializer):
-        """"""
+        """
+        Args:
+            serializer (TYPE): Description
+        """
         pk = self.kwargs.get('pk_service')
         rasterbucketservice = get_object_or_404(
             models.RasterbucketService,
@@ -270,20 +394,35 @@ class GEEMapServiceCreateView(generics.ListCreateAPIView):
 
 class GEEMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Defines an actionable GEE map service view
-       with Read, Update and Delete"""
+    with Read, Update and Delete
+
+    Attributes:
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = models.GEEMapService
     serializer_class = serializers.GEEMapServiceSerializer
 
     def get_object(self):
         """specifies the object used for `update`,
-         `retrieve`, `destroy` actions"""
+        `retrieve`, `destroy` actions
+
+        Returns:
+            TYPE: Description
+        """
         return get_object_or_404(
             models.GEEMapService,
             pk=self.kwargs.get('pk_map'))
 
 
 class TileMapServiceCreateView(generics.ListCreateAPIView):
-    """Defines the Tile map service creation behavior"""
+    """Defines the Tile map service creation behavior
+
+    Attributes:
+        permission_classes (TYPE): Description
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     permission_classes = (
         permissions.IsAuthenticated,
         IsOwner)
@@ -291,7 +430,10 @@ class TileMapServiceCreateView(generics.ListCreateAPIView):
     serializer_class = serializers.TileMapServiceSerializer
 
     def perform_create(self, serializer):
-        """"""
+        """
+        Args:
+            serializer (TYPE): Description
+        """
         pk = self.kwargs.get('pk_service')
         rasterbucketservice = get_object_or_404(
             models.RasterbucketService,
@@ -304,25 +446,44 @@ class TileMapServiceCreateView(generics.ListCreateAPIView):
 
 class TileMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Defines an actionable Tile map service view
-       with Read, Update and Delete"""
+    with Read, Update and Delete
+
+    Attributes:
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = models.TileMapService
     serializer_class = serializers.TileMapServiceSerializer
 
     def get_object(self):
         """specifies the object used for `update`,
-         `retrieve`, `destroy` actions"""
+        `retrieve`, `destroy` actions
+
+        Returns:
+            TYPE: Description
+        """
         return get_object_or_404(
             models.TileMapService,
             pk=self.kwargs.get('pk_map'))
 
 
 class UserView(generics.ListAPIView):
-    """View to list the user queryset."""
+    """View to list the user queryset.
+
+    Attributes:
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
 
 
 class UserDetailsView(generics.RetrieveAPIView):
-    """View to retrieve a user instance."""
+    """View to retrieve a user instance.
+
+    Attributes:
+        queryset (TYPE): Description
+        serializer_class (TYPE): Description
+    """
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer

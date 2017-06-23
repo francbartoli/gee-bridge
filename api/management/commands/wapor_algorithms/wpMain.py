@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 """
-    Main class for activating different calculations available in wpCalc.py via argparse
+Main class for activating different calculations available in wpCalc.py via argparse
 """
 import argparse
 import logging
@@ -12,7 +12,15 @@ from wpCalc import L1WaterProductivity
 import wpDataManagement as dm
 
 def setup(args=None, parser=None):
+    """Summary
 
+    Args:
+        args (None, optional): Description
+        parser (None, optional): Description
+
+    Returns:
+        TYPE: Description
+    """
     parser = argparse.ArgumentParser(description='Water Productivity using Google Earth Engine')
 
     parser.add_argument("timeframe",
@@ -63,7 +71,11 @@ def setup(args=None, parser=None):
 
 
 def run(results):
+    """Summary
 
+    Args:
+        results (TYPE): Description
+    """
     logger = logging.getLogger("wpWin")
     logger.setLevel(level=logging.DEBUG)
 

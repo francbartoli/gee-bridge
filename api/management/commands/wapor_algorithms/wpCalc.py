@@ -1,4 +1,6 @@
 #! /usr/bin/env python
+"""Summary
+"""
 # coding: utf-8
 """
     All calculation for Water Production biomass plus some additional features:
@@ -29,7 +31,8 @@ from osgeo import ogr
 
 
 class WaterProductivityCalc(object):
-
+    """Summary
+    """
     ee.Initialize()
 
     _REGION = [[-25.0, -37.0], [60.0, -41.0], [58.0, 39.0], [-31.0, 38.0], [-25.0, -37.0]]
@@ -37,13 +40,21 @@ class WaterProductivityCalc(object):
     _WSHEDS = ee.FeatureCollection('ft:1ewaO3u2S8XPYkCLNX7zsWVqKx0n11BxdjPS-G0Kz')
 
     def __init__(self):
+        """Summary
+        """
         pass
 
 
 class L1WaterProductivity(WaterProductivityCalc):
 
     """
-        Create Water Productivity raster file for annual and dekadal timeframes for Level 1 (Countries and Basins
+    Create Water Productivity raster file for annual and dekadal timeframes for Level 1 (Countries and Basins
+
+    Attributes:
+        L1_AET_calc (TYPE): Description
+        L1_AGBP_calc (TYPE): Description
+        L1_logger (TYPE): Description
+        scale_calc (TYPE): Description
     """
 
     _L1_RET_DAILY = ee.ImageCollection("projects/fao-wapor/L1_RET")
@@ -64,7 +75,8 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def __init__(self):
 
-        """ Constructor for date and dataset for WPgb"""
+        """Constructor for date and dataset for WPgb
+        """
 
         self.L1_logger = logging.getLogger("wpWin.wpCalc")
         self.L1_AET_calc = self._L1_AET_DEKADAL
@@ -77,14 +89,22 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def date_selection(self, **kwargs):
 
-        """ Modify date for selecting datasets to be used for WPgm"""
+        """Modify date for selecting datasets to be used for WPgm
+
+        Args:
+            **kwargs: Description
+        """
 
         self._date_start = str(kwargs.get('date_start'))
         self._date_end = str(kwargs.get('date_end'))
 
     def image_selection(self):
 
-        """ Filter datasets selecting only images within the starting end ending date to be used for WPbm"""
+        """Filter datasets selecting only images within the starting end ending date to be used for WPbm
+
+        Returns:
+            TYPE: Description
+        """
 
         collection_agbp_filtered = L1WaterProductivity._L1_NPP_DEKADAL.filterDate(
             self._date_start,
@@ -108,7 +128,14 @@ class L1WaterProductivity(WaterProductivityCalc):
     @property
     def multiply_npp(self, filtering_values):
 
-        """ Sets the dataset to be used in conjunction with Actual Evapotranspiration for WPgb"""
+        """Sets the dataset to be used in conjunction with Actual Evapotranspiration for WPgb
+
+        Args:
+            filtering_values (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
 
         coll_npp_filtered = self._L1_NPP_DEKADAL.filterDate(
             self._date_start,
@@ -121,11 +148,23 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def agbp_aggregated(self):
 
-        """Aggregate above ground biomass productivity for annual calculation or water productivity"""
+        """Aggregate above ground biomass productivity for annual calculation or water productivity
+
+        Returns:
+            TYPE: Description
+        """
 
         # the image.multiply(0.01444) multiplies all bands by 0.01444, including the days in dekad.
         # That is why the final WP values were so low...we should first multiply, then, in the same function, add the extra band
         def agbp_multiplication(image):
+            """Summary
+
+            Args:
+                image (TYPE): Description
+
+            Returns:
+                TYPE: Description
+            """
             img_multi = image.multiply(0.01444).addBands(image.metadata('days_in_dk'))
             return img_multi
         agbp_npp_multiplied = self.L1_AGBP_calc.map(agbp_multiplication)
@@ -133,6 +172,14 @@ class L1WaterProductivity(WaterProductivityCalc):
         # get AGBP value, divide by 10 (as per FRAME spec) to get daily value, and multiply by number of days in dekad
         # we don't need to divide by 10 now: it was previously valid on sample data, and we don't use AGBP as input anyway.
         def npp_add_dk(image):
+            """Summary
+
+            Args:
+                image (TYPE): Description
+
+            Returns:
+                TYPE: Description
+            """
             mmdk = image.select('b1').multiply(image.select('days_in_dk'))
             return mmdk
         npp_with_dekad = agbp_npp_multiplied.map(npp_add_dk)
@@ -143,7 +190,11 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def aet_aggregated(self):
 
-        """Aggregate actual evapotranspiration for annual calculation or water productivity"""
+        """Aggregate actual evapotranspiration for annual calculation or water productivity
+
+        Returns:
+            TYPE: Description
+        """
 
         coll_aet_sorted = self.L1_AET_calc.sort('system:time_start', True)
         aggregated_aet = coll_aet_sorted.reduce(ee.Reducer.sum())
@@ -152,7 +203,11 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def transpiration(self):
 
-        """Aggregate transpiration using acttual evapotranspiration,above ground biomas productivity and t_fraction"""
+        """Aggregate transpiration using acttual evapotranspiration,above ground biomas productivity and t_fraction
+
+        Returns:
+            TYPE: Description
+        """
 
         # This is calculated at class level for WPgb, WPnb
         # collAETFiltered = _L1_AET_DEKADAL.filterDate(start, end).sort('system:time_start', True)
@@ -173,6 +228,14 @@ class L1WaterProductivity(WaterProductivityCalc):
         # JOINING TWO Collections - End
 
         def Tfrac_AETdk(image):
+            """Summary
+
+            Args:
+                image (TYPE): Description
+
+            Returns:
+                TYPE: Description
+            """
             image_aet = ee.Image(image.get("primary"))
             image_tfrac = ee.Image(image.get("secondary"))
             t_a = ((image_aet.select('b1').multiply(image_tfrac.select('b1').divide(100)))
@@ -185,7 +248,11 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def water_productivity_gross_biomass(self):
 
-        """wp_gross_biomass calculation returns all intermediate results besides the final wp_gross_biomass"""
+        """wp_gross_biomass calculation returns all intermediate results besides the final wp_gross_biomass
+
+        Returns:
+            TYPE: Description
+        """
 
         # Multiplied for generating AGBP from NPP using the costant 0.144  CHANGED 0.0144 for Release 1
         npp_multiplied = self.L1_AGBP_calc.map(lambda lista: lista.multiply(0.01444).addBands(lista.metadata('days_in_dk')))
@@ -216,7 +283,14 @@ class L1WaterProductivity(WaterProductivityCalc):
     @staticmethod
     def water_productivity_net_biomass_pre_calculated_annual_values(year):
 
-        """wp_net_biomass calculation simplified method using precalculated annual value fot AGBP and T"""
+        """wp_net_biomass calculation simplified method using precalculated annual value fot AGBP and T
+
+        Args:
+            year (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
 
         agbp_y = ee.Image("projects/fao-wapor/AGBP_Annual/AGBP-" + str(year))
         t_y = ee.Image("projects/fao-wapor/T_Annual/T_Annual-" + str(year))
@@ -232,13 +306,22 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def water_productivity_net_biomass(self):
 
-        """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass"""
+        """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass
+        """
 
         # TODO: metodo da cambiare e verificare
         # Or, as you will already have calculated AET annual and AGBP annual:
         # AGBPy/(AETy*10) where *10 is to convert mm into m³/ha
         # var WPnb = AGBPy.divide(Ty.multiply(10));
         def T_moreThan100(image):
+            """Summary
+
+            Args:
+                image (TYPE): Description
+
+            Returns:
+                TYPE: Description
+            """
             return image.mask(image.select('b1_sum').gte(100))
         t_year_coll_mt100 = self._L1_T_ANNUAL.map(T_moreThan100)
 
@@ -260,6 +343,14 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         # MERGING JOINED agbp and t annual - Start
         def MergeBands(element):
+            """Summary
+
+            Args:
+                element (TYPE): Description
+
+            Returns:
+                TYPE: Description
+            """
             return ee.Image.cat(element.get('primary'), element.get('secondary'))
 
         agbp_t_coll_merged = AGBP_T_collection_Join.map(MergeBands)
@@ -269,6 +360,14 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         # /********* WPnb ****************/
         def AGBP_T(image):
+            """Summary
+
+            Args:
+                image (TYPE): Description
+
+            Returns:
+                TYPE: Description
+            """
             wp_nb = image.select('b1_sum').divide(image.select('b1_sum_1').multiply(10))
             return ee.Image(wp_nb)
 
@@ -277,7 +376,14 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def map_id_getter(self,**outputs_id):
 
-        """Generate a map id and a token for the calculated WPbm raster file"""
+        """Generate a map id and a token for the calculated WPbm raster file
+
+        Args:
+            **outputs_id: Description
+
+        Returns:
+            TYPE: Description
+        """
 
         map_ids = {}
         for key, val in outputs_id.iteritems():
@@ -292,7 +398,12 @@ class L1WaterProductivity(WaterProductivityCalc):
     @staticmethod
     def image_visualization(raster_name, raster_plot):
 
-        """Output the calculated raster using a map vizualizer """
+        """Output the calculated raster using a map vizualizer
+
+        Args:
+            raster_name (TYPE): Description
+            raster_plot (TYPE): Description
+        """
 
         VisPar_AGBPy = {"opacity": 0.85, "bands": "b1", "min": 0, "max": 180,
                        "palette": "f4ffd9,c8ef7e,87b332,566e1b",
@@ -326,7 +437,16 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def generate_areal_stats(self, areal_option, query_object, wbpm_calc):
 
-        """Calculates several statistics for the Water Productivity calculated raster for a chosen dataset / name"""
+        """Calculates several statistics for the Water Productivity calculated raster for a chosen dataset / name
+
+        Args:
+            areal_option (TYPE): Description
+            query_object (TYPE): Description
+            wbpm_calc (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         num_areas = 0
         if areal_option == 'c':
             try:
@@ -407,7 +527,11 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def generate_tiles(self):
 
-        """INCOMPLETE  Split the calculated WPbm in 100 tiles facilitating the export"""
+        """INCOMPLETE  Split the calculated WPbm in 100 tiles facilitating the export
+
+        Returns:
+            TYPE: Description
+        """
 
         driver = ogr.GetDriverByName('ESRI Shapefile')
         dir_shps = "tiles"
@@ -445,8 +569,13 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     def image_export(self, exp_type, wpgb):
 
-        """ INCOMPLETE Export the 72 of the calculated wpgb to Google Drive,
-        GEE Asset or generating a url for each tile"""
+        """INCOMPLETE Export the 72 of the calculated wpgb to Google Drive,
+        GEE Asset or generating a url for each tile
+
+        Args:
+            exp_type (TYPE): Description
+            wpgb (TYPE): Description
+        """
 
         driver = ogr.GetDriverByName('ESRI Shapefile')
         dir_shps = "tiles"

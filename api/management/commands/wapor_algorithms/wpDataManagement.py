@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""Summary
+"""
 import ast
 import requests
 import os
@@ -11,7 +13,12 @@ import getpass
 from urllib import unquote
 
 class DataManagement():
-    """Algorithm for managing assets in GEE"""
+    """Algorithm for managing assets in GEE
+
+    Attributes:
+        asset_path (TYPE): Description
+        logger (TYPE): Description
+    """
 
     # Define URLs
     __GOOGLE_ACCOUNT_URL = 'https://accounts.google.com'
@@ -20,7 +27,12 @@ class DataManagement():
 
     def __init__(self,usr,pwd): #,local_data,asset_name):
 
-        """Constructor for wpDataManagement"""
+        """Constructor for wpDataManagement
+
+        Args:
+            usr (TYPE): Description
+            pwd (TYPE): Description
+        """
         ee.Initialize ()
 
         self.__username = usr
@@ -42,22 +54,46 @@ class DataManagement():
 
     @property
     def user_name(self):
+        """Summary
+
+        Returns:
+            TYPE: Description
+        """
         return self.__username
 
     @user_name.setter
     def user_name(self , name):
+        """Summary
+
+        Args:
+            name (TYPE): Description
+        """
         self.__username = name
 
     @property
     def password(self):
+        """Summary
+
+        Returns:
+            TYPE: Description
+        """
         return self.__password
 
     @password.setter
     def password(self , pwd):
+        """Summary
+
+        Args:
+            pwd (TYPE): Description
+        """
         self.__password = pwd
 
     def create_google_session(self):
+        """Summary
 
+        Returns:
+            TYPE: Description
+        """
         session = requests.session ()
         login_html = session.get ( DataManagement.__GOOGLE_ACCOUNT_URL )
 
@@ -93,7 +129,14 @@ class DataManagement():
         return session
 
     def get_assets_info(self, asset_name):
+        """Summary
 
+        Args:
+            asset_name (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         self.asset_path = 'users/fabiolananotizie/' + asset_name
         # self.asset_path = asset_name
 
@@ -108,7 +151,14 @@ class DataManagement():
         return assets_names
 
     def get_upload_url(self,session):
+        """Summary
 
+        Args:
+            session (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         r = session.get ( DataManagement.__APPSPOT_URL )
         if r.text.startswith ( '\n<!DOCTYPE html>' ):
             self.logger.debug ( 'Incorrect credentials. Probably. If you are sure the credentials are OK, '
@@ -123,9 +173,22 @@ class DataManagement():
         return d['url']
 
     def retry_if_ee_error(self,exception):
+        """Summary
+
+        Args:
+            exception (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         return isinstance ( exception , ee.EEException )
 
     def __delete_image(self,image):
+        """Summary
+
+        Args:
+            image (TYPE): Description
+        """
         items_in_destination = ee.data.getList ( {'id': self.asset_path} )
         for item in items_in_destination:
             asset_to_delete = item['id']
@@ -134,6 +197,16 @@ class DataManagement():
                 ee.data.deleteAsset ( image )
 
     def __upload_image(self,file_path,session,upload_url,image_name,properties,nodata):
+        """Summary
+
+        Args:
+            file_path (TYPE): Description
+            session (TYPE): Description
+            upload_url (TYPE): Description
+            image_name (TYPE): Description
+            properties (TYPE): Description
+            nodata (TYPE): Description
+        """
         with open ( file_path , 'rb' ) as f:
             files = {'file': f}
             resp = session.post ( upload_url , files=files )
@@ -155,7 +228,16 @@ class DataManagement():
     @retrying.retry ( retry_on_exception=retry_if_ee_error , wait_exponential_multiplier=1000 ,
                       wait_exponential_max=4000 , stop_max_attempt_number=3 )
     def data_management(self,session,upload_url,assets_names,file_path, properties, nodata):
+        """Summary
 
+        Args:
+            session (TYPE): Description
+            upload_url (TYPE): Description
+            assets_names (TYPE): Description
+            file_path (TYPE): Description
+            properties (TYPE): Description
+            nodata (TYPE): Description
+        """
         file_root = file_path.split ( "/" )[-1].split ( "." )[0]
         image_name = self.asset_path + '/%s' % file_root
 
@@ -173,10 +255,16 @@ class DataManagement():
             self.__upload_image ( file_path , session , upload_url , image_name , properties , nodata )
 
     def task_management(self):
+        """Summary
+        """
         pass
 
 def main(argv):
+    """Summary
 
+    Args:
+        argv (TYPE): Description
+    """
     if len ( argv ) != 1:
         print '\nUser & Password Storage Program v.01\n'
         sys.exit ( 'Usage: wpDataManagement.py <directory_name>' )

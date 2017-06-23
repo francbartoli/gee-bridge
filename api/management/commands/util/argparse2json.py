@@ -1,5 +1,8 @@
 """
 Converts argparse parser actions into json "Build Specs"
+
+Attributes:
+    VALID_WIDGETS (TYPE): Description
 """
 
 import argparse
@@ -36,9 +39,13 @@ VALID_WIDGETS = (
 
 
 class UnknownWidgetType(Exception):
+  """Summary
+  """
   pass
 
 class UnsupportedConfiguration(Exception):
+  """Summary
+  """
   pass
 
 
@@ -52,6 +59,17 @@ class UnsupportedConfiguration(Exception):
 
 
 def convert(parser):
+  """Summary
+
+  Args:
+      parser (TYPE): Description
+
+  Returns:
+      TYPE: Description
+
+  Raises:
+      UnsupportedConfiguration: Description
+  """
   widget_dict = getattr(parser, 'widgets', {})
   actions = parser._actions
 
@@ -81,6 +99,15 @@ def convert(parser):
 
 
 def process(parser, widget_dict):
+  """Summary
+
+  Args:
+      parser (TYPE): Description
+      widget_dict (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   mutually_exclusive_groups = [
                   [mutex_action for mutex_action in group_actions._group_actions]
                   for group_actions in parser._mutually_exclusive_groups]
@@ -99,6 +126,19 @@ def process(parser, widget_dict):
          map(build_radio_group, mutually_exclusive_groups)
 
 def categorize(actions, widget_dict, required=False):
+  """Summary
+
+  Args:
+      actions (TYPE): Description
+      widget_dict (TYPE): Description
+      required (bool, optional): Description
+
+  Yields:
+      TYPE: Description
+
+  Raises:
+      UnknownWidgetType: Description
+  """
   _get_widget = partial(get_widget, widgets=widget_dict)
   for action in actions:
     if is_standard(action):
@@ -116,39 +156,98 @@ def categorize(actions, widget_dict, required=False):
       raise UnknownWidgetType(action)
 
 def get_widget(action, widgets):
+  """Summary
+
+  Args:
+      action (TYPE): Description
+      widgets (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   supplied_widget = widgets.get(action.dest, None)
   type_arg_widget = 'FileChooser' if action.type == argparse.FileType else None
   return supplied_widget or type_arg_widget or None
 
 def is_required(action):
-  '''_actions which are positional or possessing the `required` flag '''
+  '''_actions which are positional or possessing the `required` flag
+
+  Args:
+      action (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  '''
   return not action.option_strings and not isinstance(action, _SubParsersAction) or action.required == True
 
 def has_required(actions):
+  """Summary
+
+  Args:
+      actions (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   return filter(None, filter(is_required, actions))
 
 def is_subparser(action):
+  """Summary
+
+  Args:
+      action (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   return isinstance(action,_SubParsersAction)
 
 def has_subparsers(actions):
+    """Summary
+
+    Args:
+        actions (TYPE): Description
+
+    Returns:
+        TYPE: Description
+    """
     return filter(is_subparser, actions)
 
 def get_subparser(actions):
+    """Summary
+
+    Args:
+        actions (TYPE): Description
+
+    Returns:
+        TYPE: Description
+    """
     return filter(is_subparser, actions)[0]
 
 def is_optional(action):
-  '''_actions not positional or possessing the `required` flag'''
+  '''_actions not positional or possessing the `required` flag
+
+  Args:
+      action (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  '''
   return action.option_strings and not action.required
 
 def is_choice(action):
-  ''' action with choices supplied '''
+  '''action with choices supplied
+
+  Args:
+      action (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  '''
   return action.choices
 
 def is_standard(action):
-  """ actions which are general "store" instructions.
-  e.g. anything which has an argument style like:
-     $ script.py -f myfilename.txt
-  """
+
   boolean_actions = (
     _StoreConstAction, _StoreFalseAction,
     _StoreTrueAction
@@ -159,21 +258,61 @@ def is_standard(action):
           and type(action) not in boolean_actions)
 
 def is_flag(action):
-  """ _actions which are either storeconst, store_bool, etc.. """
+  """_actions which are either storeconst, store_bool, etc..
+
+  Args:
+      action (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   action_types = [_StoreTrueAction, _StoreFalseAction, _StoreConstAction]
   return any(map(lambda Action: isinstance(action, Action), action_types))
 
 def is_counter(action):
-  """ _actions which are of type _CountAction """
+  """_actions which are of type _CountAction
+
+  Args:
+      action (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   return isinstance(action, _CountAction)
 
 def is_default_progname(name, subparser):
+  """Summary
+
+  Args:
+      name (TYPE): Description
+      subparser (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   return subparser.prog == '{} {}'.format(os.path.split(sys.argv[0])[-1], name)
 
 def choose_name(name, subparser):
+  """Summary
+
+  Args:
+      name (TYPE): Description
+      subparser (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   return name if is_default_progname(name, subparser) else subparser.prog
 
 def build_radio_group(mutex_group):
+  """Summary
+
+  Args:
+      mutex_group (TYPE): Description
+
+  Returns:
+      TYPE: Description
+  """
   if not mutex_group:
     return []
 
@@ -196,6 +335,19 @@ def build_radio_group(mutex_group):
 
 
 def as_json(action, widget, required):
+  """Summary
+
+  Args:
+      action (TYPE): Description
+      widget (TYPE): Description
+      required (TYPE): Description
+
+  Returns:
+      TYPE: Description
+
+  Raises:
+      UnknownWidgetType: Description
+  """
   if widget not in VALID_WIDGETS:
     raise UnknownWidgetType('Widget Type {0} is unrecognized'.format(widget))
 
@@ -220,6 +372,13 @@ def clean_default(widget_type, default):
   See: Issue #147.
   function references supplied as arguments to the
   `default` parameter in Argparse cause errors in Gooey.
+
+  Args:
+      widget_type (TYPE): Description
+      default (TYPE): Description
+
+  Returns:
+      TYPE: Description
   '''
   if widget_type != 'CheckBox':
     return default.__name__ if callable(default) else default
