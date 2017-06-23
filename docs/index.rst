@@ -14,6 +14,12 @@ Contents:
    architecture
    webapi
 
+API Doc:
+
+.. toctree::
+   :maxdepth: 2
+
+   _apidoc/modules
 
 Indices and tables
 ==================

@@ -8,6 +8,7 @@ static
 google/*
 *.sqlite3
 docs/_build
+docs/_apidoc
 
 ###React###
 node_modules

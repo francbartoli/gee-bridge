@@ -5,9 +5,12 @@
 SPHINXOPTS    		=
 SPHINXBUILD   		= sphinx-build
 SPHINXAUTOBUILD 	= sphinx-autobuild
+SPHINXAPIDOC        = sphinx-apidoc
 PAPER         		=
 BUILDDIR      		= _build
 ROOTDIR             = docs
+PROJDIR             = ../
+APIDOCDIR           = _apidoc
 IMAGEDIR            = _images
 UMLDIR              = _uml
 PLANTUML            = plantuml
@@ -55,6 +58,7 @@ help:
 	@echo "  plantuml   to make SVG images from UML source files written in PLANTUML syntax"
 	@echo "  erd        to make a PNG image of the data model from the sqlite database"
 	@echo "  djangoerd  to make a PNG image of the erd diagram from the designed models"
+	@echo "  apidoc     to make api python documentation from every docstring"
 
 
 .PHONY: clean
@@ -260,3 +264,9 @@ djangoerd:
 	python $(DJANGOCLI) $(GRAPHCOMMAND) api -o $(IMAGEDIR)/uml/api_models.png
 	@echo
 	@echo "Build finished. The png image of the api data model is in $(IMAGEDIR)/uml"
+
+.PHONY: apidoc
+apidoc:
+	$(SPHINXAPIDOC) -f -o $(APIDOCDIR)/ $(PROJDIR)/api/
+	@echo
+	@echo "Build finished. The api source files is in $(APIDOCDIR)/"
