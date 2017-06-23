@@ -5,6 +5,7 @@ from rest_framework_jwt import views as jwt_views
 from djoser import views as djoser_views
 from rest_framework.schemas import get_schema_view
 from api import views as api_views
+from api.views import swagger_schema_view as schema_swagger_view
 
 schema_view = get_schema_view(title='Rasterbucket API')
 swagger_view = get_swagger_view(title='Rasterbucket API')
@@ -13,6 +14,9 @@ urlpatterns = [
     url(r'^schema/$',
         schema_view,
         name="schema"),
+    url(r'^swagger/$',
+        schema_swagger_view,
+        name="swagger"),
     url(r'^docs/',
         swagger_view,
         name="docs"),

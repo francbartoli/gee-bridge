@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
 from django.http import Http404
 from rest_framework import status
-# from rest_framework.decorators import api_view, permission_classes, renderer_classes
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, BaseRenderer
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 # from utils import swagger_tools
 from .permissions import IsOwner, IsOwnerOrReadOnly
@@ -20,6 +20,29 @@ from api import serializers
 # from collections import OrderedDict
 
 # Create your views here.
+
+# from openapi_codec import OpenAPICodec
+
+
+# class SwaggerRenderer(BaseRenderer):
+#     media_type = 'application/openapi+json'
+#     format = 'swagger'
+
+#     def render(self, data, media_type=None, renderer_context=None):
+#         codec = OpenAPICodec()
+#         return codec.dump(data)
+
+
+class IsReadOnly(permissions.BasePermission):
+    """
+    Custom permission to allow anyone to view schema.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in permissions.SAFE_METHODS:
+            return True
 
 
 # CBF
@@ -164,14 +187,13 @@ class ProcessDetail(GenericAPIView):
 #         return data
 
 
-# @api_view()
-# @renderer_classes([JSONRenderer,
-#                    BrowsableAPIRenderer,
-#                    OpenAPIRenderer,
-#                    SwaggerUIRenderer])
-# def schema_view(request):
-#     generator = SchemaGenerator()
-#     return Response(generator.get_schema(request=request))
+@api_view()
+@renderer_classes([SwaggerUIRenderer,
+                   OpenAPIRenderer])
+@permission_classes([IsReadOnly])
+def swagger_schema_view(request):
+    generator = SchemaGenerator(title='Rasterbucket API')
+    return Response(generator.get_schema(request=request))
 
 
 # https://stackoverflow.com/questions/43627748/django-rest-framework-how-to-enable-swagger-docs-for-function-based-views#

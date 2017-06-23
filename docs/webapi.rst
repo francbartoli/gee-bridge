@@ -18,3 +18,6 @@ RasterbucketServices
 
 Processes
 =========
+
+.. swaggerv2doc:: http://localhost:8001/api/v1/swagger/?format=openapi
+
