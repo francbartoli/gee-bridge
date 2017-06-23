@@ -12,7 +12,7 @@ Contents:
    :maxdepth: 2
 
    architecture
-   api
+   webapi
 
 
 Indices and tables
