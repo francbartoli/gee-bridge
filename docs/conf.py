@@ -37,6 +37,7 @@ extensions = [
     'sphinx.ext.githubpages',
     # 'autoapi.extension',
     'plantweb.directive',
+    'sphinxcontrib.swaggerdoc',
 ]
 
 # autoapi
