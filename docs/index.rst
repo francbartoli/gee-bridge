@@ -13,6 +13,7 @@ Contents:
 
    architecture
    webapi
+   documentation
 
 API Doc:
 
