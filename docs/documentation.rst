@@ -5,7 +5,9 @@ How to setup documentation
 Build automated API from docstrings
 ===================================
 
-.. note:: Docstrings are generated from a `Google`_  or `Numpy`_ style guide. This behavior can be changed by editing the `Napoleon`_ configuration within `conf.py`:
+.. note:: Docstrings are generated from a `Google`_  or `Numpy`_ style guide. This behavior can be changed by editing the `Napoleon`_ configuration within ``conf.py``:
+
+
 
 .. code-block:: python
 
