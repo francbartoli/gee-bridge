@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.ifconfig',
     'sphinx.ext.githubpages',
+    'sphinx.ext.autosectionlabel',
     # 'autoapi.extension',
     'plantweb.directive',
     'sphinxcontrib.swaggerdoc',
