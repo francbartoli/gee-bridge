@@ -5,6 +5,43 @@ How to deploy
 Local development
 =================
 
+Virtual environment
+-------------------
+
+.. hint:: Make sure you have entered the virtual environment where all python dependencies have been installed. If using `pyenv`_ facility then the command is provided below assuming it is called *gee_bridge*.
+
+.. _pyenv: https://github.com/pyenv/pyenv
+
+    .. code-block:: bash
+
+        pyenv activate gee_bridge
+
+Django server
+^^^^^^^^^^^^^
+
+As you do usually with all Django projects execute the :command:`runserver` command:
+
+    .. code-block:: python
+
+        (gee_bridge)$ python manage.py runserver
+
+Gunicorn
+^^^^^^^^
+
+The `Gunicorn`_ HTTP WSGI server has been already declared as dependency of your virtual environment indeed simply run:
+
+.. _Gunicorn: http://gunicorn.org/
+
+    .. code-block:: bash
+
+        (gee_bridge)$ gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py
+
+where the configuration option can be a file with content from `Gunicorn settings`_ like:
+
+.. _Gunicorn settings: http://docs.gunicorn.org/en/latest/configure.html
+
+.. warning:: Please make sure you **won't be** using the option :option:`--log-file` for logging to file because GEE Bridge :ref:`Processes` Web API takes the result of **GEE** scripts from the standard output. If you enable that option the **bridge will break**!
+
 Cloud hosting provider
 ======================
 
@@ -37,11 +74,11 @@ with the Python version which has to be used.
 Create the Procfile to start the application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:file:`Procfile` is a text file in the root directory of your Django application where you define the process *type* and the *command* to run in a such a way:
+:file:`Procfile` is a text file in the root directory of your Django application where you define the process *type* and the *command* to run in such a way:
 
     .. code-block:: ini
 
-        web: gunicorn gee_bridge.wsgi:application $PORT --log-file -
+        web: gunicorn gee_bridge.wsgi:application $PORT
 
 The name :py:attr:`web` is not just a placeholder but a **key term** which declares **HTTP** traffic for the application while the environment variable :envvar:`$PORT` has been used to assign the port where to bind the process.
 
@@ -49,7 +86,7 @@ Alternatively you can pass a configuration option to the :command:`gunicorn` com
 
     .. code-block:: ini
 
-        web: gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py --log-file -
+        web: gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py
 
 Where the :file:`gunicorn.conf.py` file is something like:
 
