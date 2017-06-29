@@ -27,13 +27,14 @@ import json
 from fixpath import fix_path
 fix_path()
 from geojson import FeatureCollection
+from gee_bridge.settings import EE_CREDENTIALS
 from osgeo import ogr
 
 
 class WaterProductivityCalc(object):
     """Summary
     """
-    ee.Initialize()
+    ee.Initialize(EE_CREDENTIALS)
 
     _REGION = [[-25.0, -37.0], [60.0, -41.0], [58.0, 39.0], [-31.0, 38.0], [-25.0, -37.0]]
     _COUNTRIES = ee.FeatureCollection('ft:1ZDEMjtnWm_smu7l_z3fx91BbxyCRzP2A3cEMrEiP')
