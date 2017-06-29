@@ -45,6 +45,20 @@ Create the Procfile to start the application
 
 The name :py:attr:`web` is not just a placeholder but a **key term** which declares **HTTP** traffic for the application while the environment variable :envvar:`$PORT` has been used to assign the port where to bind the process.
 
+Alternatively you can pass a configuration option to the :command:`gunicorn` command to read address and port to bind from a file:
+
+    .. code-block:: ini
+
+        web: gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py --log-file -
+
+Where the :file:`gunicorn.conf.py` file is something like:
+
+    .. code-block:: python
+
+        bind = '0.0.0.0:9000'
+        workers = 3
+        timeout = 30
+
 Login to Heroku
 ^^^^^^^^^^^^^^^
 
@@ -79,6 +93,15 @@ Heroku will provide back the url assigned to the application:
         Creating ⬢ geebridge... done
         https://geebridge.herokuapp.com/
 
+.. warning:: GEE Bridge is a Django application that strongly needs `GDAL`_, the most powerful geospatial libraries which means your environment must have such a tool already installed. **Heroku** can provide additional `buildpack`_ for this purpose. Please use the below command to create this application.
+
+.. _buildpack: https://elements.heroku.com/buildpacks/cyberdelia/heroku-geo-buildpack
+.. _GDAL: http://www.gdal.org/
+
+    .. code-block:: bash
+
+        heroku apps:create geebridge --buildpack https://github.com/cyberdelia/heroku-geo-buildpack.git
+
 Start your application locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -94,3 +117,15 @@ Start your application locally
 
         heroku local web
 
+Deploy your application to Heroku
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure you have created your application with the option to use a  which supports `GDAL`_ libraries cause our scripts are mostly relying on that.
+
+Run the following `GIT`_ command from your *master* branch:
+
+.. _GIT: https://git-scm.com/
+
+.. code-block:: bash
+
+    git push heroku master
