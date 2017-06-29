@@ -1,12 +1,68 @@
-from rest_framework.permissions import BasePermission
-from .models import Rasterbucket
+"""Summary
+"""
+from rest_framework.permissions import BasePermission, SAFE_METHODS
+from .models import Rasterbucket, Process
 
 
 class IsOwner(BasePermission):
-    """Custom permission class to allow rasterbucket owners to edit them."""
+    """Custom permission class to allow rasterbucket owners to edit them.
+    """
 
     def has_object_permission(self, request, view, obj):
-        """Return True if permission is granted to the rasterbucket owner."""
+        """Return True if permission is granted to the rasterbucket owner.
+
+        Args:
+            request (TYPE): Description
+            view (TYPE): Description
+            obj (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         if isinstance(obj, Rasterbucket):
             return obj.owner == request.user
         return obj.owner == request.user
+        """Return True if permission is granted to the process owner."""
+        if isinstance(obj, Process):
+            return obj.owner == request.user
+        return obj.owner == request.user
+
+
+class IsOwnerOrReadOnly(BasePermission):
+    """
+    Object-level permission to only allow owners of an object to edit it.
+    Assumes the model instance has an `owner` attribute.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        """Summary
+
+        Args:
+            request (TYPE): Description
+            view (TYPE): Description
+            obj (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in SAFE_METHODS:
+            return True
+
+        # Instance must have an attribute named `owner`.
+        return obj.owner == request.user
+
+
+class IsOpen(BasePermission):
+    """
+    Custom permission to allow anyone to view schema.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
+        if request.method in SAFE_METHODS:
+            return True
+        elif request.method in ('POST', 'PUT', 'DELETE'):
+            return True

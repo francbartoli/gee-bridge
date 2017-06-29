@@ -5,5 +5,13 @@
 *.pyc
 local_settings.py
 static
-MyCustomDjango-dbd004fbce00.json
+google/*
 *.sqlite3
+docs/_build
+docs/_apidoc
+whoosh_index
+
+###React###
+node_modules
+webpack-stats.json
+static/bundles/mapclient-*

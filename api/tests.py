@@ -1,3 +1,5 @@
+"""Summary
+"""
 from django.test import TestCase
 from .models import Rasterbucket
 from django.contrib.auth.models import User
@@ -9,17 +11,24 @@ from django.core.urlresolvers import reverse
 
 
 class ModelTestCase(TestCase):
-    """This class defines the test suite for the rasterbucket"""
+    """This class defines the test suite for the rasterbucket
+
+    Attributes:
+        name (str): Description
+        rasterbucket (TYPE): Description
+    """
 
     def setUp(self):
-        """Define the test client and other test variables."""
+        """Define the test client and other test variables.
+        """
         user = User.objects.create(username="simpleuser")
         self.name = "Write world class rasters"
         # specify owner of a rasterbucket
         self.rasterbucket = Rasterbucket(name=self.name, owner=user)
 
     def test_model_can_create_a_rasterbucket(self):
-        """Test the rasterbucket model can create a rasterbucket."""
+        """Test the rasterbucket model can create a rasterbucket.
+        """
         old_count = Rasterbucket.objects.count()
         self.rasterbucket.save()
         new_count = Rasterbucket.objects.count()
@@ -27,9 +36,16 @@ class ModelTestCase(TestCase):
 
 
 class ViewTestCase(TestCase):
-    """Test suite for the api views."""
+    """Test suite for the api views.
+
+    Attributes:
+        client (TYPE): Description
+        rasterbucket_data (TYPE): Description
+        response (TYPE): Description
+    """
     def setUp(self):
-        """Define the test client and other test variables."""
+        """Define the test client and other test variables.
+        """
         user = User.objects.create(username="simpleuser")
 
         # Initialize client and force it to use authentication
@@ -45,12 +61,14 @@ class ViewTestCase(TestCase):
             format="json")
 
     def test_api_can_create_a_rasterbucket(self):
-        """Test the api has raster bucket creation capability."""
+        """Test the api has raster bucket creation capability.
+        """
 
         self.assertEqual(self.response.status_code, status.HTTP_201_CREATED)
 
     def test_authorization_is_enforced(self):
-        """Test that the api has user authorization."""
+        """Test that the api has user authorization.
+        """
         my_client = APIClient()
         res = my_client.get(
             reverse('api.rasterbuckets'),
@@ -58,7 +76,8 @@ class ViewTestCase(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_api_can_get_a_rasterbucket(self):
-        """Test the api can get a given rasterbucket."""
+        """Test the api can get a given rasterbucket.
+        """
         rasterbucket = Rasterbucket.objects.get(id=1)
         response = self.client.get(
             reverse('api.rasterbuckets'),
@@ -68,7 +87,8 @@ class ViewTestCase(TestCase):
         self.assertContains(response, rasterbucket)
 
     def test_api_can_update_rasterbucket(self):
-        """Test the api can update a given rasterbucket."""
+        """Test the api can update a given rasterbucket.
+        """
         rasterbucket = Rasterbucket.objects.get()
         change_rasterbucket = {'name': 'A new raster bucket'}
         response = self.client.put(
@@ -78,7 +98,8 @@ class ViewTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_api_can_delete_rasterbucket(self):
-        """Test the api can delete a bucketlist."""
+        """Test the api can delete a bucketlist.
+        """
         rasterbucket = Rasterbucket.objects.get()
         response = self.client.delete(
             reverse('details', kwargs={'pk': rasterbucket.id}),
