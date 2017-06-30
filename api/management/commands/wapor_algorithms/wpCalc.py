@@ -451,7 +451,7 @@ class L1WaterProductivity(WaterProductivityCalc):
         num_areas = 0
         if areal_option == 'c':
             try:
-                calculation_area = WaterProductivityCalc._COUNTRIES.filter(ee.Filter.eq('name', query_object))
+                calculation_area = WaterProductivityCalc._COUNTRIES.filter(ee.Filter.eq('iso3', query_object))
                 num_areas = calculation_area.size().getInfo()
                 cut_poly = calculation_area.geometry()
             finally:
