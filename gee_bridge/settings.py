@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'gdstorage',
     'sphinxdoc',
     'haystack',
+    'corsheaders',
     # rest
     'rest_framework',
     'rest_framework_swagger',
@@ -81,6 +82,7 @@ INSTALLED_APPS = [
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -251,6 +253,9 @@ PASSWORDLESS_AUTH = {
     # Suppresses actual SMS for testing
     'PASSWORDLESS_TEST_SUPPRESSION': False
 }
+
+# CORS management
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
