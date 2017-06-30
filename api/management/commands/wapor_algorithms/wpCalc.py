@@ -37,8 +37,8 @@ class WaterProductivityCalc(object):
     ee.Initialize(EE_CREDENTIALS)
 
     _REGION = [[-25.0, -37.0], [60.0, -41.0], [58.0, 39.0], [-31.0, 38.0], [-25.0, -37.0]]
-    _COUNTRIES = ee.FeatureCollection('ft:1ZDEMjtnWm_smu7l_z3fx91BbxyCRzP2A3cEMrEiP')
-    _WSHEDS = ee.FeatureCollection('ft:1ewaO3u2S8XPYkCLNX7zsWVqKx0n11BxdjPS-G0Kz')
+    _COUNTRIES = ee.FeatureCollection('projects/fao-wapor/vectors/wapor_countries')
+    _WSHEDS = ee.FeatureCollection('projects/fao-wapor/vectors/wapor_basins')
 
     def __init__(self):
         """Summary
