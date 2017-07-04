@@ -40,7 +40,8 @@ extensions = [
     'plantweb.directive',
     'sphinxcontrib.swaggerdoc',
     'sphinxcontrib.redoc',
-    'sphinxcontrib.napoleon'
+    'sphinxcontrib.napoleon',
+    'sphinxcontrib.httpdomain'
 ]
 
 # autoapi
