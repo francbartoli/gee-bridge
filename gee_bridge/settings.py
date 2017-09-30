@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'social_django',
     'rest_framework_social_oauth2',
     # custom
+    'gee_bridge',
     'api',
     'httpproxy',
     'gee_agent',
@@ -363,9 +364,17 @@ WEBPACK_LOADER = {
 #         'INDEX_NAME': 'haystack',
 #     },
 # }
+# Django-shinxdoc with simple back-end
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+#     },
+# }
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
     },
 }
+
+SPHINXDOC_BASE_TEMPLATE = 'base.html'
