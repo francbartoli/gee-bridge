@@ -21,7 +21,7 @@ Django server
 
 As you do usually with all Django projects execute the :command:`runserver` command:
 
-    .. code-block:: python
+    .. code-block:: bash
 
         (gee_bridge)$ python manage.py runserver
 
@@ -40,7 +40,7 @@ where the configuration option can be a file with content from `Gunicorn setting
 
 .. _Gunicorn settings: http://docs.gunicorn.org/en/latest/configure.html
 
-.. warning:: Please make sure you **won't be** using the option :option:`--log-file` for logging to file because GEE Bridge :ref:`Processes` Web API takes the result of **GEE** scripts from the standard output. If you enable that option the **bridge will break**!
+.. warning:: Please make sure you **won't be** using the option `--log-file` for logging to file because GEE Bridge :ref:`Processes` Web API takes the result of **GEE** scripts from the standard output. If you enable that option the **bridge will break**!
 
 Cloud hosting provider
 ======================
@@ -144,7 +144,7 @@ Start your application locally
 
 1. Firsty create the :file:`.env` file for defining your environment variable. In our case the *PORT* can be set by executing the :command:`config` command:
 
-    .. code-block:: env
+    .. code-block:: bash
 
        heroku config:set PORT=9000 --app geebridge  >> .env
 
