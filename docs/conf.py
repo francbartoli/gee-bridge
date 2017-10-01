@@ -52,14 +52,15 @@ extensions = [
 redoc = [
     {
         'name': 'Rasterbuckets API',
-        'page': 'rasterbuckets/index',
-        'spec': 'http://localhost:9000/api/v1/swagger/?format=openapi',
+        'page': 'api/rasterbuckets/index',
+        'spec': 'swagger/schema.yaml',
         'opts': {
-            'lazy': False,
-            'nowarnings': False,
-            'nohostname': False,
-            'required-props-first': True,
-            'expand-responses': [200, 201],
+            'lazy-rendering': True
+            # 'lazy': False,
+            # 'nowarnings': False,
+            # 'nohostname': False,
+            # 'required-props-first': True,
+            # 'expand-responses': [200, 201],
         }
     },
 ]
