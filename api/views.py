@@ -11,6 +11,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, BaseRenderer
+from rest_framework_yaml.renderers import YAMLRenderer
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 # from utils import swagger_tools
 from .permissions import IsOwner, IsOwnerOrReadOnly, IsOpen
@@ -47,6 +48,7 @@ class ProcessList(GenericAPIView):
     serializer_class = serializers.ProcessSerializer
     queryset = models.Process.objects.all()
     renderer_classes = (JSONRenderer,
+                        YAMLRenderer,
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
@@ -94,6 +96,7 @@ class ProcessDetail(GenericAPIView):
     """
     serializer_class = serializers.ProcessSerializer
     renderer_classes = (JSONRenderer,
+                        YAMLRenderer,
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
