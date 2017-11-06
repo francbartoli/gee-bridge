@@ -5,6 +5,11 @@ verify_ssl = true
 name = "pypi"
 
 
+[requires]
+
+python_version = '2.7.13'
+
+
 [dev-packages]
 
 
