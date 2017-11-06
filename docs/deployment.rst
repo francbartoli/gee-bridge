@@ -8,13 +8,23 @@ Local development
 Virtual environment
 -------------------
 
-.. hint:: Make sure you have entered the virtual environment where all python dependencies have been installed. If using `pyenv`_ facility then the command is provided below assuming it is called *gee_bridge*.
+.. hint:: Make sure you have entered the virtual environment where all python dependencies have been installed.
+- If using `pyenv`_ facility then the command is that provided below assuming your
+virtual environment is called *gee_bridge*:
 
 .. _pyenv: https://github.com/pyenv/pyenv
 
     .. code-block:: bash
 
         pyenv activate gee_bridge
+
+- If using `pipenv`_ facility then the command is:
+
+.. _pipenv: https://github.com/kennethreitz/pipenv/
+
+    .. code-block:: bash
+
+        pipenv shell
 
 Django server
 ^^^^^^^^^^^^^
