@@ -1,12 +1,12 @@
-from django.conf.urls import url, include
-from rest_framework.urlpatterns import format_suffix_patterns
-from rest_framework_swagger.views import get_swagger_view
-from rest_framework_jwt import views as jwt_views
-from djoser import views as djoser_views
-from rest_framework.schemas import get_schema_view
 from api import views as api_views
 from api.views import swagger_schema_view as schema_swagger_view
+from django.conf.urls import include, url
+from djoser import views as djoser_views
 from rest_framework.documentation import include_docs_urls
+from rest_framework.schemas import get_schema_view
+from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework_jwt import views as jwt_views
+from rest_framework_swagger.views import get_swagger_view
 
 schema_view = get_schema_view(title='Rasterbucket API')
 swagger_view = get_swagger_view(title='Rasterbucket API')
@@ -85,10 +85,12 @@ urlpatterns = [
         api_views.RasterbucketServiceDetailView.as_view(),
         name="api.rasterbuckets.services.details"),
 
-    url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/maps/$',
+    url(r'^rasterbuckets/(?P<pk>[0-9]+)/\
+services/(?P<pk_service>[0-9]+)/maps/$',
         api_views.GEEMapServiceCreateView.as_view(),
         name="api.rasterbuckets.services.geemapservices.create"),
-    url(r'^rasterbuckets/(?P<pk>[0-9]+)/services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
+    url(r'^rasterbuckets/(?P<pk>[0-9]+)/\
+services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
         api_views.MapServiceDetailView.as_view(),
         name="api.rasterbuckets.services.mapservice.detail")
 ]
