@@ -130,7 +130,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework_jwt.authentication.TokenAuthentication',
         # oauth2
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         'rest_framework_social_oauth2.authentication.SocialAuthentication',
     )
 }
@@ -316,7 +316,7 @@ EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
                                               GOOGLE_SERVICE_ACCOUNT_SCOPES)
 
 # Proxy GEE tiles server
-PROXY_BASE_URL = 'https://earthengine.googleapis.com/map' # GEE_PUBLIC_BASE_URL
+PROXY_BASE_URL = 'https://earthengine.googleapis.com/map'  # GEE_PUBLIC_BASE_URL
 PROXY_LOCATION = '/maps/'
 
 # Base url
