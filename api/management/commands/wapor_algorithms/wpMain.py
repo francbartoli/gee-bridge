@@ -8,6 +8,7 @@ import logging
 import os
 import sys
 
+import geojson
 import wpDataManagement as dm
 from wpCalc import L1WaterProductivity
 
@@ -151,6 +152,10 @@ def run(results):
     if isinstance(results.arealstat, list):
 
         try:
+            # handles django command
+            if isinstance(results.arealstat[1], str):
+                results.arealstat[1] = geojson.loads(results.arealstat[1])
+
             area_stats = analysis_level_1.generate_areal_stats(
                 results.arealstat[0], results.arealstat[1], wp_gb)
             logger.debug("RESPONSE=%s" % area_stats)
