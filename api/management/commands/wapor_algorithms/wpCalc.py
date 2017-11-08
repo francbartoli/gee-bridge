@@ -29,7 +29,6 @@ import ee
 import geojson
 # Below 2 rows to be commented if not using appengine
 from fixpath import fix_path
-from geojson import FeatureCollection
 from gee_bridge.settings import EE_CREDENTIALS
 
 fix_path()
@@ -454,7 +453,7 @@ class L1WaterProductivity(WaterProductivityCalc):
                 calculation_area = WaterProductivityCalc._COUNTRIES.filter(
                     ee.Filter.eq('iso3', query_object))
                 num_areas = calculation_area.size().getInfo()
-                cut_poly = calculation_area.geometry()
+                geom = calculation_area.geometry()
             finally:
                 error = Exception('no country')
         elif areal_option == 'w':
@@ -462,7 +461,7 @@ class L1WaterProductivity(WaterProductivityCalc):
                 calculation_area = WaterProductivityCalc._WSHEDS.filter(
                     ee.Filter.eq('MAJ_NAME', query_object))
                 num_areas = calculation_area.size().getInfo()
-                cut_poly = calculation_area.geometry()
+                geom = calculation_area.geometry()
             finally:
                 error = Exception('no watershed')
         elif areal_option == 'g':
@@ -479,10 +478,15 @@ class L1WaterProductivity(WaterProductivityCalc):
                                                                            [8.72, 12.28]]]}
                                              }
                                             ]
-                                }
-                data = FeatureCollection ( query_object )
-                cut_poly = data['features']['features'][0]['geometry']
-                if len(cut_poly)>0:
+                               }
+                # from IPython import embed
+                # embed()
+                if isinstance(geojson.GeoJSON(query_object), geojson.GeoJSON):
+                    if query_object['type'] == 'FeatureCollection':
+                        data = geojson.FeatureCollection(
+                            query_object['features'])
+                        geom = data['features'][0]['geometry']
+                if len(geom) > 0:
                     num_areas = 1
             finally:
                 error = Exception('User defined area seems empty')
@@ -490,7 +494,7 @@ class L1WaterProductivity(WaterProductivityCalc):
         if num_areas > 0:
             means = wbpm_calc.reduceRegion(
                 reducer=ee.Reducer.mean(),
-                geometry=cut_poly,
+                geometry=geom,
                 scale=self.scale_calc,
                 maxPixels=1e9
             )
@@ -505,7 +509,7 @@ class L1WaterProductivity(WaterProductivityCalc):
             stats = wbpm_calc.reduceRegion(
                 reducer=reducers_min_max_sum,
                 bestEffort=True,
-                geometry=cut_poly,
+                geometry=geom,
                 scale=self.scale_calc
             )
             min_max_sum = stats.getInfo()
