@@ -158,23 +158,25 @@ def run(results):
         except Exception as e:
             if isinstance(e, UnboundLocalError):
                 logger.debug("WP_GP aggregation Error")
-                logger.error(e)
+                logger.error("ERRORS={}".format(e))
             elif results.arealstat[0] == 'c':
                 logger.debug("Country Error")
-                logger.error("No country named {} in db".format(
+                logger.error("ERRORS=No country named {} in db".format(
                     results.arealstat[1]))
             elif results.arealstat[0] == 'w':
                 logger.debug("Watershed Error")
-                logger.error("No watershed named {} in db".format(
+                logger.error("ERRORS=No watershed named {} in db".format(
                     results.arealstat[1]))
             elif results.arealstat[0] == 'g':
                 logger.debug("User Defined Area format Error")
-                logger.error("Invalid GeoJson {} to parse".format(
+                logger.error("ERRORS=Invalid GeoJson {} to parse".format(
                     results.arealstat[1]))
 
     else:
 
-        logger.debug("Invalid arealstat arguments format")
+        logger.debug("ERRORS=Invalid arealstat arguments {} format".format(
+            results.arealstat
+        ))
 
     if results.map_id:
         map_ids = {'agbp': agbp, 'eta': eta, 'wp_gross': wp_gb}
@@ -226,7 +228,7 @@ def run(results):
                                                             properties,
                                                             no_data)
         except:
-            logger.error("File %s not found" % files_repo)
+            logger.error("ERRORS=File %s not found" % files_repo)
 
     args = {k: v for k, v in vars(results).items() if v is not None}
     logger.debug("Final Check %s" % args)
