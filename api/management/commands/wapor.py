@@ -1,11 +1,11 @@
 """Summary
 """
-from django.core.management.base import BaseCommand
-from wapor_algorithms import wpMain
-from util.arguments import (Arguments,
-                            read_options,
-                            json2argparse)
 import argparse
+
+from django.core.management.base import BaseCommand
+from util.arguments import Arguments, json2argparse, read_options
+from wapor_algorithms import wpMain
+
 # ...
 
 
@@ -15,6 +15,7 @@ class Command(BaseCommand):
     # help = 'Run the wapor algorithms with parameters'
     # See http://www.itkeyword.com/doc/6843479563087088172/is-it-possible-to-create-subparsers-in-a-django-management-command
     # for subparser
+
     def __init__(self, *args, **kwargs):
         """Summary
 
@@ -23,7 +24,6 @@ class Command(BaseCommand):
             **kwargs: Description
         """
         super(Command, self).__init__(*args, **kwargs)
-
 
     def add_arguments(self, parser):
         """Summary

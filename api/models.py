@@ -7,21 +7,22 @@ Attributes:
 """
 from __future__ import unicode_literals
 
-from django.db import models
-# from jsonfield_compat.fields import JSONField
-from jsonfield import JSONField
-from polymorphic.models import PolymorphicModel
-from gdstorage.storage import GoogleDriveStorage
-from django.db.models.signals import post_save, pre_save
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-from django.dispatch import receiver
-from gee_bridge import settings
 import re
 import uuid
-from jsonpickle import encode, decode
 # import json
 from collections import OrderedDict, namedtuple
+
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from gdstorage.storage import GoogleDriveStorage
+from gee_bridge import settings
+# from jsonfield_compat.fields import JSONField
+from jsonfield import JSONField
+from jsonpickle import decode, encode
+from polymorphic.models import PolymorphicModel
+from rest_framework.authtoken.models import Token
 
 # Define Google Drive Storage
 gd_storage = GoogleDriveStorage()
@@ -276,8 +277,11 @@ def create_tilemap(sender, instance, created, **kwargs):
         **kwargs: Description
     """
     uid = str(instance.hashid)
-    url = settings.BASE_URL + settings.PROXY_LOCATION + instance.owner.username + '/' + instance.rasterbucketservice.name + '/' + instance.rasterbucketservice.name + '/' + uid
-    name = instance.rasterbucketservice.rasterbucket.name + instance.rasterbucketservice.name
+    url = settings.BASE_URL + settings.PROXY_LOCATION + instance.owner.username + '/' + \
+        instance.rasterbucketservice.name + '/' + \
+        instance.rasterbucketservice.name + '/' + uid
+    name = instance.rasterbucketservice.rasterbucket.name + \
+        instance.rasterbucketservice.name
     if created:
         TileMapService.objects.create(geemap=instance,
                                       owner=instance.owner,
@@ -307,7 +311,7 @@ def run_process(sender, instance, created, **kwargs):
     input_data = instance.input_data
     # TODO must be added also in a serializer for validation
     if "process" not in input_data:
-            raise Exception("process must be specified")
+        raise Exception("process must be specified")
     args = list()
     proc = input_data.get("process")
     args.insert(1, proc)
@@ -328,7 +332,6 @@ def run_process(sender, instance, created, **kwargs):
         else:
             argument.pop("positional")
             if argument.get("choice"):
-                # import ipdb; ipdb.set_trace()
                 argument.pop("choice")
                 options = ('c', 'g', 'w')
                 try:
@@ -358,7 +361,8 @@ def run_process(sender, instance, created, **kwargs):
     print 'args=', args
     print 'optionals=', optionals
     process = Wapor()
-    # from IPython import embed; embed();
+    # from IPython import embed
+    # embed()
     cmd_result = process.run(*args, **optionals)
     # TODO async
     output_data = cmd_result
