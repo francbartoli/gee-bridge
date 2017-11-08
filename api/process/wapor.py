@@ -1,11 +1,12 @@
 """Summary
 """
-from django.core.management import call_command
-from StringIO import StringIO
-# from jsonpickle import encode, decode
-import sys
 # import json
 import ast
+# from jsonpickle import encode, decode
+import sys
+from StringIO import StringIO
+
+from django.core.management import call_command
 
 
 class Wapor:
@@ -15,6 +16,7 @@ class Wapor:
     #     super(Wapor, self).__init__()
     #     for arg in args:
     #         self.arg = arg
+
     def run(self, *args, **kwargs):
         """Summary
 
@@ -25,7 +27,8 @@ class Wapor:
         Returns:
             TYPE: Description
         """
-        # from IPython import embed; embed();
+        # from IPython import embed
+        # embed()
         old_stdout = sys.stdout
         # This variable will store everything that is sent to the
         # standard output
@@ -53,7 +56,6 @@ class Wapor:
 
         # Redirect again the std output to screen
         sys.stdout = old_stdout
-        # from IPython import embed; embed();
         lines = cmd.getvalue().split("DEBUG")
         for line in lines:
             print line
