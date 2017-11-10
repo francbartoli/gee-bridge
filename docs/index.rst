@@ -13,6 +13,7 @@ Contents:
 
    architecture
    webapi
+   wapor
    deployment
    development
    documentation
@@ -30,4 +31,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
