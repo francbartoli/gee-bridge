@@ -52,6 +52,25 @@ where the configuration option can be a file with content from `Gunicorn setting
 
 .. warning:: Please make sure you **won't be** using the option `--log-file` for logging to file because GEE Bridge :ref:`Processes` Web API takes the result of **GEE** scripts from the standard output. If you enable that option the **bridge will break**!
 
+Supervisor
+^^^^^^^^^^
+
+`Supervisor`_ can be used to control the processes of the **Gunicorn** server. Thankfully to the `pipenv`_ ``run`` command we can work outside of the virtual environment to start and stop our application:
+
+**Start command**
+
+    .. code-block:: bash
+
+        $ pipenv run supervisord -c supervisord.conf
+
+**Stop command**
+
+    .. code-block:: bash
+
+        $ ps -ef | grep supervisord # check the pid number
+        $ kill -s SIGTERM $SUPERVISORD_PID_NUMBER
+
+
 Cloud hosting provider
 ======================
 
