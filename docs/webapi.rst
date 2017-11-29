@@ -41,6 +41,8 @@ Processes
 
 # TODO
 # https://github.com/WeblateOrg/weblate/blob/master/docs/api.rst
+Process List
+````````````
 
 .. http:get:: /api/v1/processes/
 
@@ -52,9 +54,12 @@ Processes
         at :ref:`api-generic`.
 
         Process object attributes are documented
-        at :http:get:`/api/processes/(string:id)/`.
+        at :http:get:`/api/v1/processes/(string:id)/`.
 
-.. http:get:: /api/processes/(string:id)/
+Process Detail
+``````````````
+
+.. http:get:: /api/v1/processes/(string:id)/
 
     Returns information about a process.
 
@@ -71,9 +76,23 @@ Processes
         Additional common headers, parameters and status codes are documented
         at :ref:`api-generic`.
 
-    **Example JSON data:**
+Example Usage
+^^^^^^^^^^^^^
+Request:
 
-    .. code-block:: json
+    .. code-block:: http
+
+        GET /api/v1/processes/(string:id) HTTP/1.1
+        Host: example.org
+        Authorization: Token 46806a08bf54136e9597e879ed3a0876113fdee6
+
+Response:
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
 
         {
             "id": "00a2ce69-2284-4d20-af18-f7afffa54f48",
