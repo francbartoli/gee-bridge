@@ -54,7 +54,27 @@ Process List
         at :ref:`api-generic`.
 
         Process object attributes are documented
-        at :http:get:`/api/v1/processes/(string:id)/`.
+        at :http:get:`/api/v1/processes/`.
+
+Example Usage
+^^^^^^^^^^^^^
+Request:
+
+    .. code-block:: http
+
+        GET /api/v1/processes/ HTTP/1.1
+        Host: example.org
+        Authorization: Token 46806a08bf54136e9597e879ed3a0876113fdee6
+
+Response:
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {}
 
 Process Detail
 ``````````````
