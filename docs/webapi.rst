@@ -337,6 +337,9 @@ Response:
             "date_modified": "2017-11-08T15:04:08.014828Z"
         }
 
+Process Trigger
+```````````````
+
 .. http:post:: /api/v1/processes/
 
     Performs the given process type on Google Earth Engine.
@@ -351,9 +354,16 @@ Response:
 
         Additional common headers, parameters and status codes are documented at :ref:`api-generic`.
 
-    **User Defined Area (UDA) example JSON data:**
+User Defined Area (UDA) Example Usage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Request:
 
-    .. code-block:: json
+    .. code-block:: http
+
+        POST /api/v1/processes/ HTTP/1.1
+        Host: example.org
+        Authorization: Token 46806a08bf54136e9597e879ed3a0876113fdee6
+        Content-Type: application/json
 
         {
             "name": "A wapor productivity process",
@@ -422,9 +432,25 @@ Response:
             "output_data": {}
         }
 
-    **Country example JSON data:**
+Response:
 
-    .. code-block:: json
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {}
+
+Country Example Usage
+^^^^^^^^^^^^^^^^^^^^^
+
+    .. code-block:: http
+
+        POST /api/v1/processes/ HTTP/1.1
+        Host: example.org
+        Authorization: Token 46806a08bf54136e9597e879ed3a0876113fdee6
+        Content-Type: application/json
 
         {
             "name": "A wapor productivity process",
@@ -461,3 +487,13 @@ Response:
             "owner": "wapor",
             "output_data": {}
         }
+
+Response:
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {}
