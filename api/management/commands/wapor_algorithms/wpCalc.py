@@ -311,7 +311,7 @@ class L1WaterProductivity(WaterProductivityCalc):
         """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass
         """
 
-        # TODO: metodo da cambiare e verificare
+        # TODO: metodo da cambiare e verificare id:0 gh:6
         # Or, as you will already have calculated AET annual and AGBP annual:
         # AGBPy/(AETy*10) where *10 is to convert mm into m3/ha
         # var WPnb = AGBPy.divide(Ty.multiply(10));
@@ -335,7 +335,7 @@ class L1WaterProductivity(WaterProductivityCalc):
             rightField='system:time_start'
         )
         AGBP_T_collection_Join = ee.ImageCollection(
-            # TODO: CAMBIARE _L1_AGBP_ANNUAL
+            # TODO: CAMBIARE _L1_AGBP_ANNUAL id:2 gh:8
             Join.apply(self._L1_AGBP_ANNUAL,
                        t_year_coll_mt100,
                        FilterOnStartTime))

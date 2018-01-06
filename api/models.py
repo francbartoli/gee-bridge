@@ -309,7 +309,7 @@ def run_process(sender, instance, created, **kwargs):
     """
     from api.process.wapor import Wapor
     input_data = instance.input_data
-    # TODO must be added also in a serializer for validation
+    # TODO must be added also in a serializer for validation id:1 gh:7
     if "process" not in input_data:
         raise Exception("process must be specified")
     args = list()
@@ -364,7 +364,7 @@ def run_process(sender, instance, created, **kwargs):
     # from IPython import embed
     # embed()
     cmd_result = process.run(*args, **optionals)
-    # TODO async
+    # TODO async id:6 gh:12
     output_data = cmd_result
     if created:
         Process.objects.filter(id=instance.id

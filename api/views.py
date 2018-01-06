@@ -228,7 +228,7 @@ def swagger_schema_view(request):
 
 #     elif request.method == 'POST':
 #         serializer = serializers.ProcessSerializer(data=request.data)
-#         if serializer.is_valid():  # TODO add more validation
+#         if serializer.is_valid():  # TODO add more validation id:8 gh:14
 #         # see https://richardtier.com/2014/03/24/json-schema-validation-with-django-rest-framework/
 #             serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)

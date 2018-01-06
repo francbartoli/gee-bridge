@@ -400,7 +400,7 @@ def RATWriteArray(rat, array, field, start=0):
 
     if numpy.issubdtype(array.dtype, numpy.integer):
         # is some type of integer - coerce to standard int
-        # TODO: must check this is fine on all platforms
+        # TODO: must check this is fine on all platforms id:5 gh:11
         # confusingly numpy.int 64 bit even if native type 32 bit
         array = array.astype(numpy.int32)
     elif numpy.issubdtype(array.dtype, numpy.floating):
