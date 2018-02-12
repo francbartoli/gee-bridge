@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os
 import datetime
+import os
+
 import ee
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -57,6 +58,7 @@ INSTALLED_APPS = [
     'sphinxdoc',
     'haystack',
     'corsheaders',
+    'bootstrap4',
     # rest
     'rest_framework',
     'rest_framework_swagger',
@@ -290,7 +292,7 @@ SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
 # Path to the json file key
 GOOGLE_JSON_KEY_DIR = os.path.join(BASE_DIR, "google")
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-60f6bfb41ef2.json')
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json')
 
 #
 # Google Earth Engine Settings
@@ -305,7 +307,7 @@ EE_ACCOUNT = 'fao-wapor@fao-wapor.iam.gserviceaccount.com'
 # The private key associated with your service account in Privacy Enhanced
 # Email format (deprecated version .pem suffix, new version .json suffix).
 EE_PRIVATE_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-60f6bfb41ef2.json')
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json')
 # Service account scope for GEE
 GOOGLE_SERVICE_ACCOUNT_SCOPES = [
     'https://www.googleapis.com/auth/fusiontables',
@@ -351,7 +353,8 @@ MAP_TYPES = (
 # React
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'BUNDLE_DIR_NAME': os.path.join('bundles/'),  # '/static/bundles/',  # end with slash
+        # '/static/bundles/',  # end with slash
+        'BUNDLE_DIR_NAME': os.path.join('bundles/'),
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json')
     }
 }
