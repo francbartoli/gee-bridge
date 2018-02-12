@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'polymorphic',
     'helloworld',
     'gdstorage',
-    'sphinxdoc',
     'haystack',
     'corsheaders',
     'bootstrap4',
@@ -69,15 +68,13 @@ INSTALLED_APPS = [
     'drfpasswordless',
     # oauth2
     'oauth2_provider',
-    'social_django',
-    'rest_framework_social_oauth2',
     # custom
     'gee_bridge',
     'api',
     'httpproxy',
     'gee_agent',
-    'mapclient',
     'channels',
+    'mapclient',
     'webpack_loader',
     'webmapping'
 ]
@@ -133,7 +130,6 @@ REST_FRAMEWORK = {
         # 'rest_framework_jwt.authentication.TokenAuthentication',
         # oauth2
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     )
 }
 
@@ -379,5 +375,3 @@ HAYSTACK_CONNECTIONS = {
         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
     },
 }
-
-SPHINXDOC_BASE_TEMPLATE = 'base.html'

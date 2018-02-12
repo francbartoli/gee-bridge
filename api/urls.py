@@ -57,8 +57,6 @@ urlpatterns = [
         name='API password reset confirmation'),
     url(r'^passwordless/',
         include('drfpasswordless.urls')),
-    url(r'^auth/social/',
-        include('rest_framework_social_oauth2.urls')),
 
     # Process
     url(r'^processes/$',
