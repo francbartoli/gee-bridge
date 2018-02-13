@@ -103,8 +103,8 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+                # 'social_django.context_processors.backends',
+                # 'social_django.context_processors.login_redirect',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -184,27 +184,27 @@ DJOSER = {
 }
 
 # Authentication backend for socials
-AUTHENTICATION_BACKENDS = (
-    # Facebook OAuth2
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    # django-rest-framework-social-oauth2
-    'rest_framework_social_oauth2.backends.DjangoOAuth2',
-    # Django
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-# Facebook configuration
-SOCIAL_AUTH_FACEBOOK_KEY = '211785359310265'
-SOCIAL_AUTH_FACEBOOK_SECRET = '9cf3dee66138dcec396e42f08966bb8f'
-
-# Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from facebook.
-# Email is not sent by default, to get it, you must request
-# the email permission:
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email'
-}
+# AUTHENTICATION_BACKENDS = (
+#     # Facebook OAuth2
+#     'social_core.backends.facebook.FacebookAppOAuth2',
+#     'social_core.backends.facebook.FacebookOAuth2',
+#     # django-rest-framework-social-oauth2
+#     'rest_framework_social_oauth2.backends.DjangoOAuth2',
+#     # Django
+#     'django.contrib.auth.backends.ModelBackend',
+# )
+#
+# # Facebook configuration
+# SOCIAL_AUTH_FACEBOOK_KEY = '211785359310265'
+# SOCIAL_AUTH_FACEBOOK_SECRET = '9cf3dee66138dcec396e42f08966bb8f'
+#
+# # Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from facebook.
+# # Email is not sent by default, to get it, you must request
+# # the email permission:
+# SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+# SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+#     'fields': 'id, name, email'
+# }
 
 # Passwordless configuration
 PASSWORDLESS_AUTH = {
