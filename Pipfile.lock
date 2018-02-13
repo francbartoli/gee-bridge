@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e1a851a6e292143e260b2c870686a184f64da05bf1ed00bb95b2d2b580b6efd6"
+            "sha256": "159b20ae3e8caf40d66a846629b76e3b65dd6dcf3b1143bc0808eb1ed8674f4c"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -174,10 +174,10 @@
         },
         "daphne": {
             "hashes": [
-                "sha256:05732cee4a55c2c89fbe449b1c18071f3c38ef1bef6edce7740e75c6541ac98e",
-                "sha256:be13160198f20f2c8029e73d402b65b49fb428254a89d98f3ccfc133c380c5f1"
+                "sha256:a6320a4706a4b896028503567aa93f6cacef21ebda987dbfe86a0b4f5d263401",
+                "sha256:68611a02f941f1de3c338b6e243ca5bdba2afcb422aee13e3cc07f77de330112"
             ],
-            "version": "==1.4.0"
+            "version": "==1.4.1"
         },
         "django": {
             "hashes": [
