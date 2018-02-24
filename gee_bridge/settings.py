@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'polymorphic',
     'helloworld',
     'gdstorage',
-    'haystack',
     'corsheaders',
     'bootstrap4',
     # rest
@@ -369,9 +368,9 @@ WEBPACK_LOADER = {
 #         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
 #     },
 # }
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
-    },
-}
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+#     },
+# }
