@@ -1,23 +1,29 @@
 """Summary
 """
-from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, permissions
-from rest_framework.views import APIView
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+from api import models, serializers
+from django.contrib.auth.models import User
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render
+from drf_yasg import openapi as yags_openapi
+from drf_yasg.views import get_schema_view as yags_get_schema_view
+from rest_framework import generics, permissions, status
+from rest_framework.decorators import (api_view, permission_classes,
+                                       renderer_classes)
 from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin, RetrieveModelMixin,
+                                   UpdateModelMixin)
+from rest_framework.renderers import (BaseRenderer, BrowsableAPIRenderer,
+                                      JSONRenderer)
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
-from django.http import Http404
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, renderer_classes
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, BaseRenderer
-from rest_framework_yaml.renderers import YAMLRenderer
+from rest_framework.views import APIView
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
+from rest_framework_yaml.renderers import YAMLRenderer
+
 # from utils import swagger_tools
-from .permissions import IsOwner, IsOwnerOrReadOnly, IsOpen
-from api import models
-from django.contrib.auth.models import User
-from api import serializers
+from .permissions import IsOpen, IsOwner, IsOwnerOrReadOnly
+
 # from collections import OrderedDict
 
 # Create your views here.
@@ -32,9 +38,24 @@ from api import serializers
 #     def render(self, data, media_type=None, renderer_context=None):
 #         codec = OpenAPICodec()
 #         return codec.dump(data)
+custom_schema_view = yags_get_schema_view(
+    yags_openapi.Info(
+        title="Rasterbucket API",
+        default_version='v1',
+        description="Rasterbucket API description",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=yags_openapi.Contact(email="contact@snippets.local"),
+        license=yags_openapi.License(name="BSD License"),
+    ),
+    validators=['flex', 'ssv'],
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 
 # CBF
+
+
 class ProcessList(GenericAPIView):
     """
     List all processes, or create a new process.

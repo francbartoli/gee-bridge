@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'bootstrap4',
     # rest
     'rest_framework',
+    'drf_yasg',
     'rest_framework_swagger',
     'rest_framework_docs',
     # rest security
@@ -136,7 +137,21 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000000),
 }
 
+# SWAGGER_SETTINGS = {
+#     'JSON_EDITOR': True,
+# }
+
 SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
     'JSON_EDITOR': True,
 }
 

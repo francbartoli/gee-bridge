@@ -1,4 +1,5 @@
 from api import views as api_views
+from api.views import custom_schema_view as custom_schema_view
 from api.views import swagger_schema_view as schema_swagger_view
 from django.conf.urls import include, url
 from djoser import views as djoser_views
@@ -12,6 +13,15 @@ schema_view = get_schema_view(title='Rasterbucket API')
 swagger_view = get_swagger_view(title='Rasterbucket API')
 
 urlpatterns = [
+    url(r'^livedoc/swagger(?P<format>.json|.yaml)$',
+        custom_schema_view.without_ui(cache_timeout=None),
+        name='schema-json'),
+    url(r'^livedoc/swagger/$',
+        custom_schema_view.with_ui('swagger', cache_timeout=None),
+        name='schema-swagger-ui'),
+    url(r'^livedoc/redoc/$',
+        custom_schema_view.with_ui('redoc', cache_timeout=None),
+        name='schema-redoc'),
     url(r'^docs/',
         include_docs_urls(title="Rasterbucket API",
                           authentication_classes=[],
@@ -93,4 +103,4 @@ services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
         name="api.rasterbuckets.services.mapservice.detail")
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+#urlpatterns = format_suffix_patterns(urlpatterns)
