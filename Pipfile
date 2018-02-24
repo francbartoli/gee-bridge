@@ -70,3 +70,4 @@ channels = "==1.0"
 "django-bootstrap4" = "*"
 django-oauth-toolkit = "*"
 "enum34" = "*"
+drf-yasg = {extras = ["validation"]}
