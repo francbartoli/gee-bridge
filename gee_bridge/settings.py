@@ -55,11 +55,11 @@ INSTALLED_APPS = [
     'polymorphic',
     'helloworld',
     'gdstorage',
-    'haystack',
     'corsheaders',
     'bootstrap4',
     # rest
     'rest_framework',
+    'drf_yasg',
     'rest_framework_swagger',
     'rest_framework_docs',
     # rest security
@@ -137,7 +137,21 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000000),
 }
 
+# SWAGGER_SETTINGS = {
+#     'JSON_EDITOR': True,
+# }
+
 SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
     'JSON_EDITOR': True,
 }
 
@@ -369,9 +383,9 @@ WEBPACK_LOADER = {
 #         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
 #     },
 # }
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
-    },
-}
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
+#     },
+# }
