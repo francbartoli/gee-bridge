@@ -5,7 +5,6 @@ from django.conf.urls import include, url
 from djoser import views as djoser_views
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
-from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_jwt import views as jwt_views
 from rest_framework_swagger.views import get_swagger_view
 
@@ -102,5 +101,3 @@ services/(?P<pk_service>[0-9]+)/maps/(?P<pk_map>[0-9]+)/$',
         api_views.MapServiceDetailView.as_view(),
         name="api.rasterbuckets.services.mapservice.detail")
 ]
-
-#urlpatterns = format_suffix_patterns(urlpatterns)
