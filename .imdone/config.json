@@ -7,14 +7,17 @@
   "code": {
     "include_lists": [
       "TODO",
+      "DOING",
+      "DONE",
+      "PLANNING",
       "FIXME",
+      "ARCHIVE",
       "HACK",
       "CHANGED",
       "XXX",
       "IDEA",
       "NOTE",
-      "REVIEW",
-      "TODO"
+      "REVIEW"
     ]
   },
   "lists": [
