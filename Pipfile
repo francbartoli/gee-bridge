@@ -71,3 +71,4 @@ channels = "==1.0"
 django-oauth-toolkit = "*"
 "enum34" = "*"
 drf-yasg = {extras = ["validation"]}
+django-storages = "*"
