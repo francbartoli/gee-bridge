@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'polymorphic',
     'helloworld',
-    'gdstorage',
+    'storages',
     'corsheaders',
     'bootstrap4',
     # rest
@@ -276,8 +276,19 @@ SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
 #
 # Path to the json file key
 GOOGLE_JSON_KEY_DIR = os.path.join(BASE_DIR, "google")
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json')
+# GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
+#     GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json')
+
+# Google Cloud Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'fao-wapor-bucket'
+GS_PROJECT_ID = '1009145000126'
+# Don't use GS_CREDENTIALS
+# see issue https://github.com/jschneier/django-storages/issues/455
+GOOGLE_APPLICATION_CREDENTIALS = os.path.join(
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json'
+)
+GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER = 'geebridge'
 
 #
 # Google Earth Engine Settings

@@ -32,6 +32,7 @@ graphviz = "*"
 pygraphviz = "*"
 ipython = "*"
 "django-bootstrap4" = "*"
+sphinxcontrib-golangdomain = "==0.1.3dev"
 
 
 [packages]
@@ -71,3 +72,4 @@ channels = "==1.0"
 django-oauth-toolkit = "*"
 "enum34" = "*"
 drf-yasg = {extras = ["validation"]}
+django-storages = "*"
