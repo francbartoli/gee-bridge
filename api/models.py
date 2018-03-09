@@ -16,7 +16,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from gdstorage.storage import GoogleDriveStorage
 from gee_bridge import settings
 # from jsonfield_compat.fields import JSONField
 from jsonfield import JSONField
@@ -24,11 +23,8 @@ from jsonpickle import decode, encode
 from polymorphic.models import PolymorphicModel
 from rest_framework.authtoken.models import Token
 
-# Define Google Drive Storage
-gd_storage = GoogleDriveStorage()
 # Create your models here.
 DEFAULT_OWNER = 1
-GOOGLE_DRIVE_UPLOAD_FOLDER = 'myfolder'
 
 
 def normalize(query_string):
@@ -124,8 +120,7 @@ class Rasterbucket(BaseModel):
         raster_data (TYPE): Description
     """
     raster_data = models.FileField(
-        upload_to=GOOGLE_DRIVE_UPLOAD_FOLDER,
-        storage=gd_storage,
+        upload_to=settings.GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER,
         blank=True)
     owner = models.ForeignKey(
         'auth.User',
