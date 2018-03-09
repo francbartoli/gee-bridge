@@ -32,6 +32,7 @@ graphviz = "*"
 pygraphviz = "*"
 ipython = "*"
 "django-bootstrap4" = "*"
+sphinxcontrib-golangdomain = "==0.1.3dev"
 
 
 [packages]
