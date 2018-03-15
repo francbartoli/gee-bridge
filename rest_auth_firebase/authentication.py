@@ -5,7 +5,10 @@ from rest_framework import exceptions
 from rest_framework.authentication import (
     BaseAuthentication, get_authorization_header
 )
-from firebase_sdkadm import firebase_decode_handler
+from rest_auth_firebase.firebase_sdkadm import firebase_decode_handler
+import firebase_admin
+from firebase_admin.auth import AuthError
+import sys
 
 class FirebaseAuthentication(BaseAuthentication):
     """Simple Firebase based authentication.
@@ -38,10 +41,10 @@ class FirebaseAuthentication(BaseAuthentication):
         if not fb_auth or fb_auth[0].lower() != self.keyword.lower().encode():
             return None
 
-        if len(auth) == 1:
+        if len(fb_auth) == 1:
             msg = _('Invalid token header. No credentials provided.')
             raise exceptions.AuthenticationFailed(msg)
-        elif len(auth) > 2:
+        elif len(fb_auth) > 2:
             msg = _('Invalid token header. Token string should not contain spaces.')
             raise exceptions.AuthenticationFailed(msg)
 
@@ -50,7 +53,7 @@ class FirebaseAuthentication(BaseAuthentication):
         except UnicodeError:
             msg = _('Invalid token header. Token string should not contain invalid characters.')
             raise exceptions.AuthenticationFailed(msg)
-
+        # import ipdb; ipdb.set_trace()
         return self.authenticate_credentials(token)
 
     # TODO do something similar if the user has to be registered locally
@@ -69,12 +72,13 @@ class FirebaseAuthentication(BaseAuthentication):
     def authenticate_credentials(self, key):
         try:
             user = firebase_decode_handler(key)
-            print (
-                "The retrieved user from Firebase is {user}".format(
+            #import ipdb; ipdb.set_trace()
+            print(
+                "The retrieved user from Firebase is {0}".format(
                     user
                 )
             )
-        except auth.AuthError as e:
+        except AuthError as e:
             if e.code == 'ID_TOKEN_REVOKED':
                 # Token revoked, inform the user to reauthenticate or signOut().
                 raise exceptions.AuthenticationFailed(_(
