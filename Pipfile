@@ -32,7 +32,7 @@ graphviz = "*"
 pygraphviz = "*"
 ipython = "*"
 "django-bootstrap4" = "*"
-sphinxcontrib-golangdomain = "==0.1.3dev"
+sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git", editable = true, ref = "master"}
 
 
 [packages]
@@ -67,9 +67,11 @@ retrying = "*"
 pathlib = "*"
 django = "==1.11.10"
 daphne = "==1.4.1"
-channels = "==1.0"
+channels = "==1.1.8"
 "django-bootstrap4" = "*"
 django-oauth-toolkit = "*"
 "enum34" = "*"
 drf-yasg = {extras = ["validation"]}
 django-storages = "*"
+asgi-redis = "*"
+asgiref = "~=1.1"
