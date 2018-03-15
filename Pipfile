@@ -75,3 +75,4 @@ drf-yasg = {extras = ["validation"]}
 django-storages = "*"
 asgi-redis = "*"
 asgiref = "~=1.1"
+django-rest-auth = "*"
