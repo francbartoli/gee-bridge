@@ -51,6 +51,8 @@ urlpatterns = [
         name='API login'),  # using JSON web token
     url(r'^security/restauth/',
         include('rest_auth.urls')),
+    url(r'^security/restauth/registration/',
+        include('rest_auth.registration.urls')),
     url(r'^security/djoser/',
         include('djoser.urls')),
     url(r'^security/passwordless/',

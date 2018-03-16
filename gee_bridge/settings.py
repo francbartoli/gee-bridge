@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_extensions',
     'polymorphic',
     'helloworld',
@@ -66,6 +67,9 @@ INSTALLED_APPS = [
     # rest security
     'rest_framework.authtoken',
     'rest_auth',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
     'rest_auth_firebase',
     'djoser',
     'drfpasswordless',
@@ -81,6 +85,8 @@ INSTALLED_APPS = [
     'webpack_loader',
     'webmapping'
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -291,6 +297,9 @@ GOOGLE_APPLICATION_CREDENTIALS = os.path.join(
     GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json'
 )
 GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER = 'geebridge'
+
+# To be removed since the development database is complaining about this
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = GOOGLE_APPLICATION_CREDENTIALS
 
 # Google Earth Engine Settings
 #
