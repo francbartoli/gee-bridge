@@ -14,6 +14,7 @@ import datetime
 import os
 
 import ee
+from firebase_admin import credentials
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -64,6 +65,8 @@ INSTALLED_APPS = [
     'rest_framework_docs',
     # rest security
     'rest_framework.authtoken',
+    'rest_auth',
+    'rest_auth_firebase',
     'djoser',
     'drfpasswordless',
     # oauth2
@@ -122,6 +125,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_auth_firebase.authentication.FirebaseAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
@@ -134,10 +138,6 @@ REST_FRAMEWORK = {
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000000),
 }
-
-# SWAGGER_SETTINGS = {
-#     'JSON_EDITOR': True,
-# }
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -290,7 +290,6 @@ GOOGLE_APPLICATION_CREDENTIALS = os.path.join(
 )
 GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER = 'geebridge'
 
-#
 # Google Earth Engine Settings
 #
 # GEE hostname
@@ -312,6 +311,17 @@ GOOGLE_SERVICE_ACCOUNT_SCOPES = [
 EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
                                               EE_PRIVATE_KEY_FILE,
                                               GOOGLE_SERVICE_ACCOUNT_SCOPES)
+
+# Firebase settings
+FIREBASE_ACCOUNT = 'firebase-adminsdk-6s5ce@spring-firebase-demo.iam.gserviceaccount.com' # EE_ACCOUNT
+FIREBASE_PRIVATE_KEY_FILE = os.path.join(
+    GOOGLE_JSON_KEY_DIR, 'spring-firebase-demo-firebase-adminsdk-6s5ce-68de378780.json')
+FIREBASE_SERVICE_ACCOUNT_SCOPES = [
+    'https://www.googleapis.com/auth/cloud-platform',
+    'https://www.googleapis.com/auth/firebase',
+    'https://www.googleapis.com/auth/firebase.readonly'
+]
+FIREBASE_CREDENTIALS = credentials.Certificate(FIREBASE_PRIVATE_KEY_FILE)
 
 # Proxy GEE tiles server
 PROXY_BASE_URL = 'https://earthengine.googleapis.com/map'  # GEE_PUBLIC_BASE_URL

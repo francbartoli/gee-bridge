@@ -22,7 +22,10 @@ from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 from rest_framework_yaml.renderers import YAMLRenderer
 
 # from utils import swagger_tools
-from .permissions import IsOpen, IsOwner, IsOwnerOrReadOnly
+from .permissions import (IsOpen,
+                          IsOwner,
+                          IsOwnerOrReadOnly)
+from rest_framework.permissions import IsAuthenticated
 
 # from collections import OrderedDict
 
@@ -73,7 +76,7 @@ class ProcessList(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsOpen, )
+    permission_classes = (IsAuthenticated, )
 
     def get(self, request, format=None):
         """Summary
@@ -121,7 +124,7 @@ class ProcessDetail(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsOpen, )
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self, id):
         """Summary
@@ -294,8 +297,7 @@ class RasterbucketCreateView(generics.ListCreateAPIView):
     """
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
-    permission_classes = (
-        permissions.IsAuthenticated, IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
 
     def perform_create(self, serializer):
         """Save the post data when creating a new rasterbucket.
@@ -317,9 +319,7 @@ class RasterbucketDetailsView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
 
 
 class RasterbucketServiceCreateView(generics.ListCreateAPIView):
@@ -330,9 +330,7 @@ class RasterbucketServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.RasterbucketService.objects.all()
     serializer_class = serializers.RasterbucketServiceSerializer
 
@@ -405,9 +403,7 @@ class GEEMapServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.GEEMapService.objects.all()
     serializer_class = serializers.GEEMapServiceSerializer
 
@@ -457,9 +453,7 @@ class TileMapServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.TileMapService.objects.all()
     serializer_class = serializers.TileMapServiceSerializer
 
