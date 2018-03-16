@@ -1,10 +1,10 @@
-"""Summary
+"""Summary of api views for Rasterbucket models
 """
 from api import models, serializers
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from drf_yasg import openapi as yags_openapi
+from drf_yasg import openapi as yasg_openapi
 from drf_yasg.views import get_schema_view as yags_get_schema_view
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import (api_view, permission_classes,
@@ -25,7 +25,10 @@ from rest_framework_yaml.renderers import YAMLRenderer
 from .permissions import (IsOpen,
                           IsOwner,
                           IsOwnerOrReadOnly)
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny
+)
 
 # from collections import OrderedDict
 
@@ -42,17 +45,21 @@ from rest_framework.permissions import IsAuthenticated
 #         codec = OpenAPICodec()
 #         return codec.dump(data)
 custom_schema_view = yags_get_schema_view(
-    yags_openapi.Info(
-        title="Rasterbucket API",
-        default_version='v1',
-        description="Rasterbucket API description",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=yags_openapi.Contact(email="contact@snippets.local"),
-        license=yags_openapi.License(name="BSD License"),
+    yasg_openapi.Info(
+        title="Rasterbucket API", 
+    default_version='v1', 
+    description="""This is a project for a GEE bridge [gee-bridge](https://github.com/francbartoli/gee-bridge) Django Rest Framework library. 
+The `swagger-ui` view can be found [here](/api/v1/livedoc/swagger).   
+The `ReDoc` view can be found [here](/api/v1/livedoc/redoc).   
+The swagger YAML document can be found [here](/api/v1/livedoc/swagger.yaml).   
+You can log in using the pre-existing `waporadm` user with password `Cambiami100!`.""",  # noqa 
+    terms_of_service="https://www.google.com/policies/terms/", 
+    contact=yasg_openapi.Contact(email="xbartolone@gmail.com"), 
+    license=yasg_openapi.License(name="GPLv3 License"),
     ),
     validators=['flex', 'ssv'],
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=(AllowAny,),
 )
 
 
