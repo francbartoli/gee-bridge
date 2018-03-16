@@ -49,6 +49,8 @@ urlpatterns = [
     url(r'^auth/login',
         jwt_views.obtain_jwt_token,
         name='API login'),  # using JSON web token
+    url(r'^security/restauth/',
+        include('rest_auth.urls')),
     url(r'^security/djoser/',
         include('djoser.urls')),
     url(r'^security/passwordless/',
