@@ -151,6 +151,8 @@ SWAGGER_SETTINGS = {
         }
     },
     'JSON_EDITOR': True,
+    'LOGIN_URL': '/admin/login',
+    'LOGOUT_URL': '/admin/logout'
 }
 
 # Database
