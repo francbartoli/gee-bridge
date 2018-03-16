@@ -1,41 +1,41 @@
 from api import views as api_views
-from api.views import custom_schema_view as custom_schema_view
+from api.views import api_schema_view as api_schema_view
 from api.views import swagger_schema_view as schema_swagger_view
 from django.conf.urls import include, url
 from djoser import views as djoser_views
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
 from rest_framework_jwt import views as jwt_views
-from rest_framework_swagger.views import get_swagger_view
+# from rest_framework_swagger.views import get_swagger_view
 
 schema_view = get_schema_view(title='Rasterbucket API')
-swagger_view = get_swagger_view(title='Rasterbucket API')
+# swagger_view = get_swagger_view(title='Rasterbucket API')
 
 urlpatterns = [
     url(r'^livedoc/swagger(?P<format>.json|.yaml)$',
-        custom_schema_view.without_ui(cache_timeout=None),
+        api_schema_view.without_ui(cache_timeout=None),
         name='schema-json'),
     url(r'^livedoc/swagger/$',
-        custom_schema_view.with_ui('swagger', cache_timeout=None),
+        api_schema_view.with_ui('swagger', cache_timeout=None),
         name='schema-swagger-ui'),
     url(r'^livedoc/redoc/$',
-        custom_schema_view.with_ui('redoc', cache_timeout=None),
+        api_schema_view.with_ui('redoc', cache_timeout=None),
         name='schema-redoc'),
-    url(r'^docs/',
-        include_docs_urls(title="Rasterbucket API",
-                          authentication_classes=[],
-                          permission_classes=[])),
-    url(r'^schema/$',
-        schema_view,
-        name="schema"),
-    url(r'^swagger/$',
-        schema_swagger_view,
-        name="swagger"),
-    url(r'^docs/base/',
-        swagger_view,
-        name="swagger docs"),
-    url(r'^live-api/',
-        include('rest_framework_docs.urls')),
+    # url(r'^docs/',
+    #     include_docs_urls(title="Rasterbucket API",
+    #                       authentication_classes=[],
+    #                       permission_classes=[])),
+    # url(r'^schema/$',
+    #     schema_view,
+    #     name="schema"),
+    # url(r'^swagger/$',
+    #     schema_swagger_view,
+    #     name="swagger"),
+    # url(r'^docs/base/',
+    #     swagger_view,
+    #     name="swagger docs"),
+    # url(r'^live-api/',
+    #     include('rest_framework_docs.urls')),
 
     # Security
     url(r'^auth/signup/$',

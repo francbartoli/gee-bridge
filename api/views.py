@@ -44,7 +44,7 @@ from rest_framework.permissions import (
 #     def render(self, data, media_type=None, renderer_context=None):
 #         codec = OpenAPICodec()
 #         return codec.dump(data)
-custom_schema_view = yags_get_schema_view(
+api_schema_view = yags_get_schema_view(
     yasg_openapi.Info(
         title="Rasterbucket API", 
     default_version='v1', 
