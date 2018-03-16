@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
@@ -20,7 +21,9 @@ class FirebaseAuthentication(BaseAuthentication):
         Authorization: Bearer 401f7ac837da42b97f613d789819ff93537bee6a
     """
 
-    keyword = 'Bearer'
+    www_authenticate_realm = 'api'
+    FIREBASE_AUTH_HEADER_PREFIX = 'Bearer'
+    keyword = FIREBASE_AUTH_HEADER_PREFIX
     model = None
 
     def get_model(self):
@@ -36,7 +39,9 @@ class FirebaseAuthentication(BaseAuthentication):
     """
 
     def authenticate(self, request):
+        
         fb_auth = get_authorization_header(request).split()
+        import ipdb; ipdb.set_trace()
 
         if not fb_auth or fb_auth[0].lower() != self.keyword.lower().encode():
             return None
@@ -53,8 +58,17 @@ class FirebaseAuthentication(BaseAuthentication):
         except UnicodeError:
             msg = _('Invalid token header. Token string should not contain invalid characters.')
             raise exceptions.AuthenticationFailed(msg)
-        # import ipdb; ipdb.set_trace()
-        return self.authenticate_credentials(token)
+        except ValueError:
+            msg = _('Invalid token header. Token is expired.')
+            raise exceptions.AuthenticationFailed(msg)
+        username = self.authenticate_credentials(token).encode()
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+             user = User(username=username)
+             user.save()
+
+        return (user, token)
 
     # TODO do something similar if the user has to be registered locally
     # def authenticate_credentials(self, key):
@@ -70,9 +84,9 @@ class FirebaseAuthentication(BaseAuthentication):
     #     return (token.user, token)
 
     def authenticate_credentials(self, key):
+
         try:
             user = firebase_decode_handler(key)
-            #import ipdb; ipdb.set_trace()
             print(
                 "The retrieved user from Firebase is {0}".format(
                     user
@@ -90,27 +104,14 @@ class FirebaseAuthentication(BaseAuthentication):
         
         return user
 
+
     def authenticate_header(self, request):
-        return self.keyword
-
-    # def authenticate(self, request):
-    #     """Actual authentication happens here."""
-    #     token = request.META.get('HTTP_TOKENID')
-    #     if token:
-    #         try:
-    #             firebase_user = auth.verify_id_token(token)
-    #         except ValueError:
-    #             return None
-    #         if not firebase_user:
-    #             return None
-
-    #         user_id = firebase_user.get('user_id')
-    #         try:
-    #             user = User.objects.get(id=user_id)
-    #             print(user)
-    #         except User.DoesNotExist:
-    #             raise exceptions.AuthenticationFailed('No such user')
-    #         return (user, None)
-    #     else:
-    #         # no token provided
-    #         return None
+        """
+        Return a string to be used as the value of the `WWW-Authenticate`
+        header in a `401 Unauthenticated` response, or `None` if the
+        authentication scheme should return `403 Permission Denied` responses.
+        """
+        return '{0} realm="{1}"'.format(
+            self.FIREBASE_AUTH_HEADER_PREFIX,
+            self.www_authenticate_realm
+        )
