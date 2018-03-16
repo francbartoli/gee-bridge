@@ -41,7 +41,7 @@ class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
         
         fb_auth = get_authorization_header(request).split()
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
 
         if not fb_auth or fb_auth[0].lower() != self.keyword.lower().encode():
             return None
@@ -58,10 +58,9 @@ class FirebaseAuthentication(BaseAuthentication):
         except UnicodeError:
             msg = _('Invalid token header. Token string should not contain invalid characters.')
             raise exceptions.AuthenticationFailed(msg)
-        except ValueError:
-            msg = _('Invalid token header. Token is expired.')
-            raise exceptions.AuthenticationFailed(msg)
+        
         username = self.authenticate_credentials(token).encode()
+
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
@@ -101,6 +100,11 @@ class FirebaseAuthentication(BaseAuthentication):
             else:
                 # Token is invalid
                 raise exceptions.AuthenticationFailed(_('Invalid token.'))
+        
+        except ValueError as e:
+            print(e)
+            msg = _('Invalid token header. Token is expired.')
+            raise exceptions.AuthenticationFailed(msg)
         
         return user
 
