@@ -10,7 +10,13 @@ from rest_auth_firebase.firebase_sdkadm import firebase_decode_handler
 import firebase_admin
 from firebase_admin.auth import AuthError
 import sys
+import logging
 
+
+logger = logging.getLogger(__name__)
+
+
+# see https://github.com/edx/edx-drf-extensions
 class FirebaseAuthentication(BaseAuthentication):
     """Simple Firebase based authentication.
 
@@ -57,6 +63,7 @@ class FirebaseAuthentication(BaseAuthentication):
             token = fb_auth[1].decode()
         except UnicodeError:
             msg = _('Invalid token header. Token string should not contain invalid characters.')
+            logger.error(msg)
             raise exceptions.AuthenticationFailed(msg)
         
         username = self.authenticate_credentials(token).encode()
@@ -86,7 +93,7 @@ class FirebaseAuthentication(BaseAuthentication):
 
         try:
             user = firebase_decode_handler(key)
-            print(
+            logger.debug(
                 "The retrieved user from Firebase is {0}".format(
                     user
                 )
@@ -94,16 +101,18 @@ class FirebaseAuthentication(BaseAuthentication):
         except AuthError as e:
             if e.code == 'ID_TOKEN_REVOKED':
                 # Token revoked, inform the user to reauthenticate or signOut().
-                raise exceptions.AuthenticationFailed(_(
-                    'User token is revoked. Please authenticate again'
-                ))
+                msg = _('User token is revoked. Please authenticate again')
+                logger.error(msg)
+                raise exceptions.AuthenticationFailed(msg)
             else:
                 # Token is invalid
-                raise exceptions.AuthenticationFailed(_('Invalid token.'))
+                msg = _('Invalid token.')
+                logger.error(msg)
+                raise exceptions.AuthenticationFailed(msg)
         
         except ValueError as e:
-            print(e)
             msg = _('Invalid token header. Token is expired.')
+            logger.error(msg)
             raise exceptions.AuthenticationFailed(msg)
         
         return user
