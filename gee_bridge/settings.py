@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
+    'rest_social',
     'oauth2_provider',
     # custom
     'gee_bridge',

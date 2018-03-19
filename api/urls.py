@@ -1,24 +1,12 @@
 from api import views as api_views
 from api.views import api_schema_view as api_schema_view
 from api.views import swagger_schema_view as schema_swagger_view
-from api.social.provider import (
-    FacebookLogin,
-    FacebookConnect,
-    GoogleLogin,
-    GoogleConnect,
-    GitHubLogin,
-    GitHubConnect
-)
 from django.conf.urls import include, url
 from djoser import views as djoser_views
 from rest_framework.documentation import include_docs_urls
 from rest_framework.schemas import get_schema_view
 from rest_framework_jwt import views as jwt_views
 # from rest_framework_swagger.views import get_swagger_view
-from rest_auth.registration.views import (
-    SocialAccountListView,
-    SocialAccountDisconnectView
-)
 
 schema_view = get_schema_view(title='Rasterbucket API')
 # swagger_view = get_swagger_view(title='Rasterbucket API')
@@ -41,34 +29,8 @@ urlpatterns = [
     url(r'^security/restauth/verify/$', 
         jwt_views.verify_jwt_token),
     # using social auth
-    url(r'^security/restauth/facebook/$',
-        FacebookLogin.as_view(),
-        name='fb_login'),
-    url(r'^security/restauth/google/$',
-        GoogleLogin.as_view(),
-        name='google_login'),
-    url(r'^security/restauth/github/$',
-        GitHubLogin.as_view(),
-        name='github_login'),
-    url(r'^security/restauth/facebook/connect/$',
-        FacebookConnect.as_view(),
-        name='fb_connect'),
-    url(r'^security/restauth/google/connect/$',
-        GoogleConnect.as_view(),
-        name='google_connect'),
-    url(r'^security/restauth/github/connect/$',
-        GitHubConnect.as_view(),
-        name='github_connect'),
-    url(
-        r'^security/restauth/socialaccounts/$',
-        SocialAccountListView.as_view(),
-        name='social_account_list'
-    ),
-    url(
-        r'^security/restauth/socialaccounts/(?P<pk>\d+)/disconnect/$',
-        SocialAccountDisconnectView.as_view(),
-        name='social_account_disconnect'
-    ),
+    url(r'^security/restauth/',
+        include('rest_social.urls')),
     # using registration
     url(r'^security/restauth/registration/',
         include('rest_auth.registration.urls')),
