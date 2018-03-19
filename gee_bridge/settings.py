@@ -74,6 +74,9 @@ INSTALLED_APPS = [
     'djoser',
     'drfpasswordless',
     # oauth2
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.twitter',
     'oauth2_provider',
     # custom
     'gee_bridge',
@@ -131,11 +134,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_auth_firebase.authentication.FirebaseAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_auth_firebase.authentication.FirebaseAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework_jwt.authentication.TokenAuthentication',
         # oauth2
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     )
@@ -145,7 +148,10 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000000),
 }
 
+REST_USE_JWT = True
+
 SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
     'SECURITY_DEFINITIONS': {
         'Basic': {
             'type': 'basic'
