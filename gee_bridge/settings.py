@@ -332,9 +332,9 @@ EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
                                               GOOGLE_SERVICE_ACCOUNT_SCOPES)
 
 # Firebase settings
-FIREBASE_ACCOUNT = 'firebase-adminsdk-6s5ce@spring-firebase-demo.iam.gserviceaccount.com' # EE_ACCOUNT
+FIREBASE_ACCOUNT = 'firebase-adminsdk-r2xm7@unfao-apps-dev.iam.gserviceaccount.com' # EE_ACCOUNT
 FIREBASE_PRIVATE_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'spring-firebase-demo-firebase-adminsdk-6s5ce-68de378780.json')
+    GOOGLE_JSON_KEY_DIR, 'unfao-apps-dev-firebase-adminsdk-r2xm7-aa44bf3522.json')
 FIREBASE_SERVICE_ACCOUNT_SCOPES = [
     'https://www.googleapis.com/auth/cloud-platform',
     'https://www.googleapis.com/auth/firebase',
