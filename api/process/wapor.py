@@ -57,7 +57,9 @@ class Wapor:
         # Redirect again the std output to screen
         sys.stdout = old_stdout
         lines = cmd.getvalue().split("DEBUG")
-        errors = list()
+        result_maps = {}
+        result_stats = {}
+        errors = []
         for line in lines:
             print line
             if "RESULT=" in line:
@@ -71,12 +73,17 @@ class Wapor:
                 pass
 
             if "ERRORS=" in line:
-                errors = errors.append(
-                    {"error": ast.literal_eval(line.split("ERRORS=", 1)[1])})
+                result_error = str(line.split("ERRORS=", 1)[1])
+                errors.append(
+                    {"error": "{0}".format(result_error)}
+                )
             else:
-                errors = []
+                pass
 
-        result = {"gee_maps": result_maps,
-                  "gee_stats": result_stats, "gee_errors": errors}
+        result = {
+            "gee_maps": result_maps,
+            "gee_stats": result_stats,
+            "gee_errors": errors
+        }
 
         return result

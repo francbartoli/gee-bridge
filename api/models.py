@@ -356,15 +356,17 @@ def run_process(sender, instance, created, **kwargs):
     print 'args=', args
     print 'optionals=', optionals
     process = Wapor()
-    # from IPython import embed
-    # embed()
     cmd_result = process.run(*args, **optionals)
     # TODO async id:6 gh:12
     output_data = cmd_result
+    # from IPython import embed
+    # embed()
     if created:
-        Process.objects.filter(id=instance.id
-                               ).update(output_data=output_data
-                                        )
+        Process.objects.filter(
+            id=instance.id
+        ).update(
+            output_data=output_data
+        )
 
 
 post_save.connect(run_process, sender=Process)
