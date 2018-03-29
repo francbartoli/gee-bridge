@@ -76,7 +76,7 @@ class FirebaseAuthentication(BaseAuthentication):
 
         return (user, token)
 
-    # TODO do something similar if the user has to be registered locally
+    # TODO do something similar if the user has to be registered locally id:9 gh:18 ic:gh
     # def authenticate_credentials(self, key):
     #     model = self.get_model()
     #     try:
