@@ -3,6 +3,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
+from utils.geo import GeoUtil
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -197,6 +198,29 @@ class ProcessSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     input_data = serializers.JSONField()
     output_data = serializers.JSONField()
+    
+    def validate_input_data(self, value):
+        """
+        Check that the input_data contains valid GeoJSON.
+        """
+
+        arealstat_dict = [
+            tpl[1] for tpl in [
+                el[1] for el in [key.items() for key in value['arguments']]
+            ] if tpl[0] == 'arealstat'
+        ][0]
+        if arealstat_dict['option'] == 'g':
+            if not GeoUtil().is_featurecollection_valid(
+                GeoUtil().extract_geojson_obj(
+                    arealstat_dict['choices']
+                )
+            ):
+                raise serializers.ValidationError("GeoJSON is not valid.")
+            return value
+
+        else:
+            return value
+
 
     class Meta:
         """Meta class.
@@ -214,7 +238,7 @@ class ProcessSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'date_created',
             'date_modified')
-
+        
 
 class UserSerializer(serializers.ModelSerializer):
     """A user serializer to aid in authentication and authorization.

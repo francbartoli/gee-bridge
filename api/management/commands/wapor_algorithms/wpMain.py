@@ -161,6 +161,7 @@ def run(results):
             logger.debug("RESPONSE=%s" % area_stats)
 
         except Exception as e:
+
             if isinstance(e, UnboundLocalError):
                 logger.debug("WP_GP aggregation Error")
                 logger.error("ERRORS={}".format(e))
@@ -174,7 +175,7 @@ def run(results):
                     results.arealstat[1]))
             elif results.arealstat[0] == 'g':
                 logger.debug("User Defined Area format Error")
-                logger.error("ERRORS=Invalid GeoJson {} to parse".format(
+                logger.error("ERRORS=Invalid GeoJson {} for GEE to parse".format(
                     results.arealstat[1]))
 
     else:
