@@ -103,19 +103,25 @@ class FirebaseAuthentication(BaseAuthentication):
                 # Token revoked, inform the user to reauthenticate or signOut().
                 msg = _('User token is revoked. Please authenticate again')
                 logger.error(msg)
+                logger.debug(e)
                 raise exceptions.AuthenticationFailed(msg)
             else:
                 # Token is invalid
                 msg = _('Invalid token.')
                 logger.error(msg)
+                logger.debug(e)
                 raise exceptions.AuthenticationFailed(msg)
         
         except ValueError as e:
-            msg = _('Invalid token header. Token is expired.')
+            msg = _(
+                'Invalid token header. Token has value errors or is expired.'
+            )
             logger.error(msg)
+            logger.debug(e)
             raise exceptions.AuthenticationFailed(msg)
         
         return user
+
 
 
     def authenticate_header(self, request):
