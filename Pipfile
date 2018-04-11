@@ -1,17 +1,12 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [requires]
-
 python_version = '2.7.13'
 
-
 [dev-packages]
-
 pytest = "*"
 pytest-bdd = "*"
 pytest-django = "*"
@@ -34,9 +29,7 @@ ipython = "*"
 "django-bootstrap4" = "*"
 sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git", editable = true, ref = "master"}
 
-
 [packages]
-
 earthengine-api = "*"
 djangorestframework = "*"
 django-rest-swagger = "*"
