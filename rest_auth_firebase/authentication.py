@@ -71,8 +71,8 @@ class FirebaseAuthentication(BaseAuthentication):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-             user = User(username=username)
-             user.save()
+            user = User(username=username)
+            user.save()
 
         return (user, token)
 
