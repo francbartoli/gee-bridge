@@ -69,3 +69,5 @@ django-storages = "*"
 asgi_redis = "*"
 asgiref = "~=1.1"
 django-rest-auth = {extras = ["with-social"]}
+django-allauth = "*"
+google-cloud-storage = "*"
