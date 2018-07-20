@@ -77,6 +77,21 @@ environment to start and stop our application:
         $ kill -s SIGTERM $SUPERVISORD_PID_NUMBER
 
 
+Integration with Systemd
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once started **Supervisor** GEE Bridge can be integrated with *systemd*
+based systems. This makes easier to manage the server daemon as it can
+be restarted in case of failures or bootstraping new VM from a template.
+In the ``scripts/systemd`` directory there is a unit file that have been
+tested on Redhat based systems.
+That script has to be copied and placed into ``/usr/lib/systemd/system``
+with a filename `geebridge.service` and `WorkingDirectory` needs to be
+edited accordingly to your installation.
+
+Environment configuration is picked up from ``/etc/sysconfig/geebridge``.
+An example for reference is supplied.
+
 Cloud hosting provider
 ======================
 
