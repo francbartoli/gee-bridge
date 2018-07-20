@@ -27,7 +27,7 @@ Create a script to overcome the lack of a swagger schema in `yaml` format from `
     app = App.create('http://localhost:9000/api/v1/swagger?format=openapi')
     obj = app.dump()
     with open('./swagger/schema.yaml', 'w') as w:
-         w.write(yaml.safe_dump(obj))
+        w.write(yaml.safe_dump(obj))
 
 Save the content above in a file :file:`openapi2redoc.py` under the directory `docs` then run it and generate the `yaml` formatted schema for swagger specification:
 

@@ -11,15 +11,15 @@ Synopsis
 --------
 
     usage: manage.py wapor [-h] [--version] [-v {0,1,2,3}] [--settings SETTINGS]
-                       [--pythonpath PYTHONPATH] [--traceback] [--no-color]
-                       [-x, --export [{u,d,t} [{u,d,t} ...]]]
-                       [-i, --map_id [MAP_ID [MAP_ID ...]]]
-                       [-s, --arealstat ...]
-                       [-o, --output [{csv,json} [{csv,json} ...]]]
-                       [-a, --aggregation [{agbp,aet,t_frac,wp_gb,wp_nb} [{agbp,aet,t_frac,wp_gb,wp_nb} ...]]]
-                       [-m, --map [{agbp,aet,t_frac,wp_gb,wp_nb} [{agbp,aet,t_frac,wp_gb,wp_nb} ...]]]
-                       [-u, --upload [UPLOAD [UPLOAD ...]]]
-                       [timeframe [timeframe ...]]
+            [--pythonpath PYTHONPATH] [--traceback] [--no-color]
+            [-x, --export [{u,d,t} [{u,d,t} ...]]]
+            [-i, --map_id [MAP_ID [MAP_ID ...]]]
+            [-s, --arealstat ...]
+            [-o, --output [{csv,json} [{csv,json} ...]]]
+            [-a, --aggregation [{agbp,aet,t_frac,wp_gb,wp_nb} [{agbp,aet,t_frac,wp_gb,wp_nb} ...]]]
+            [-m, --map [{agbp,aet,t_frac,wp_gb,wp_nb} [{agbp,aet,t_frac,wp_gb,wp_nb} ...]]]
+            [-u, --upload [UPLOAD [UPLOAD ...]]]
+            [timeframe [timeframe ...]]
 
     positional arguments:
 

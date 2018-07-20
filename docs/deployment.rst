@@ -9,8 +9,9 @@ Virtual environment
 -------------------
 
 .. hint:: Make sure you have entered the virtual environment where all python dependencies have been installed.
-- If using `pyenv`_ facility then the command is that provided below assuming your
-virtual environment is called *gee_bridge*:
+
+- If using `pyenv`_ facility then the command is that provided below
+assuming your virtual environment is called *gee_bridge*::
 
 .. _pyenv: https://github.com/pyenv/pyenv
 
@@ -29,7 +30,8 @@ virtual environment is called *gee_bridge*:
 Django server
 ^^^^^^^^^^^^^
 
-As you do usually with all Django projects execute the :command:`runserver` command:
+As you usually do with all Django projects execute
+the :command:`runserver` command:
 
     .. code-block:: bash
 
@@ -38,7 +40,8 @@ As you do usually with all Django projects execute the :command:`runserver` comm
 Gunicorn
 ^^^^^^^^
 
-The `Gunicorn`_ HTTP WSGI server has been already declared as dependency of your virtual environment indeed simply run:
+The `Gunicorn`_ HTTP WSGI server has been already declared as dependency
+of your virtual environment indeed simply run:
 
 .. _Gunicorn: http://gunicorn.org/
 
@@ -46,7 +49,8 @@ The `Gunicorn`_ HTTP WSGI server has been already declared as dependency of your
 
         (gee_bridge)$ gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py
 
-where the configuration option can be a file with content from `Gunicorn settings`_ like:
+where the configuration option can be a file with content
+from `Gunicorn settings`_ like:
 
 .. _Gunicorn settings: http://docs.gunicorn.org/en/latest/configure.html
 
@@ -55,7 +59,9 @@ where the configuration option can be a file with content from `Gunicorn setting
 Supervisor
 ^^^^^^^^^^
 
-`Supervisor`_ can be used to control the processes of the **Gunicorn** server. Thankfully to the `pipenv`_ ``run`` command we can work outside of the virtual environment to start and stop our application:
+`Supervisor`_ can be used to control the processes of the **Gunicorn** server.
+Thankfully to the `pipenv`_ ``run`` command we can work outside of the virtual
+environment to start and stop our application:
 
 **Start command**
 
