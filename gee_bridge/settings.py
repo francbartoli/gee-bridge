@@ -327,9 +327,10 @@ GOOGLE_SERVICE_ACCOUNT_SCOPES = [
     'https://www.googleapis.com/auth/fusiontables',
     'https://www.googleapis.com/auth/earthengine'
 ]
-EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
-                                              EE_PRIVATE_KEY_FILE,
-                                              GOOGLE_SERVICE_ACCOUNT_SCOPES)
+EE_CREDENTIALS = ee.ServiceAccountCredentials(
+    EE_ACCOUNT,
+    EE_PRIVATE_KEY_FILE,
+    GOOGLE_SERVICE_ACCOUNT_SCOPES)
 
 # Firebase settings
 FIREBASE_ACCOUNT = 'firebase-adminsdk-r2xm7@unfao-apps-dev.iam.gserviceaccount.com' # FB_ACCOUNT
