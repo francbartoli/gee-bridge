@@ -29,6 +29,7 @@ ipython = "*"
 "django-bootstrap4" = "*"
 sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git", editable = true, ref = "master"}
 "flake8" = "*"
+"autopep8" = "*"
 
 [packages]
 earthengine-api = "*"
