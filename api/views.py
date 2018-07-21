@@ -1,6 +1,7 @@
 """Summary of api views for Rasterbucket models
 """
 from api import models, serializers
+from gee_bridge.settings import DEBUG
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
@@ -82,6 +83,8 @@ class ProcessList(GenericAPIView):
         renderer_classes (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     serializer_class = serializers.ProcessSerializer
     queryset = models.Process.objects.all()
     renderer_classes = (JSONRenderer,
@@ -310,6 +313,8 @@ class RasterbucketCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
     permission_classes = (IsAuthenticated, IsOwner)
@@ -332,6 +337,8 @@ class RasterbucketDetailsView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
     permission_classes = (IsAuthenticated, IsOwner)
@@ -345,6 +352,8 @@ class RasterbucketServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.RasterbucketService.objects.all()
     serializer_class = serializers.RasterbucketServiceSerializer
@@ -372,6 +381,8 @@ class RasterbucketServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.RasterbucketService
     serializer_class = serializers.RasterbucketServiceSerializer
 
@@ -395,6 +406,8 @@ class MapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.BaseServiceModel
     serializer_class = serializers.MapServiceSerializer
 
@@ -418,6 +431,8 @@ class GEEMapServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.GEEMapService.objects.all()
     serializer_class = serializers.GEEMapServiceSerializer
@@ -445,6 +460,8 @@ class GEEMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.GEEMapService
     serializer_class = serializers.GEEMapServiceSerializer
 
@@ -468,6 +485,8 @@ class TileMapServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.TileMapService.objects.all()
     serializer_class = serializers.TileMapServiceSerializer
@@ -495,6 +514,8 @@ class TileMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.TileMapService
     serializer_class = serializers.TileMapServiceSerializer
 
