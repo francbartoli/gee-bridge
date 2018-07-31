@@ -5,7 +5,7 @@ Attributes:
     gd_storage (TYPE): Description
     GOOGLE_DRIVE_UPLOAD_FOLDER (str): Description
 """
-# TODO implement choices as Enum class
+# TODO implement choices as Enum class id:12 gh:23
 # https://hackernoon.com/using-enum-as-model-field-choice-in-django-92d8b97aaa63
 from __future__ import unicode_literals
 
