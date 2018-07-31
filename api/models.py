@@ -5,29 +5,27 @@ Attributes:
     gd_storage (TYPE): Description
     GOOGLE_DRIVE_UPLOAD_FOLDER (str): Description
 """
+# TODO implement choices as Enum class id:12 gh:23
+# https://hackernoon.com/using-enum-as-model-field-choice-in-django-92d8b97aaa63
 from __future__ import unicode_literals
 
-from django.db import models
-# from jsonfield_compat.fields import JSONField
-from jsonfield import JSONField
-from polymorphic.models import PolymorphicModel
-from gdstorage.storage import GoogleDriveStorage
-from django.db.models.signals import post_save, pre_save
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-from django.dispatch import receiver
-from gee_bridge import settings
 import re
 import uuid
-from jsonpickle import encode, decode
 # import json
 from collections import OrderedDict, namedtuple
 
-# Define Google Drive Storage
-gd_storage = GoogleDriveStorage()
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from gee_bridge import settings
+# from jsonfield_compat.fields import JSONField
+from jsonfield import JSONField
+from polymorphic.models import PolymorphicModel
+from rest_framework.authtoken.models import Token
+
 # Create your models here.
 DEFAULT_OWNER = 1
-GOOGLE_DRIVE_UPLOAD_FOLDER = 'myfolder'
 
 
 def normalize(query_string):
@@ -89,22 +87,28 @@ class Process(BaseModel):
         output_data (TYPE): Description
         owner (TYPE): Description
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        primary_key=True,
+        help_text="Process identifier",
+        default=uuid.uuid4
+    )
     owner = models.ForeignKey(
         'auth.User',
         default=DEFAULT_OWNER,
         related_name='processes',
         on_delete=models.CASCADE)
-    input_data = JSONField(null=True,
-                           blank=True,
-                           default={},
-                           load_kwargs={'object_pairs_hook': OrderedDict}
-                           )
-    output_data = JSONField(null=True,
-                            blank=True,
-                            default={},
-                            load_kwargs={'object_pairs_hook': OrderedDict}
-                            )
+    input_data = JSONField(
+        null=True,
+        blank=True,
+        default={},
+        load_kwargs={'object_pairs_hook': OrderedDict}
+    )
+    output_data = JSONField(
+        null=True,
+        blank=True,
+        default={},
+        load_kwargs={'object_pairs_hook': OrderedDict}
+    )
 
     def __str__(self):
         """Return a human readable representation of the model instance.
@@ -123,8 +127,7 @@ class Rasterbucket(BaseModel):
         raster_data (TYPE): Description
     """
     raster_data = models.FileField(
-        upload_to=GOOGLE_DRIVE_UPLOAD_FOLDER,
-        storage=gd_storage,
+        upload_to=settings.GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER,
         blank=True)
     owner = models.ForeignKey(
         'auth.User',
@@ -276,8 +279,11 @@ def create_tilemap(sender, instance, created, **kwargs):
         **kwargs: Description
     """
     uid = str(instance.hashid)
-    url = settings.BASE_URL + settings.PROXY_LOCATION + instance.owner.username + '/' + instance.rasterbucketservice.name + '/' + instance.rasterbucketservice.name + '/' + uid
-    name = instance.rasterbucketservice.rasterbucket.name + instance.rasterbucketservice.name
+    url = settings.BASE_URL + settings.PROXY_LOCATION + instance.owner.username + '/' + \
+        instance.rasterbucketservice.name + '/' + \
+        instance.rasterbucketservice.name + '/' + uid
+    name = instance.rasterbucketservice.rasterbucket.name + \
+        instance.rasterbucketservice.name
     if created:
         TileMapService.objects.create(geemap=instance,
                                       owner=instance.owner,
@@ -305,9 +311,9 @@ def run_process(sender, instance, created, **kwargs):
     """
     from api.process.wapor import Wapor
     input_data = instance.input_data
-    # TODO must be added also in a serializer for validation
+    # TODO must be added also in a serializer for validation id:1 gh:7
     if "process" not in input_data:
-            raise Exception("process must be specified")
+        raise Exception("process must be specified")
     args = list()
     proc = input_data.get("process")
     args.insert(1, proc)
@@ -328,7 +334,6 @@ def run_process(sender, instance, created, **kwargs):
         else:
             argument.pop("positional")
             if argument.get("choice"):
-                # import ipdb; ipdb.set_trace()
                 argument.pop("choice")
                 options = ('c', 'g', 'w')
                 try:
@@ -358,14 +363,17 @@ def run_process(sender, instance, created, **kwargs):
     print 'args=', args
     print 'optionals=', optionals
     process = Wapor()
-    # from IPython import embed; embed();
     cmd_result = process.run(*args, **optionals)
-    # TODO async
+    # TODO async id:6 gh:12
     output_data = cmd_result
+    # from IPython import embed
+    # embed()
     if created:
-        Process.objects.filter(id=instance.id
-                               ).update(output_data=output_data
-                                        )
+        Process.objects.filter(
+            id=instance.id
+        ).update(
+            output_data=output_data
+        )
 
 
 post_save.connect(run_process, sender=Process)

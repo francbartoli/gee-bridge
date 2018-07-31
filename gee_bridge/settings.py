@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os
 import datetime
+import os
+
 import ee
+from firebase_admin import credentials
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,7 +24,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 # STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
-STATIC_URL = '/static/'
+STATIC_URL = '/geemgr/static/'
 # STATIC_URL = 'https://storage.googleapis.com/gee_bridge/static/'
 
 # STATICFILES_DIRS = (
@@ -50,37 +52,51 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_extensions',
     'polymorphic',
     'helloworld',
-    'gdstorage',
-    'sphinxdoc',
-    'haystack',
+    'storages',
+    'corsheaders',
+    'bootstrap4',
     # rest
     'rest_framework',
+    'drf_yasg',
     'rest_framework_swagger',
     'rest_framework_docs',
     # rest security
     'rest_framework.authtoken',
+    'rest_auth',
+    'allauth',
+    'allauth.account',
+    'rest_auth.registration',
+    'rest_auth_firebase',
     'djoser',
     'drfpasswordless',
     # oauth2
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
+    'rest_social',
     'oauth2_provider',
-    'social_django',
-    'rest_framework_social_oauth2',
     # custom
+    'gee_bridge',
     'api',
     'httpproxy',
     'gee_agent',
-    'mapclient',
     'channels',
+    'mapclient',
     'webpack_loader',
     'webmapping'
 ]
 
+SITE_ID = 1
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -101,8 +117,6 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -123,12 +137,15 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        'rest_auth_firebase.authentication.FirebaseAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework_jwt.authentication.TokenAuthentication',
         # oauth2
-        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_filters.backends.DjangoFilterBackend',
     )
 }
 
@@ -136,8 +153,23 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000000),
 }
 
+REST_USE_JWT = True
+
 SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        },
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
     'JSON_EDITOR': True,
+    'LOGIN_URL': '/admin/login',
+    'LOGOUT_URL': '/admin/logout'
 }
 
 # Database
@@ -180,29 +212,6 @@ AUTH_PASSWORD_VALIDATORS = [
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
-}
-
-# Authentication backend for socials
-AUTHENTICATION_BACKENDS = (
-    # Facebook OAuth2
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    # django-rest-framework-social-oauth2
-    'rest_framework_social_oauth2.backends.DjangoOAuth2',
-    # Django
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-# Facebook configuration
-SOCIAL_AUTH_FACEBOOK_KEY = '211785359310265'
-SOCIAL_AUTH_FACEBOOK_SECRET = '9cf3dee66138dcec396e42f08966bb8f'
-
-# Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from facebook.
-# Email is not sent by default, to get it, you must request
-# the email permission:
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email'
 }
 
 # Passwordless configuration
@@ -252,6 +261,9 @@ PASSWORDLESS_AUTH = {
     'PASSWORDLESS_TEST_SUPPRESSION': False
 }
 
+# CORS management
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -283,10 +295,23 @@ SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
 #
 # Path to the json file key
 GOOGLE_JSON_KEY_DIR = os.path.join(BASE_DIR, "google")
-GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-60f6bfb41ef2.json')
+# GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = os.path.join(
+#     GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json')
 
-#
+# Google Cloud Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'fao-wapor-bucket'
+GS_PROJECT_ID = '1009145000126'
+# Don't use GS_CREDENTIALS
+# see issue https://github.com/jschneier/django-storages/issues/455
+GOOGLE_APPLICATION_CREDENTIALS = os.path.join(
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json'
+)
+GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER = 'geebridge'
+
+# To be removed since the development database is complaining about this
+GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = GOOGLE_APPLICATION_CREDENTIALS
+
 # Google Earth Engine Settings
 #
 # GEE hostname
@@ -299,18 +324,30 @@ EE_ACCOUNT = 'fao-wapor@fao-wapor.iam.gserviceaccount.com'
 # The private key associated with your service account in Privacy Enhanced
 # Email format (deprecated version .pem suffix, new version .json suffix).
 EE_PRIVATE_KEY_FILE = os.path.join(
-    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-60f6bfb41ef2.json')
+    GOOGLE_JSON_KEY_DIR, 'WaterProductivity-a15018b72eec.json')
 # Service account scope for GEE
 GOOGLE_SERVICE_ACCOUNT_SCOPES = [
     'https://www.googleapis.com/auth/fusiontables',
     'https://www.googleapis.com/auth/earthengine'
 ]
-EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT,
-                                              EE_PRIVATE_KEY_FILE,
-                                              GOOGLE_SERVICE_ACCOUNT_SCOPES)
+EE_CREDENTIALS = ee.ServiceAccountCredentials(
+    EE_ACCOUNT,
+    EE_PRIVATE_KEY_FILE,
+    GOOGLE_SERVICE_ACCOUNT_SCOPES)
+
+# Firebase settings
+FIREBASE_ACCOUNT = 'firebase-adminsdk-r2xm7@unfao-apps-dev.iam.gserviceaccount.com' # FB_ACCOUNT
+FIREBASE_PRIVATE_KEY_FILE = os.path.join(
+    GOOGLE_JSON_KEY_DIR, 'unfao-apps-dev-firebase-adminsdk-r2xm7-aa44bf3522.json')
+FIREBASE_SERVICE_ACCOUNT_SCOPES = [
+    'https://www.googleapis.com/auth/cloud-platform',
+    'https://www.googleapis.com/auth/firebase',
+    'https://www.googleapis.com/auth/firebase.readonly'
+]
+FIREBASE_CREDENTIALS = credentials.Certificate(FIREBASE_PRIVATE_KEY_FILE)
 
 # Proxy GEE tiles server
-PROXY_BASE_URL = 'https://earthengine.googleapis.com/map' # GEE_PUBLIC_BASE_URL
+PROXY_BASE_URL = 'https://earthengine.googleapis.com/map'  # GEE_PUBLIC_BASE_URL
 PROXY_LOCATION = '/maps/'
 
 # Base url
@@ -345,22 +382,8 @@ MAP_TYPES = (
 # React
 WEBPACK_LOADER = {
     'DEFAULT': {
-        'BUNDLE_DIR_NAME': os.path.join('bundles/'),  # '/static/bundles/',  # end with slash
+        # '/static/bundles/',  # end with slash
+        'BUNDLE_DIR_NAME': os.path.join('bundles/'),
         'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json')
     }
-}
-
-# Django-shinxdoc with Elasticsearch back-end
-# HAYSTACK_CONNECTIONS = {
-#     'default': {
-#         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-#         'URL': 'http://127.0.0.1:9200/',
-#         'INDEX_NAME': 'haystack',
-#     },
-# }
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index'),
-    },
 }

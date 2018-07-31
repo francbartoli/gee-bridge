@@ -1,0 +1,18 @@
+[Unit]
+Description=GEE Bridge
+After=syslog.target network.target
+# Wants=postgresql.service mysql.service redis.service rabbitmq-server.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/geebridge
+User=gis
+Group=gis
+Type=simple
+WorkingDirectory=<path to gee-bridge>
+ExecStart=/usr/local/bin/pipenv run supervisord -c supervisord.conf
+KillMode=process
+Restart=always
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target

@@ -13,31 +13,37 @@
 
 """
 
-import ee
-import time
-# from ee import mapclient
-import sys
-import os
 import glob
+import json
 # import datetime
 # import pandas as pd
 import logging
-import json
+import os
+# from ee import mapclient
+import sys
+import time
+
+from osgeo import ogr
+
+import ee
+import geojson
 # Below 2 rows to be commented if not using appengine
 from fixpath import fix_path
+from gee_bridge.settings import EE_CREDENTIALS
+
 fix_path()
-from geojson import FeatureCollection
-from osgeo import ogr
 
 
 class WaterProductivityCalc(object):
     """Summary
     """
-    ee.Initialize()
+    ee.Initialize(EE_CREDENTIALS)
 
-    _REGION = [[-25.0, -37.0], [60.0, -41.0], [58.0, 39.0], [-31.0, 38.0], [-25.0, -37.0]]
-    _COUNTRIES = ee.FeatureCollection('ft:1ZDEMjtnWm_smu7l_z3fx91BbxyCRzP2A3cEMrEiP')
-    _WSHEDS = ee.FeatureCollection('ft:1ewaO3u2S8XPYkCLNX7zsWVqKx0n11BxdjPS-G0Kz')
+    _REGION = [[-25.0, -37.0], [60.0, -41.0],
+               [58.0, 39.0], [-31.0, 38.0], [-25.0, -37.0]]
+    _COUNTRIES = ee.FeatureCollection(
+        'projects/fao-wapor/vectors/wapor_countries')
+    _WSHEDS = ee.FeatureCollection('projects/fao-wapor/vectors/wapor_basins')
 
     def __init__(self):
         """Summary
@@ -74,7 +80,6 @@ class L1WaterProductivity(WaterProductivityCalc):
     _L1_WPnb_ANNUAL = ee.ImageCollection("projects/fao-wapor/L1_WPnb_Annual")
 
     def __init__(self):
-
         """Constructor for date and dataset for WPgb
         """
 
@@ -82,13 +87,14 @@ class L1WaterProductivity(WaterProductivityCalc):
         self.L1_AET_calc = self._L1_AET_DEKADAL
         self.L1_AGBP_calc = self._L1_NPP_DEKADAL
 
-        AET_component_3dekad = ee.Image("projects/fao-wapor/L1_TFRAC/L1_TFRAC_1003")
+        AET_component_3dekad = ee.Image(
+            "projects/fao-wapor/L1_TFRAC/L1_TFRAC_1003")
         # Get scale (in meters) information from first image
         self.scale_calc = AET_component_3dekad.projection().nominalScale().getInfo()
-        self.L1_logger.debug('Scale used for Level 1 calculation %f ' % self.scale_calc)
+        self.L1_logger.debug(
+            'Scale used for Level 1 calculation %f ' % self.scale_calc)
 
     def date_selection(self, **kwargs):
-
         """Modify date for selecting datasets to be used for WPgm
 
         Args:
@@ -99,7 +105,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         self._date_end = str(kwargs.get('date_end'))
 
     def image_selection(self):
-
         """Filter datasets selecting only images within the starting end ending date to be used for WPbm
 
         Returns:
@@ -127,7 +132,6 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     @property
     def multiply_npp(self, filtering_values):
-
         """Sets the dataset to be used in conjunction with Actual Evapotranspiration for WPgb
 
         Args:
@@ -140,14 +144,14 @@ class L1WaterProductivity(WaterProductivityCalc):
         coll_npp_filtered = self._L1_NPP_DEKADAL.filterDate(
             self._date_start,
             self._date_end)
-        coll_npp_multiplied = coll_npp_filtered.map(lambda npp_images: npp_images.multiply(filtering_values[0]))
+        coll_npp_multiplied = coll_npp_filtered.map(
+            lambda npp_images: npp_images.multiply(filtering_values[0]))
 
         self.L1_AGBP_calc = coll_npp_multiplied
 
         return self.L1_AGBP_calc
 
     def agbp_aggregated(self):
-
         """Aggregate above ground biomass productivity for annual calculation or water productivity
 
         Returns:
@@ -165,7 +169,8 @@ class L1WaterProductivity(WaterProductivityCalc):
             Returns:
                 TYPE: Description
             """
-            img_multi = image.multiply(0.01444).addBands(image.metadata('days_in_dk'))
+            img_multi = image.multiply(0.01444).addBands(
+                image.metadata('days_in_dk'))
             return img_multi
         agbp_npp_multiplied = self.L1_AGBP_calc.map(agbp_multiplication)
 
@@ -189,7 +194,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         return aggregated_agbp
 
     def aet_aggregated(self):
-
         """Aggregate actual evapotranspiration for annual calculation or water productivity
 
         Returns:
@@ -202,7 +206,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         return aggregated_aet
 
     def transpiration(self):
-
         """Aggregate transpiration using acttual evapotranspiration,above ground biomas productivity and t_fraction
 
         Returns:
@@ -211,8 +214,8 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         # This is calculated at class level for WPgb, WPnb
         # collAETFiltered = _L1_AET_DEKADAL.filterDate(start, end).sort('system:time_start', True)
-        L1_TFRAC_calc = L1WaterProductivity._L1_TFRAC_DEKADAL.filterDate(self._date_start, self._date_end).sort('system:time_start', True)
-
+        L1_TFRAC_calc = L1WaterProductivity._L1_TFRAC_DEKADAL.filterDate(
+            self._date_start, self._date_end).sort('system:time_start', True)
 
         # JOINING TWO Collections - Start
         Join = ee.Join.inner()
@@ -224,7 +227,8 @@ class L1WaterProductivity(WaterProductivityCalc):
         TFRAC_AET_collection_Join = ee.ImageCollection(Join.apply(self.L1_AET_calc,
                                                                   L1_TFRAC_calc,
                                                                   FilterOnStartTime))
-        self.L1_logger.debug("Joined collections %s", TFRAC_AET_collection_Join.getInfo())
+        self.L1_logger.debug("Joined collections %s",
+                             TFRAC_AET_collection_Join.getInfo())
         # JOINING TWO Collections - End
 
         def Tfrac_AETdk(image):
@@ -247,7 +251,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         return SUM_TFRAC_annual
 
     def water_productivity_gross_biomass(self):
-
         """wp_gross_biomass calculation returns all intermediate results besides the final wp_gross_biomass
 
         Returns:
@@ -255,7 +258,8 @@ class L1WaterProductivity(WaterProductivityCalc):
         """
 
         # Multiplied for generating AGBP from NPP using the costant 0.144  CHANGED 0.0144 for Release 1
-        npp_multiplied = self.L1_AGBP_calc.map(lambda lista: lista.multiply(0.01444).addBands(lista.metadata('days_in_dk')))
+        npp_multiplied = self.L1_AGBP_calc.map(lambda lista: lista.multiply(
+            0.01444).addBands(lista.metadata('days_in_dk')))
 
         # .multiply(10); the multiplier will need to be
         # applied on net FRAME delivery, not on sample dataset
@@ -263,8 +267,8 @@ class L1WaterProductivity(WaterProductivityCalc):
 
         # add image property (days in dekad) as band
         eta_dekad_added = self.L1_AET_calc.map(lambda imm_eta2: imm_eta2.addBands(
-                                                 imm_eta2.metadata(
-                                                 'days_in_dk')))
+            imm_eta2.metadata(
+                'days_in_dk')))
 
         # get ET value, divide by 10 (as per FRAME spec) to get daily
         # value, and  multiply by number of days in dekad summed annuallyS
@@ -282,7 +286,6 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     @staticmethod
     def water_productivity_net_biomass_pre_calculated_annual_values(year):
-
         """wp_net_biomass calculation simplified method using precalculated annual value fot AGBP and T
 
         Args:
@@ -305,11 +308,10 @@ class L1WaterProductivity(WaterProductivityCalc):
         return wp_nb_precalc
 
     def water_productivity_net_biomass(self):
-
         """wp_net_biomass calculation returns all intermediate results besides the final wp_gross_biomass
         """
 
-        # TODO: metodo da cambiare e verificare
+        # TODO: metodo da cambiare e verificare id:0 gh:6
         # Or, as you will already have calculated AET annual and AGBP annual:
         # AGBPy/(AETy*10) where *10 is to convert mm into m3/ha
         # var WPnb = AGBPy.divide(Ty.multiply(10));
@@ -333,7 +335,7 @@ class L1WaterProductivity(WaterProductivityCalc):
             rightField='system:time_start'
         )
         AGBP_T_collection_Join = ee.ImageCollection(
-            # TODO: CAMBIARE _L1_AGBP_ANNUAL
+            # TODO: CAMBIARE _L1_AGBP_ANNUAL id:2 gh:8
             Join.apply(self._L1_AGBP_ANNUAL,
                        t_year_coll_mt100,
                        FilterOnStartTime))
@@ -368,14 +370,14 @@ class L1WaterProductivity(WaterProductivityCalc):
             Returns:
                 TYPE: Description
             """
-            wp_nb = image.select('b1_sum').divide(image.select('b1_sum_1').multiply(10))
+            wp_nb = image.select('b1_sum').divide(
+                image.select('b1_sum_1').multiply(10))
             return ee.Image(wp_nb)
 
         WPnb_coll = agbp_t_coll_merged.map(AGBP_T)
         self.L1_logger.debug("WPnb_coll", WPnb_coll)
 
-    def map_id_getter(self,**outputs_id):
-
+    def map_id_getter(self, **outputs_id):
         """Generate a map id and a token for the calculated WPbm raster file
 
         Args:
@@ -397,7 +399,6 @@ class L1WaterProductivity(WaterProductivityCalc):
 
     @staticmethod
     def image_visualization(raster_name, raster_plot):
-
         """Output the calculated raster using a map vizualizer
 
         Args:
@@ -406,20 +407,20 @@ class L1WaterProductivity(WaterProductivityCalc):
         """
 
         VisPar_AGBPy = {"opacity": 0.85, "bands": "b1", "min": 0, "max": 180,
-                       "palette": "f4ffd9,c8ef7e,87b332,566e1b",
-                       "region": WaterProductivityCalc._REGION}
+                        "palette": "f4ffd9,c8ef7e,87b332,566e1b",
+                        "region": WaterProductivityCalc._REGION}
 
         VisPar_ETay = {"opacity": 1, "bands": "b1", "min": 0, "max": 2000,
-                      "palette": "d4ffc6,beffed,79c1ff,3e539f",
-                      "region": WaterProductivityCalc._REGION}
+                       "palette": "d4ffc6,beffed,79c1ff,3e539f",
+                       "region": WaterProductivityCalc._REGION}
 
         VisPar_TFRAC = {"opacity": 1,  "bands": "b1_sum",
                         "max": 800, "palette": "fffcdb,b4ffa6,3eba70,195766",
                         "region": WaterProductivityCalc._REGION}
 
         VisPar_WPgb = {"opacity": 0.85, "bands": "b1", "max": 2000,
-                      "palette": "bc170f,e97a1a,fff83a,9bff40,5cb326",
-                      "region": WaterProductivityCalc._REGION}
+                       "palette": "bc170f,e97a1a,fff83a,9bff40,5cb326",
+                       "region": WaterProductivityCalc._REGION}
 
         if raster_name == 'aet':
             legend = VisPar_ETay
@@ -436,7 +437,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         mapclient.centerMap(17.75, 10.14, 4)
 
     def generate_areal_stats(self, areal_option, query_object, wbpm_calc):
-
         """Calculates several statistics for the Water Productivity calculated raster for a chosen dataset / name
 
         Args:
@@ -450,35 +450,43 @@ class L1WaterProductivity(WaterProductivityCalc):
         num_areas = 0
         if areal_option == 'c':
             try:
-                calculation_area = WaterProductivityCalc._COUNTRIES.filter(ee.Filter.eq('name', query_object))
+                calculation_area = WaterProductivityCalc._COUNTRIES.filter(
+                    ee.Filter.eq('iso3', query_object))
                 num_areas = calculation_area.size().getInfo()
-                cut_poly = calculation_area.geometry()
+                geom = calculation_area.geometry()
             finally:
                 error = Exception('no country')
         elif areal_option == 'w':
             try:
-                calculation_area = WaterProductivityCalc._WSHEDS.filter(ee.Filter.eq('MAJ_NAME', query_object))
+                calculation_area = WaterProductivityCalc._WSHEDS.filter(
+                    ee.Filter.eq('MAJ_NAME', query_object))
                 num_areas = calculation_area.size().getInfo()
-                cut_poly = calculation_area.geometry()
+                geom = calculation_area.geometry()
             finally:
                 error = Exception('no watershed')
         elif areal_option == 'g':
             try:
                 geojson_raw = {"type": "FeatureCollection",
-                                "crs": {"type": "name" , "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}} ,
-                                "features": [{"type": "Feature",
-                                              "properties": {"area": "user_defined"},
-                                              "geometry": {"type": "Polygon",
-                                                           "coordinates": [[[8.72 , 12.28],
-                                                                            [29.34 , 0.92],
-                                                                            [20.63 , -6.24],
-                                                                            [8.72 , 12.28]]]}
-                                              }
+                               "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}},
+                               "features": [{"type": "Feature",
+                                             "properties": {"area": "user_defined"},
+                                             "geometry": {"type": "Polygon",
+                                                          "coordinates": [[[8.72, 12.28],
+                                                                           [29.34,
+                                                                            0.92],
+                                                                           [20.63, -6.24],
+                                                                           [8.72, 12.28]]]}
+                                             }
                                             ]
-                                }
-                data = FeatureCollection ( query_object )
-                cut_poly = data['features']['features'][0]['geometry']
-                if len(cut_poly)>0:
+                               }
+                # from IPython import embed
+                # embed()
+                if isinstance(geojson.GeoJSON(query_object), geojson.GeoJSON):
+                    if query_object['type'] == 'FeatureCollection':
+                        data = geojson.FeatureCollection(
+                            query_object['features'])
+                        geom = data['features'][0]['geometry']
+                if len(geom) > 0:
                     num_areas = 1
             finally:
                 error = Exception('User defined area seems empty')
@@ -486,7 +494,7 @@ class L1WaterProductivity(WaterProductivityCalc):
         if num_areas > 0:
             means = wbpm_calc.reduceRegion(
                 reducer=ee.Reducer.mean(),
-                geometry=cut_poly,
+                geometry=geom,
                 scale=self.scale_calc,
                 maxPixels=1e9
             )
@@ -501,7 +509,7 @@ class L1WaterProductivity(WaterProductivityCalc):
             stats = wbpm_calc.reduceRegion(
                 reducer=reducers_min_max_sum,
                 bestEffort=True,
-                geometry=cut_poly,
+                geometry=geom,
                 scale=self.scale_calc
             )
             min_max_sum = stats.getInfo()
@@ -510,23 +518,30 @@ class L1WaterProductivity(WaterProductivityCalc):
             statistics_for_chosen_area['response'] = {}
             statistics_for_chosen_area['response']['name'] = query_object
             if areal_option == 'c':
-                statistics_for_chosen_area['response']['iso3'] = calculation_area.getInfo()['features'][0]['properties']['iso3']
-                statistics_for_chosen_area['response']['gaul_code'] = calculation_area.getInfo()['features'][0]['properties']['gaul_code']
+                statistics_for_chosen_area['response']['iso3'] = calculation_area.getInfo()[
+                    'features'][0]['properties']['iso3']
+                statistics_for_chosen_area['response']['gaul_code'] = calculation_area.getInfo()[
+                    'features'][0]['properties']['gaul_code']
             elif areal_option == 'w':
-                statistics_for_chosen_area['response']['wshed_code'] = int(calculation_area.getInfo()['features'][0]['properties']['MAJ_BAS'])
-                statistics_for_chosen_area['response']['wapor_code'] = calculation_area.getInfo()['features'][0]['properties']['WaPOR_bas']
+                statistics_for_chosen_area['response']['wshed_code'] = int(
+                    calculation_area.getInfo()['features'][0]['properties']['MAJ_BAS'])
+                statistics_for_chosen_area['response']['wapor_code'] = calculation_area.getInfo()[
+                    'features'][0]['properties']['WaPOR_bas']
             statistics_for_chosen_area['response']['stats'] = {}
-            statistics_for_chosen_area['response']['stats']['min'] = min_max_sum.pop('b1_min')
-            statistics_for_chosen_area['response']['stats']['sum'] = min_max_sum.pop('b1_sum')
-            statistics_for_chosen_area['response']['stats']['max'] = min_max_sum.pop('b1_max')
-            statistics_for_chosen_area['response']['stats']['mean'] = mean.pop('b1')
+            statistics_for_chosen_area['response']['stats']['min'] = min_max_sum.pop(
+                'b1_min')
+            statistics_for_chosen_area['response']['stats']['sum'] = min_max_sum.pop(
+                'b1_sum')
+            statistics_for_chosen_area['response']['stats']['max'] = min_max_sum.pop(
+                'b1_max')
+            statistics_for_chosen_area['response']['stats']['mean'] = mean.pop(
+                'b1')
             return statistics_for_chosen_area
         else:
             self.L1_logger.error("Error: %s named %s" % (error, query_object))
             return error
 
     def generate_tiles(self):
-
         """INCOMPLETE  Split the calculated WPbm in 100 tiles facilitating the export
 
         Returns:
@@ -550,7 +565,8 @@ class L1WaterProductivity(WaterProductivityCalc):
             else:
                 layer = dataSource.GetLayer(0)
                 extent = layer.GetExtent()
-                active_file = "tile_" + str(file_shp.split('.')[0]).split("_")[3]
+                active_file = "tile_" + \
+                    str(file_shp.split('.')[0]).split("_")[3]
                 file_names.append(active_file)
                 low_sx = extent[0], extent[3]
                 up_sx = extent[0], extent[2]
@@ -568,7 +584,6 @@ class L1WaterProductivity(WaterProductivityCalc):
         return allExportWPbm, file_names
 
     def image_export(self, exp_type, wpgb):
-
         """INCOMPLETE Export the 72 of the calculated wpgb to Google Drive,
         GEE Asset or generating a url for each tile
 
@@ -609,7 +624,8 @@ class L1WaterProductivity(WaterProductivityCalc):
                         url_WPbm = wpgb.getDownloadUrl(Export_WPbm)
                         list_of_downloading_urls.append(url_WPbm)
                     except:
-                        self.L1_logger.error("Unexpected error:", sys.exc_info()[0])
+                        self.L1_logger.error(
+                            "Unexpected error:", sys.exc_info()[0])
                         raise
                 elif exp_type == 'd':
                     task = ee.batch.Export.image(wpgb,
@@ -622,16 +638,17 @@ class L1WaterProductivity(WaterProductivityCalc):
                     self.L1_logger.info('Done.', task.status())
 
                 elif exp_type == 'a':
-                    active_file = "tile_" + str(file_shp.split('.')[0]).split("_")[3]
+                    active_file = "tile_" + \
+                        str(file_shp.split('.')[0]).split("_")[3]
                     asset_temp = "projects/fao-wapor/testExpPython/JanMar2015/" + active_file
                     ee.batch.Export.image.toAsset(
                         image=wpgb,
                         description=active_file,
                         assetId=asset_temp,
                         crs="EPSG:4326",
-                        scale= 250,
+                        scale=250,
                         region=cut
-                        ).start()
+                    ).start()
                 elif exp_type == 'n':
                     print("Nothing yet")
                     pass

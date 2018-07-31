@@ -39,12 +39,31 @@ extensions = [
     # 'autoapi.extension',
     'plantweb.directive',
     'sphinxcontrib.swaggerdoc',
-    'sphinxcontrib.napoleon'
+    'sphinxcontrib.redoc',
+    'sphinxcontrib.napoleon',
+    'sphinxcontrib.httpdomain'
 ]
 
 # autoapi
 # autoapi_type = 'python'
 # autoapi_dirs = ['../api', '../api/process', '../api/management/commands']
+
+# ReDoc settings
+redoc = [
+    {
+        'name': 'Rasterbuckets API',
+        'page': 'api/rasterbuckets/index',
+        'spec': 'swagger/schema.yaml',
+        'opts': {
+            'lazy-rendering': True
+            # 'lazy': False,
+            # 'nowarnings': False,
+            # 'nohostname': False,
+            # 'required-props-first': True,
+            # 'expand-responses': [200, 201],
+        }
+    },
+]
 
 # Napoleon settings
 napoleon_google_docstring = True

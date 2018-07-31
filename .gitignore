@@ -15,3 +15,9 @@ whoosh_index
 node_modules
 webpack-stats.json
 static/bundles/mapclient-*
+
+gee_bridge/staticfiles/
+
+\.vscode/
+
+\.pytest_cache/

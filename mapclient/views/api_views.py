@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from mapclient.serializers import *
+from gee_bridge.settings import DEBUG
 from rest_framework.response import Response
 from mapclient.models import *
 from rest_framework.permissions import IsAuthenticated
@@ -26,6 +27,8 @@ class UserProcessViewSet(viewsets.ViewSet):
     """
     API endpoint for user processes
     """
+    if not DEBUG:
+        swagger_schema = None
 
     def list(self, request):
         queryset = Process.get_processes_for_consumer(self.request.user)
@@ -38,6 +41,8 @@ class CompletedProcessViewSet(viewsets.ViewSet):
     """
     API endpoint for completed/started processes
     """
+    if not DEBUG:
+        swagger_schema = None
 
     def list(self, request):
         queryset = Process.get_completed_processes()

@@ -3,13 +3,15 @@
 Main class for activating different calculations available in wpCalc.py via argparse
 """
 import argparse
-import logging
-import sys
-import os
 import getpass
+import logging
+import os
+import sys
 
-from wpCalc import L1WaterProductivity
+import geojson
 import wpDataManagement as dm
+from wpCalc import L1WaterProductivity
+
 
 def setup(args=None, parser=None):
     """Summary
@@ -21,7 +23,8 @@ def setup(args=None, parser=None):
     Returns:
         TYPE: Description
     """
-    parser = argparse.ArgumentParser(description='Water Productivity using Google Earth Engine')
+    parser = argparse.ArgumentParser(
+        description='Water Productivity using Google Earth Engine')
 
     parser.add_argument("timeframe",
                         nargs="*",
@@ -39,7 +42,7 @@ def setup(args=None, parser=None):
                         choices=['c', 'w', 'g'],
                         nargs=argparse.REMAINDER,
                         help="Zonal statistics form a WaterProductivity generated in GEE "
-                            "for the chosen Country/Watershed or User Defined Area")
+                        "for the chosen Country/Watershed or User Defined Area")
 
     parser.add_argument('-o', '--output',
                         choices=['csv', 'json'],
@@ -57,11 +60,11 @@ def setup(args=None, parser=None):
                         help="Show calculated output overlaid on Google Map"
                         )
 
-    parser.add_argument ( "-u" ,
-                          "--upload" ,
-                          type=str,
-                          help="Upload or update data in Google Earth Engine"
-                          )
+    parser.add_argument("-u",
+                        "--upload",
+                        type=str,
+                        help="Upload or update data in Google Earth Engine"
+                        )
 
     # parser.add_argument("-v", "--verbose",
     #                     help="Increase output verbosity",
@@ -79,7 +82,8 @@ def run(results):
     logger = logging.getLogger("wpWin")
     logger.setLevel(level=logging.DEBUG)
 
-    formatter = logging.Formatter("%(levelname) -4s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s")
+    formatter = logging.Formatter(
+        "%(levelname) -4s %(asctime)s %(module)s:%(lineno)s %(funcName)s %(message)s")
 
     fh = logging.FileHandler('wapor.log')
     fh.setLevel(logging.ERROR)
@@ -92,7 +96,7 @@ def run(results):
     logger.addHandler(ch)
 
     args_list = {k: v for k, v in vars(results).items() if v is not None}
-    #logger.debug(len(args_list['timeframe']))
+    # logger.debug(len(args_list['timeframe']))
 
     # def methods(**kwargs):
     #     print kwargs
@@ -148,26 +152,37 @@ def run(results):
     if isinstance(results.arealstat, list):
 
         try:
-            area_stats = analysis_level_1.generate_areal_stats(results.arealstat[0], results.arealstat[1], wp_gb)
+            # handles django command
+            if isinstance(results.arealstat[1], str):
+                results.arealstat[1] = geojson.loads(results.arealstat[1])
+
+            area_stats = analysis_level_1.generate_areal_stats(
+                results.arealstat[0], results.arealstat[1], wp_gb)
             logger.debug("RESPONSE=%s" % area_stats)
 
         except Exception as e:
+
             if isinstance(e, UnboundLocalError):
                 logger.debug("WP_GP aggregation Error")
-                logger.error(e)
+                logger.error("ERRORS={}".format(e))
             elif results.arealstat[0] == 'c':
                 logger.debug("Country Error")
-                logger.error("No country named {} in db".format(results.arealstat[1]))
+                logger.error("ERRORS=No country named {} in db".format(
+                    results.arealstat[1]))
             elif results.arealstat[0] == 'w':
                 logger.debug("Watershed Error")
-                logger.error("No watershed named {} in db".format(results.arealstat[1]))
+                logger.error("ERRORS=No watershed named {} in db".format(
+                    results.arealstat[1]))
             elif results.arealstat[0] == 'g':
                 logger.debug("User Defined Area format Error")
-                logger.error("Invalid GeoJson {} to parse".format(results.arealstat[1]))
+                logger.error("ERRORS=Invalid GeoJson {} for GEE to parse".format(
+                    results.arealstat[1]))
 
     else:
 
-        logger.debug("Invalid arealstat arguments format")
+        logger.debug("ERRORS=Invalid arealstat arguments {} format".format(
+            results.arealstat
+        ))
 
     if results.map_id:
         map_ids = {'agbp': agbp, 'eta': eta, 'wp_gross': wp_gb}
@@ -190,7 +205,8 @@ def run(results):
             if os.path.isfile(files_repo):
                 gee_asset = '_'.join(files_repo.split('/')[-1].split("_")[0:2])
                 # gee_file = files_repo.split ( '/' )[-1].split ( "." )[0]
-                present_assets = data_management_session.get_assets_info(gee_asset)
+                present_assets = data_management_session.get_assets_info(
+                    gee_asset)
                 data_management_session.data_management(active_session,
                                                         upload_url,
                                                         present_assets,
@@ -209,7 +225,8 @@ def run(results):
                     file_temp = root_dir + "/" + each_file
                     gee_asset = '_'.join(each_file.split("_")[0:2])
                     # gee_file = each_file.split ( "." )[0]
-                    present_assets = data_management_session.get_assets_info(gee_asset)
+                    present_assets = data_management_session.get_assets_info(
+                        gee_asset)
                     data_management_session.data_management(active_session,
                                                             upload_url,
                                                             present_assets,
@@ -217,7 +234,7 @@ def run(results):
                                                             properties,
                                                             no_data)
         except:
-            logger.error("File %s not found" % files_repo)
+            logger.error("ERRORS=File %s not found" % files_repo)
 
     args = {k: v for k, v in vars(results).items() if v is not None}
     logger.debug("Final Check %s" % args)

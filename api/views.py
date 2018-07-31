@@ -1,81 +1,151 @@
-"""Summary
+"""Summary of api views for Rasterbucket models
 """
-from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, permissions
-from rest_framework.views import APIView
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from api import models, serializers
+from gee_bridge.settings import DEBUG
+from django.contrib.auth.models import User
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from drf_yasg import openapi as yasg_openapi
+from drf_yasg.views import get_schema_view as yags_get_schema_view
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import generics, status
+from rest_framework.decorators import (
+    api_view, permission_classes, renderer_classes
+)
+from rest_framework.generics import GenericAPIView
+from rest_framework.renderers import (
+    BaseRenderer, BrowsableAPIRenderer,
+    JSONRenderer)
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
-from django.http import Http404
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, renderer_classes
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, BaseRenderer
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
+from rest_framework_yaml.renderers import YAMLRenderer
+
 # from utils import swagger_tools
-from .permissions import IsOwner, IsOwnerOrReadOnly, IsOpen
-from api import models
-from django.contrib.auth.models import User
-from api import serializers
-# from collections import OrderedDict
+from .permissions import (
+    IsOpen,
+    IsOwner,
+    IsOwnerOrReadOnly
+)
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny
+)
+
 
 # Create your views here.
 
-# from openapi_codec import OpenAPICodec
-
-
-# class SwaggerRenderer(BaseRenderer):
-#     media_type = 'application/openapi+json'
-#     format = 'swagger'
-
-#     def render(self, data, media_type=None, renderer_context=None):
-#         codec = OpenAPICodec()
-#         return codec.dump(data)
+api_schema_view = yags_get_schema_view(
+    yasg_openapi.Info(
+        title="Rasterbucket API",
+        default_version='v1',
+        description="""
+This is a project for a GEE bridge [gee-bridge](https://github.com/francbartoli/gee-bridge)
+based on the Django Rest Framework library.
+The `swagger-ui` view can be found [here](/api/v1/livedoc/swagger).
+The `ReDoc` view can be found [here](/api/v1/livedoc/redoc).
+The swagger YAML document can be found [here](/api/v1/livedoc/swagger.yaml).
+""", # noqa
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=yasg_openapi.Contact(email="xbartolone@gmail.com"),
+        license=yasg_openapi.License(name="GPLv3 License"),
+    ),
+    validators=['flex', 'ssv'],
+    public=True,
+    permission_classes=(AllowAny,),
+)
 
 
 # CBF
+
+
 class ProcessList(GenericAPIView):
     """
     List all processes, or create a new process.
 
-    Attributes:
-        permission_classes (TYPE): Description
-        queryset (TYPE): Description
-        renderer_classes (TYPE): Description
-        serializer_class (TYPE): Description
+    Methods
+    -------
+    get
+        Return a list of all created processes.
+
+    post
+        Create a processing instance.
     """
+    if not DEBUG:
+        swagger_schema = None
     serializer_class = serializers.ProcessSerializer
     queryset = models.Process.objects.all()
     renderer_classes = (JSONRenderer,
+                        YAMLRenderer,
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsOpen, )
+    permission_classes = (IsAuthenticated, )
 
+    @swagger_auto_schema(
+        operation_description="List all created processes",
+        responses={200: serializers.ProcessSerializer(many=True)},
+        security=[None]
+    )
     def get(self, request, format=None):
-        """Summary
+        """List all created processes.
 
-        Args:
-            request (TYPE): Description
-            format (None, optional): Description
+        Parameters
+        ----------
+        request : Request
+            HTTP GET request
+        format : str, optional
+            Format for the rendered response (the default is None)
 
-        Returns:
-            TYPE: Description
+        Returns
+        -------
+        Response
+            Return the response with all serialized processes
         """
+
         processes = models.Process.objects.all()
         serializer = serializers.ProcessSerializer(processes, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_description="Create a processing instance",
+        request_body=yasg_openapi.Schema(
+            type=yasg_openapi.TYPE_OBJECT,
+            required=['name', 'input_data', 'output_data'],
+            properties={
+                'name': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_STRING
+                ),
+                'input_data': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_OBJECT
+                ),
+                'output_data': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_OBJECT
+                )
+            },
+        ),
+        responses={
+            201: serializers.ProcessSerializer(many=False),
+            400: "Bad Request"
+        },
+        security=[None]
+    )
     def post(self, request, format=None):
-        """Summary
+        """Create a processing instance.
 
-        Args:
-            request (TYPE): Description
-            format (None, optional): Description
+        Parameters
+        ----------
+        request : Request
+            HTTP POST request
+        format : str, optional
+            Format for the rendered response (the default is None)
 
-        Returns:
-            TYPE: Description
+        Returns
+        -------
+        Response
+            Return the response with the created serialized process
         """
+
         serializer = serializers.ProcessSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -84,63 +154,125 @@ class ProcessList(GenericAPIView):
 
 
 class ProcessDetail(GenericAPIView):
-    """
-    Retrieve, update or delete a process instance.
+    """Retrieve, update or delete a created process instance.
 
-    Attributes:
-        permission_classes (TYPE): Description
-        renderer_classes (TYPE): Description
-        serializer_class (TYPE): Description
+    Methods
+    -------
+    get
+        Return a serialized process.
+
+    put
+        Update a process instance.
+
+    delete
+        Delete a process instance.
+
+    Raises
+    ------
+    Http404
+        HTTP error if the process doesn't exist
+
     """
+
     serializer_class = serializers.ProcessSerializer
     renderer_classes = (JSONRenderer,
+                        YAMLRenderer,
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsOpen, )
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self, id):
-        """Summary
+        """Get the process object.
 
-        Args:
-            id (TYPE): Description
+        Parameters
+        ----------
+        id : str
+            Identifier of the process
+        Raises
+        ------
+        Http404
+            Return HTTP 404 error code if the object doesn't exist
 
-        Returns:
-            TYPE: Description
-
-        Raises:
-            Http404: Description
+        Returns
+        -------
+        dict
+            Dictionary of the query result
         """
+
         try:
             return models.Process.objects.get(id=id)
         except models.Process.DoesNotExist:
             raise Http404
 
+    @swagger_auto_schema(
+        operation_description="Obtain a process instance by its identifier",
+        responses={
+            200: serializers.ProcessSerializer(many=False),
+            404: "Object doesn't exist"
+        },
+        security=[None]
+    )
     def get(self, request, id, format=None):
-        """Summary
+        """Obtain a process instance.
 
-        Args:
-            request (TYPE): Description
-            id (TYPE): Description
-            format (None, optional): Description
+        Parameters
+        ----------
+        request : Request
+            HTTP GET request
+        id : str
+            Identifier of the process
+        format : str, optional
+            Format for the rendered response (the default is None)
 
-        Returns:
-            TYPE: Description
+        Returns
+        -------
+        Response
+            Return the response with the serialized process
         """
         process = self.get_object(id)
         serializer = serializers.ProcessSerializer(process)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_description="Update a process instance by its identifier",
+        request_body=yasg_openapi.Schema(
+            type=yasg_openapi.TYPE_OBJECT,
+            required=['name', 'input_data', 'output_data'],
+            properties={
+                'name': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_STRING
+                ),
+                'input_data': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_OBJECT
+                ),
+                'output_data': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_OBJECT
+                )
+            },
+        ),
+        responses={
+            200: serializers.ProcessSerializer(many=False),
+            404: "Object doesn't exist"
+        },
+        security=[None]
+    )
     def put(self, request, id, format=None):
-        """Summary
+        """Update a process instance.
 
-        Args:
-            request (TYPE): Description
-            id (TYPE): Description
-            format (None, optional): Description
+        Parameters
+        ----------
+        request : Request
+            HTTP GET request
+        id : str
+            Identifier of the process
+        format : str, optional
+            Format for the rendered response (the default is None)
 
-        Returns:
-            TYPE: Description
+        Returns
+        -------
+        Response
+            Return the response with the serialized process
         """
         process = self.get_object(id)
         serializer = serializers.ProcessSerializer(process, data=request.data)
@@ -149,16 +281,30 @@ class ProcessDetail(GenericAPIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(
+        operation_description="Delete a process instance by its identifier",
+        responses={
+            204: "Operation completed with no content",
+            404: "Object doesn't exist"
+        },
+        security=[None]
+    )
     def delete(self, request, id, format=None):
-        """Summary
+        """Delete a process instance.
 
-        Args:
-            request (TYPE): Description
-            id (TYPE): Description
-            format (None, optional): Description
+        Parameters
+        ----------
+        request : Request
+            HTTP GET request
+        id : str
+            Identifier of the process
+        format : str, optional
+            Format for the rendered response (the default is None)
 
-        Returns:
-            TYPE: Description
+        Returns
+        -------
+        Response
+            Return the response with the result code of the deletion
         """
         process = self.get_object(id)
         process.delete()
@@ -176,8 +322,10 @@ class ProcessDetail(GenericAPIView):
 
 
 @api_view()
-@renderer_classes([SwaggerUIRenderer,
-                   OpenAPIRenderer])
+@renderer_classes([
+    SwaggerUIRenderer,
+    OpenAPIRenderer
+])
 @permission_classes([IsOpen])
 def swagger_schema_view(request):
     generator = SchemaGenerator(title='Rasterbucket API')
@@ -225,7 +373,7 @@ def swagger_schema_view(request):
 
 #     elif request.method == 'POST':
 #         serializer = serializers.ProcessSerializer(data=request.data)
-#         if serializer.is_valid():  # TODO add more validation
+#         if serializer.is_valid():  # TODO add more validation id:8 gh:14
 #         # see https://richardtier.com/2014/03/24/json-schema-validation-with-django-rest-framework/
 #             serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -268,10 +416,11 @@ class RasterbucketCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
-    permission_classes = (
-        permissions.IsAuthenticated, IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
 
     def perform_create(self, serializer):
         """Save the post data when creating a new rasterbucket.
@@ -291,11 +440,11 @@ class RasterbucketDetailsView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.Rasterbucket.objects.all()
     serializer_class = serializers.RasterbucketSerializer
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    permission_classes = (IsAuthenticated, IsOwner)
 
 
 class RasterbucketServiceCreateView(generics.ListCreateAPIView):
@@ -306,9 +455,9 @@ class RasterbucketServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    if not DEBUG:
+        swagger_schema = None
+    permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.RasterbucketService.objects.all()
     serializer_class = serializers.RasterbucketServiceSerializer
 
@@ -335,6 +484,8 @@ class RasterbucketServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.RasterbucketService
     serializer_class = serializers.RasterbucketServiceSerializer
 
@@ -358,6 +509,8 @@ class MapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.BaseServiceModel
     serializer_class = serializers.MapServiceSerializer
 
@@ -381,9 +534,9 @@ class GEEMapServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    if not DEBUG:
+        swagger_schema = None
+    permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.GEEMapService.objects.all()
     serializer_class = serializers.GEEMapServiceSerializer
 
@@ -410,6 +563,8 @@ class GEEMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.GEEMapService
     serializer_class = serializers.GEEMapServiceSerializer
 
@@ -433,9 +588,9 @@ class TileMapServiceCreateView(generics.ListCreateAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
-    permission_classes = (
-        permissions.IsAuthenticated,
-        IsOwner)
+    if not DEBUG:
+        swagger_schema = None
+    permission_classes = (IsAuthenticated, IsOwner)
     queryset = models.TileMapService.objects.all()
     serializer_class = serializers.TileMapServiceSerializer
 
@@ -462,6 +617,8 @@ class TileMapServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
         queryset (TYPE): Description
         serializer_class (TYPE): Description
     """
+    if not DEBUG:
+        swagger_schema = None
     queryset = models.TileMapService
     serializer_class = serializers.TileMapServiceSerializer
 

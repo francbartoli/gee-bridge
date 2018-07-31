@@ -53,7 +53,7 @@ class Process(models.Model):
         try:
             return Process.objects.get(pk=id)
         except Process.DoesNotExist:
-            # TODO: Handle this Exception
+            # TODO: Handle this Exception id:3 gh:9
             pass
 
     @staticmethod
@@ -119,7 +119,7 @@ class Process(models.Model):
     #                                         game=self)
     #         return square
     #     except GameSquare.DoesNotExist:
-    #         # TODO: Handle exception for gamesquare
+    #         # TODO: Handle exception for gamesquare id:4 gh:10
     #         return None
 
     def get_process_log(self):
@@ -193,7 +193,7 @@ class ProcessMap(models.Model):
         try:
             return ProcessMap.objects.get(pk=id)
         except ProcessMap.DoesNotExist:
-            # TODO: Handle exception for processmap
+            # TODO: Handle exception for processmap id:7 gh:13
             return None
 
     # def claim(self, status_type, user):

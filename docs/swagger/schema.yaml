@@ -1,0 +1,289 @@
+host: localhost:9000
+info: {title: Rasterbucket API, version: ''}
+paths:
+  /api/v1/auth/:
+    post:
+      consumes: [application/json]
+      description: 'API View that receives a POST with a user''s username and password.
+
+
+        Returns a JSON Web Token that can be used for authenticated requests.'
+      operationId: v1_auth_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            password: {description: '', type: string}
+            username: {description: '', type: string}
+          required: [username, password]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: API View that receives a POST with a user's username and password.
+      tags: [api]
+  /api/v1/auth/activate:
+    post:
+      consumes: [application/json]
+      description: Use this endpoint to activate user account.
+      operationId: v1_auth_activate_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            token: {description: '', type: string}
+            uid: {description: '', type: string}
+          required: [uid, token]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: Use this endpoint to activate user account.
+      tags: [api]
+  /api/v1/auth/login:
+    post:
+      consumes: [application/json]
+      description: 'API View that receives a POST with a user''s username and password.
+
+
+        Returns a JSON Web Token that can be used for authenticated requests.'
+      operationId: v1_auth_login_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            password: {description: '', type: string}
+            username: {description: '', type: string}
+          required: [username, password]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: API View that receives a POST with a user's username and password.
+      tags: [api]
+  /api/v1/auth/password/reset:
+    post:
+      consumes: [application/json]
+      description: Use this endpoint to send email to user with password reset link.
+      operationId: v1_auth_password_reset_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            email: {description: '', type: string}
+          required: [email]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: Use this endpoint to send email to user with password reset link.
+      tags: [api]
+  /api/v1/auth/password/reset/confirm:
+    post:
+      consumes: [application/json]
+      description: Use this endpoint to finish reset password process.
+      operationId: v1_auth_password_reset_confirm_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            new_password: {description: '', type: string}
+            token: {description: '', type: string}
+            uid: {description: '', type: string}
+          required: [uid, token, new_password]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: Use this endpoint to finish reset password process.
+      tags: [api]
+  /api/v1/auth/register:
+    post:
+      consumes: [application/json]
+      description: Use this endpoint to register new user.
+      operationId: v1_auth_register_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            email: {description: '', type: string}
+            password: {description: '', type: string}
+            username: {description: 'Required. 150 characters or fewer. Letters, digits
+                and @/./+/-/_ only.', type: string}
+          required: [username, password]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: Use this endpoint to register new user.
+      tags: [api]
+  /api/v1/auth/social/convert-token/:
+    post:
+      description: 'Implements an endpoint to convert a provider token to an access
+        token
+
+
+        The endpoint is used in the following flows:
+
+
+        * Authorization code
+
+        * Client credentials'
+      operationId: v1_auth_social_convert-token_create
+      responses:
+        '201': {description: ''}
+      summary: Implements an endpoint to convert a provider token to an access token
+      tags: [api]
+  /api/v1/auth/social/revoke-token/:
+    post:
+      description: Implements an endpoint to revoke access or refresh tokens
+      operationId: v1_auth_social_revoke-token_create
+      responses:
+        '201': {description: ''}
+      summary: Implements an endpoint to revoke access or refresh tokens
+      tags: [api]
+  /api/v1/auth/social/token/:
+    post:
+      description: 'Implements an endpoint to provide access tokens
+
+
+        The endpoint is used in the following flows:
+
+
+        * Authorization code
+
+        * Password
+
+        * Client credentials'
+      operationId: v1_auth_social_token_create
+      responses:
+        '201': {description: ''}
+      summary: Implements an endpoint to provide access tokens
+      tags: [api]
+  /api/v1/auth_verify/:
+    post:
+      consumes: [application/json]
+      description: 'API View that checks the veracity of a token, returning the token
+        if it
+
+        is valid.'
+      operationId: v1_auth_verify_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            token: {description: '', type: string}
+          required: [token]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: API View that checks the veracity of a token, returning the token if
+        it
+      tags: [api]
+  /api/v1/passwordless/auth/email/:
+    post:
+      operationId: v1_passwordless_auth_email_create
+      responses:
+        '201': {description: ''}
+      tags: [api]
+  /api/v1/passwordless/auth/mobile/:
+    post:
+      operationId: v1_passwordless_auth_mobile_create
+      responses:
+        '201': {description: ''}
+      tags: [api]
+  /api/v1/passwordless/callback/auth/:
+    post:
+      description: 'This is a duplicate of rest_framework''s own ObtainAuthToken method.
+
+        Instead, this returns an Auth Token based on our callback token and source.'
+      operationId: v1_passwordless_callback_auth_create
+      responses:
+        '201': {description: ''}
+      summary: This is a duplicate of rest_framework's own ObtainAuthToken method.
+      tags: [api]
+  /api/v1/processes/:
+    get:
+      description: "Summary\n\nArgs:\n    request (TYPE): Description\n    format\
+        \ (None, optional): Description\n\nReturns:\n    TYPE: Description"
+      operationId: v1_processes_list
+      responses:
+        '200': {description: ''}
+      summary: Summary
+      tags: [api]
+    post:
+      consumes: [application/json]
+      description: "Summary\n\nArgs:\n    request (TYPE): Description\n    format\
+        \ (None, optional): Description\n\nReturns:\n    TYPE: Description"
+      operationId: v1_processes_create
+      parameters:
+      - in: body
+        name: data
+        schema:
+          properties:
+            id: {description: '', type: string}
+            input_data: {description: '', type: string}
+            name: {description: '', type: string}
+            output_data: {description: '', type: string}
+          required: [name, input_data, output_data]
+          type: object
+      responses:
+        '201': {description: ''}
+      summary: Summary
+      tags: [api]
+  /api/v1/processes/{id}:
+    delete:
+      description: "Summary\n\nArgs:\n    request (TYPE): Description\n    id (TYPE):\
+        \ Description\n    format (None, optional): Description\n\nReturns:\n    TYPE:\
+        \ Description"
+      operationId: v1_processes_delete
+      parameters:
+      - {description: '', in: path, name: id, required: true, type: string}
+      responses:
+        '204': {description: ''}
+      summary: Summary
+      tags: [api]
+    get:
+      description: "Summary\n\nArgs:\n    request (TYPE): Description\n    id (TYPE):\
+        \ Description\n    format (None, optional): Description\n\nReturns:\n    TYPE:\
+        \ Description"
+      operationId: v1_processes_read
+      parameters:
+      - {description: '', in: path, name: id, required: true, type: string}
+      responses:
+        '200': {description: ''}
+      summary: Summary
+      tags: [api]
+    put:
+      consumes: [application/json]
+      description: "Summary\n\nArgs:\n    request (TYPE): Description\n    id (TYPE):\
+        \ Description\n    format (None, optional): Description\n\nReturns:\n    TYPE:\
+        \ Description"
+      operationId: v1_processes_update
+      parameters:
+      - {description: '', in: path, name: id, required: true, type: string}
+      - in: body
+        name: data
+        schema:
+          properties:
+            id: {description: '', type: string}
+            input_data: {description: '', type: string}
+            name: {description: '', type: string}
+            output_data: {description: '', type: string}
+          required: [name, input_data, output_data]
+          type: object
+      responses:
+        '200': {description: ''}
+      summary: Summary
+      tags: [api]
+  /api/v1/swagger/:
+    get:
+      operationId: v1_swagger_list
+      responses:
+        '200': {description: ''}
+      tags: [api]
+schemes: [http]
+securityDefinitions:
+  basic: {type: basic}
+swagger: '2.0'

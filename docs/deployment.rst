@@ -5,6 +5,93 @@ How to deploy
 Local development
 =================
 
+Virtual environment
+-------------------
+
+.. hint:: Make sure you have entered the virtual environment where all python dependencies have been installed.
+
+- If using `pyenv`_ facility then the command is that provided below
+assuming your virtual environment is called *gee_bridge*::
+
+.. _pyenv: https://github.com/pyenv/pyenv
+
+    .. code-block:: bash
+
+        pyenv activate gee_bridge
+
+- If using `pipenv`_ facility then the command is:
+
+.. _pipenv: https://github.com/kennethreitz/pipenv/
+
+    .. code-block:: bash
+
+        pipenv shell
+
+Django server
+^^^^^^^^^^^^^
+
+As you usually do with all Django projects execute
+the :command:`runserver` command:
+
+    .. code-block:: bash
+
+        (gee_bridge)$ python manage.py runserver
+
+Gunicorn
+^^^^^^^^
+
+The `Gunicorn`_ HTTP WSGI server has been already declared as dependency
+of your virtual environment indeed simply run:
+
+.. _Gunicorn: http://gunicorn.org/
+
+    .. code-block:: bash
+
+        (gee_bridge)$ gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py
+
+where the configuration option can be a file with content
+from `Gunicorn settings`_ like:
+
+.. _Gunicorn settings: http://docs.gunicorn.org/en/latest/configure.html
+
+.. warning:: Please make sure you **won't be** using the option `--log-file` for logging to file because GEE Bridge :ref:`Processes` Web API takes the result of **GEE** scripts from the standard output. If you enable that option the **bridge will break**!
+
+Supervisor
+^^^^^^^^^^
+
+`Supervisor`_ can be used to control the processes of the **Gunicorn** server.
+Thankfully to the `pipenv`_ ``run`` command we can work outside of the virtual
+environment to start and stop our application:
+
+**Start command**
+
+    .. code-block:: bash
+
+        $ pipenv run supervisord -c supervisord.conf
+
+**Stop command**
+
+    .. code-block:: bash
+
+        $ ps -ef | grep supervisord # check the pid number
+        $ kill -s SIGTERM $SUPERVISORD_PID_NUMBER
+
+
+Integration with Systemd
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once started **Supervisor** GEE Bridge can be integrated with *systemd*
+based systems. This makes easier to manage the server daemon as it can
+be restarted in case of failures or bootstraping new VM from a template.
+In the ``scripts/systemd`` directory there is a unit file that have been
+tested on Redhat based systems.
+That script has to be copied and placed into ``/usr/lib/systemd/system``
+with a filename `geebridge.service` and `WorkingDirectory` needs to be
+edited accordingly to your installation.
+
+Environment configuration is picked up from ``/etc/sysconfig/geebridge``.
+An example for reference is supplied.
+
 Cloud hosting provider
 ======================
 
@@ -37,13 +124,27 @@ with the Python version which has to be used.
 Create the Procfile to start the application
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:file:`Procfile` is a text file in the root directory of your Django application where you define the process *type* and the *command* to run in a such a way:
+:file:`Procfile` is a text file in the root directory of your Django application where you define the process *type* and the *command* to run in such a way:
 
     .. code-block:: ini
 
-        web: gunicorn gee_bridge.wsgi:application $PORT --log-file -
+        web: gunicorn gee_bridge.wsgi:application $PORT
 
 The name :py:attr:`web` is not just a placeholder but a **key term** which declares **HTTP** traffic for the application while the environment variable :envvar:`$PORT` has been used to assign the port where to bind the process.
+
+Alternatively you can pass a configuration option to the :command:`gunicorn` command to read address and port to bind from a file:
+
+    .. code-block:: ini
+
+        web: gunicorn gee_bridge.wsgi:application --config gunicorn.conf.py
+
+Where the :file:`gunicorn.conf.py` file is something like:
+
+    .. code-block:: python
+
+        bind = '0.0.0.0:9000'
+        workers = 3
+        timeout = 30
 
 Login to Heroku
 ^^^^^^^^^^^^^^^
@@ -79,12 +180,21 @@ Heroku will provide back the url assigned to the application:
         Creating ⬢ geebridge... done
         https://geebridge.herokuapp.com/
 
+.. warning:: GEE Bridge is a Django application that strongly needs `GDAL`_, the most powerful geospatial libraries which means your environment must have such a tool already installed. **Heroku** can provide additional `buildpack`_ for this purpose. Please use the below command to create this application.
+
+.. _buildpack: https://elements.heroku.com/buildpacks/cyberdelia/heroku-geo-buildpack
+.. _GDAL: http://www.gdal.org/
+
+    .. code-block:: bash
+
+        heroku apps:create geebridge --buildpack https://github.com/cyberdelia/heroku-geo-buildpack.git
+
 Start your application locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 1. Firsty create the :file:`.env` file for defining your environment variable. In our case the *PORT* can be set by executing the :command:`config` command:
 
-    .. code-block:: env
+    .. code-block:: bash
 
        heroku config:set PORT=9000 --app geebridge  >> .env
 
@@ -94,3 +204,15 @@ Start your application locally
 
         heroku local web
 
+Deploy your application to Heroku
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure you have created your application with the option to use a  which supports `GDAL`_ libraries cause our scripts are mostly relying on that.
+
+Run the following `GIT`_ command from your *master* branch:
+
+.. _GIT: https://git-scm.com/
+
+.. code-block:: bash
+
+    git push heroku master
