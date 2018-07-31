@@ -74,3 +74,5 @@ django-rest-auth = {extras = ["with-social"]}
 django-allauth = "*"
 google-cloud-storage = "*"
 firebase-admin = "*"
+djangorestframework-filters = "*"
+django-filter = ">=1.1.0,<2.0"

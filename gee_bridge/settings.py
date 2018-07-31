@@ -143,6 +143,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         # oauth2
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_filters.backends.DjangoFilterBackend',
     )
 }
 
