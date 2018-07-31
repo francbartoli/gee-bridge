@@ -48,9 +48,13 @@ class MapServiceSerializer(serializers.ModelSerializer):
             TYPE: Description
         """
         if isinstance(obj, models.GEEMapService):
-            return GEEMapServiceSerializer(obj, context=self.context).to_representation(obj)
+            return GEEMapServiceSerializer(
+                obj, context=self.context
+            ).to_representation(obj)
         elif isinstance(obj, models.TileMapService):
-           return TileMapServiceSerializer(obj, context=self.context).to_representation(obj)
+            return TileMapServiceSerializer(
+                obj, context=self.context
+            ).to_representation(obj)
         return super(MapServiceSerializer, self).to_representation(obj)
 
 
@@ -198,7 +202,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     input_data = serializers.JSONField()
     output_data = serializers.JSONField()
-    
+
     def validate_input_data(self, value):
         """
         Check that the input_data contains valid GeoJSON.
@@ -221,7 +225,6 @@ class ProcessSerializer(serializers.ModelSerializer):
         else:
             return value
 
-
     class Meta:
         """Meta class.
 
@@ -238,7 +241,7 @@ class ProcessSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'date_created',
             'date_modified')
-        
+
 
 class UserSerializer(serializers.ModelSerializer):
     """A user serializer to aid in authentication and authorization.
