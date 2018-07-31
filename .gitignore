@@ -21,3 +21,5 @@ gee_bridge/staticfiles/
 \.vscode/
 
 \.pytest_cache/
+
+assets/
