@@ -17,10 +17,15 @@
       "XXX",
       "IDEA",
       "NOTE",
-      "REVIEW"
+      "REVIEW",
+      "HELP"
     ]
   },
   "lists": [
+    {
+      "name": "HELP",
+      "hidden": false
+    },
     {
       "name": "TODO",
       "hidden": false
@@ -38,5 +43,6 @@
     "id": "5a50c5a2952bde50cb735886",
     "name": "francbartoli/gee-bridge",
     "useImdoneioForPriority": true
-  }
+  },
+  "noHelp": true
 }
