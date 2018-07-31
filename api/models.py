@@ -5,6 +5,8 @@ Attributes:
     gd_storage (TYPE): Description
     GOOGLE_DRIVE_UPLOAD_FOLDER (str): Description
 """
+# TODO implement choices as Enum class
+# https://hackernoon.com/using-enum-as-model-field-choice-in-django-92d8b97aaa63
 from __future__ import unicode_literals
 
 import re
@@ -19,7 +21,6 @@ from django.dispatch import receiver
 from gee_bridge import settings
 # from jsonfield_compat.fields import JSONField
 from jsonfield import JSONField
-from jsonpickle import decode, encode
 from polymorphic.models import PolymorphicModel
 from rest_framework.authtoken.models import Token
 
@@ -86,22 +87,28 @@ class Process(BaseModel):
         output_data (TYPE): Description
         owner (TYPE): Description
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        primary_key=True,
+        help_text="Process identifier",
+        default=uuid.uuid4
+    )
     owner = models.ForeignKey(
         'auth.User',
         default=DEFAULT_OWNER,
         related_name='processes',
         on_delete=models.CASCADE)
-    input_data = JSONField(null=True,
-                           blank=True,
-                           default={},
-                           load_kwargs={'object_pairs_hook': OrderedDict}
-                           )
-    output_data = JSONField(null=True,
-                            blank=True,
-                            default={},
-                            load_kwargs={'object_pairs_hook': OrderedDict}
-                            )
+    input_data = JSONField(
+        null=True,
+        blank=True,
+        default={},
+        load_kwargs={'object_pairs_hook': OrderedDict}
+    )
+    output_data = JSONField(
+        null=True,
+        blank=True,
+        default={},
+        load_kwargs={'object_pairs_hook': OrderedDict}
+    )
 
     def __str__(self):
         """Return a human readable representation of the model instance.
