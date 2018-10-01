@@ -26,11 +26,16 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 
 STATIC_URL = '/geemgr/assets/'
-# STATIC_URL = 'https://storage.googleapis.com/gee_bridge/static/'
+# STATIC_URL = 'https://storage.googleapis.com/geemgr/assets/'
 
-# STATICFILES_DIRS = (
-#     os.path.join(PROJECT_ROOT, 'static'),
-# )
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.10/howto/static-files/
+# Extra places for collectstatic to find static files.
+
+# Add static which contains bundles from SPA
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -277,16 +282,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
-# Extra places for collectstatic to find static files.
-
-# STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "assets"),
-]
 
 # Shapefile directory for Gaul
 SHAPEFILE_DIR = os.path.join(PROJECT_ROOT, 'gaul')
