@@ -22,9 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+# STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 
-STATIC_URL = '/geemgr/static/'
+STATIC_URL = '/geemgr/assets/'
 # STATIC_URL = 'https://storage.googleapis.com/gee_bridge/static/'
 
 # STATICFILES_DIRS = (
@@ -284,7 +285,7 @@ USE_TZ = True
 
 # STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "assets"),
 ]
 
 # Shapefile directory for Gaul

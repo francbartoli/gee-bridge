@@ -22,3 +22,5 @@ assets
 \.vscode/
 
 \.pytest_cache/
+
+assets/
