@@ -41,7 +41,7 @@ drfpasswordless = "*"
 djoser = "*"
 Pygments = "*"
 Markdown = "*"
-supervisor = "*"
+supervisor = {git = "https://github.com/Supervisor/supervisor.git", editable = true, ref = "master"}
 gunicorn = "*"
 whitenoise = "*"
 django-extensions = "*"

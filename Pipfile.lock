@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "de4c20b38e6839a87d3dcf64267f8b259b07e5730f02ace1e8e07ee755b630b7"
+            "sha256": "0c0b1a1d3601a3c47fc726345933e44608ce45cbcd8117679b9b771ade23d019"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -940,11 +940,9 @@
             "version": "==0.7"
         },
         "supervisor": {
-            "hashes": [
-                "sha256:212201a3fd1d35c150ef0c35bf0676fd1a6c195fb60bf0f2147fe7dbd317e672"
-            ],
-            "index": "pypi",
-            "version": "==3.3.4"
+            "editable": true,
+            "git": "https://github.com/Supervisor/supervisor.git",
+            "ref": "837c159ae51f3bf12c1d30a8cb44f3450611983c"
         },
         "swagger-spec-validator": {
             "hashes": [
@@ -1096,7 +1094,7 @@
                 "sha256:9d98697f088eb1b0fa451391f91afb5e3ebde16bbdb272819fd091151fda4f1a",
                 "sha256:f0b0e4eba956de51238e17573b7087e852dfe9854afd2e9c873f73fc0ca0a6dd"
             ],
-            "markers": "python_version >= '2.6'",
+            "markers": "python_version < '3.4'",
             "version": "==1.5"
         },
         "backports.shutil-get-terminal-size": {
