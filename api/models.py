@@ -20,12 +20,20 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from gee_bridge import settings
 # from jsonfield_compat.fields import JSONField
-from jsonfield import JSONField
+from django.contrib.postgres.fields import JSONField as PGJSONField
+from jsonfield import JSONField as SLJSONField
 from polymorphic.models import PolymorphicModel
 from rest_framework.authtoken.models import Token
 
 # Create your models here.
+
+# init
 DEFAULT_OWNER = 1
+
+if settings.INTERNAL_USE_NATIVE_JSONFIELD:
+    _JSONField = PGJSONField
+else:
+    _JSONField = SLJSONField
 
 
 def normalize(query_string):
@@ -97,17 +105,17 @@ class Process(BaseModel):
         default=DEFAULT_OWNER,
         related_name='processes',
         on_delete=models.CASCADE)
-    input_data = JSONField(
+    input_data = _JSONField(
         null=True,
         blank=True,
-        default={},
-        load_kwargs={'object_pairs_hook': OrderedDict}
+        default={}#,
+        #load_kwargs={'object_pairs_hook': OrderedDict}
     )
-    output_data = JSONField(
+    output_data = _JSONField(
         null=True,
         blank=True,
-        default={},
-        load_kwargs={'object_pairs_hook': OrderedDict}
+        default={}#,
+        #load_kwargs={'object_pairs_hook': OrderedDict}
     )
 
     def __str__(self):
@@ -321,7 +329,7 @@ def run_process(sender, instance, created, **kwargs):
     arguments = input_data.get("arguments")
     optionals = dict()
     for argument in arguments:
-        print argument
+        print (argument)
         if argument.get("positional"):
             argument.pop("positional")
             poslst = argument.values()
@@ -329,7 +337,7 @@ def run_process(sender, instance, created, **kwargs):
                 for k in (v for elem in poslst for v in elem):
                     b = k.values()
                     for el in b:
-                        print args
+                        print (args)
                         args.append(el)
         else:
             argument.pop("positional")
@@ -356,12 +364,12 @@ def run_process(sender, instance, created, **kwargs):
                     else:
                         raise Exception("Option must be in " + options)
                 except Exception as e:
-                    print e
+                    print (e)
                     pass
             else:
                 optionals.update(argument)
-    print 'args=', args
-    print 'optionals=', optionals
+    print ('args=', args)
+    print ('optionals=', optionals)
     process = Wapor()
     cmd_result = process.run(*args, **optionals)
     # TODO async id:6 gh:12

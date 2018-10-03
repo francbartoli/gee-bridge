@@ -41,13 +41,16 @@ STATICFILES_DIRS = [
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#gy*!m7zd^(ln*pm(&a&)di1whp9%968+skr_20q1p0$intee='
+if os.getenv('SECRET_KEY'):
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.getenv('DEBUG', True)))
 
-ALLOWED_HOSTS = ['*', ]
-
+if os.getenv('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+else:
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -61,7 +64,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_extensions',
     'polymorphic',
-    'helloworld',
     'storages',
     'corsheaders',
     'bootstrap4',
@@ -181,15 +183,35 @@ SWAGGER_SETTINGS = {
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+SQLITE = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 }
 
-# JSONField
-# USE_NATIVE_JSONFIELD = True
+PG = {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'HOST': os.getenv('POSTGRES_HOST'),
+    'PORT': os.getenv('POSTGRES_PORT'),
+    'USER': os.getenv('POSTGRES_USER'),
+    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+    'NAME': os.getenv('POSTGRES_DB'),
+}
+
+if os.getenv("DOCKER", default=False):
+    DB = PG
+else:
+    DB = SQLITE
+
+DATABASES = {
+    'default': DB
+}
+
+# JSONField with custom switch between native and not native
+# Alternative: https://github.com/kbussell/django-jsonfield-compat
+if os.getenv("DOCKER", default=False):
+    INTERNAL_USE_NATIVE_JSONFIELD = True
+else:
+    INTERNAL_USE_NATIVE_JSONFIELD = False
 
 # Email configuration
 # python -m smtpd -n -c DebuggingServer localhost:1025

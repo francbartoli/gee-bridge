@@ -3,7 +3,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
-from utils.geo import GeoUtil
+from api.utils.geo import GeoUtil
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
