@@ -24,3 +24,5 @@ assets
 \.pytest_cache/
 
 assets/
+
+src/
