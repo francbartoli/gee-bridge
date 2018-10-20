@@ -21,6 +21,12 @@ class Wapor(Base):
 
     def __init__(self, mode=SYNC):
         Base.__init__(self)
+        if mode not in (SYNC, ASYNC):
+            raise ValueError(
+                "{0} is not a valid mode.".format(
+                    title
+                )
+            )
         self.namespace = NAMESPACE
         self.mode = mode
 
