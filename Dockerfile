@@ -8,11 +8,11 @@ COPY Pipfile /tmp/Pipfile
 COPY Pipfile.lock /tmp/Pipfile.lock
 
 # setup
-RUN apk --update --no-cache add python3 py3-pip ca-certificates git wget bash linux-headers
+RUN apk --update --no-cache add python3 py3-pip ca-certificates git wget bash linux-headers graphviz
 # See https://github.com/appropriate/docker-postgis/blob/master/Dockerfile.alpine.template
 # See https://hub.docker.com/r/dangerfarms/geodrf-alpine/~/dockerfile/
 RUN apk --update --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ add \
-  geos gdal proj4 protobuf-c postgresql-client gdal-dev jpeg-dev zlib-dev
+  geos gdal proj4 protobuf-c postgresql-client gdal-dev jpeg-dev zlib-dev graphviz-dev
 RUN apk --update add --virtual build-dependencies gcc musl-dev libffi-dev python3-dev build-base \
 # ISSUE https://github.com/Stanback/alpine-strongswan-vpn/pull/3
 # TODO workaround start see https://github.com/pyca/cryptography/issues/4264
