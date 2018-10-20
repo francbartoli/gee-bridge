@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [requires]
-python_version = '2.7.14'
+python_version = '3.6.6'
 
 [dev-packages]
 pytest = "*"
@@ -29,7 +29,6 @@ ipython = "*"
 "django-bootstrap4" = "*"
 sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git", editable = true, ref = "master"}
 "flake8" = "*"
-"autopep8" = "*"
 
 [packages]
 earthengine-api = "*"
@@ -37,7 +36,6 @@ djangorestframework = "*"
 django-rest-swagger = "*"
 djangorestframework-jwt = "*"
 djangorestframework-yaml = "*"
-drfpasswordless = "*"
 djoser = "*"
 Pygments = "*"
 Markdown = "*"
@@ -66,11 +64,11 @@ channels = "==1.1.8"
 "django-bootstrap4" = "*"
 django-oauth-toolkit = "<=1.1.2"
 "enum34" = "*"
-drf-yasg = {extras = ["validation"]}
+drf-yasg = {extras = ["validation"], version = "*"}
 django-storages = "*"
 asgi_redis = "*"
 asgiref = "~=1.1"
-django-rest-auth = {extras = ["with-social"]}
+django-rest-auth = {extras = ["with-social"], version = "*"}
 django-allauth = "*"
 google-cloud-storage = "*"
 firebase-admin = "*"

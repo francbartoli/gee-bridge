@@ -36,8 +36,6 @@ urlpatterns = [
         include('rest_auth.registration.urls')),
     url(r'^security/djoser/',
         include('djoser.urls')),
-    url(r'^security/passwordless/',
-        include('drfpasswordless.urls')),
 
     # Process
     url(r'^processes/$',
