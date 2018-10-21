@@ -5,12 +5,12 @@ class TestBase(object):
     cls = Base
 
     def test_name(self):
-        assert self.cls().name
+        assert self.cls.name
     def test_inputs(self):
-        assert self.cls().inputs
+        assert self.cls.inputs
     def test_options(self):
-        assert self.cls().options
+        assert self.cls.options
     def test_outputs(self):
-        assert self.cls().outputs
+        assert self.cls.outputs
     def test_state(self):
-        assert self.cls().state
+        assert self.cls.state
