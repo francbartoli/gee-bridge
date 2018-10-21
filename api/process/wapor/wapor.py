@@ -19,8 +19,14 @@ class Wapor(Base):
             A mode for the process that can be SYNC or ASYNC
     """
 
-    def __init__(self, mode=SYNC):
-        Base.__init__(self)
+    def __init__(
+        self, wapor_name="", wapor_inputs={}, wapor_options={},
+        wapor_outputs={}, wapor_state="", mode=SYNC
+    ):
+        super().__init__(
+            name=wapor_name, inputs=wapor_inputs, options=wapor_options,
+            outputs=wapor_outputs, state=wapor_state
+        )
         if mode not in (SYNC, ASYNC):
             raise ValueError(
                 "{0} is not a valid mode.".format(
