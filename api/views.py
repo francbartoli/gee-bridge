@@ -14,7 +14,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.generics import GenericAPIView
 from rest_framework.renderers import (
-    BaseRenderer, BrowsableAPIRenderer,
+    BrowsableAPIRenderer,
     JSONRenderer)
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
