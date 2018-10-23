@@ -25,7 +25,9 @@ RUN apk --update add --virtual build-dependencies gcc musl-dev libffi-dev python
   && apk add postgresql-dev \
   && pip3 install --upgrade pip \
   && pip3 install --upgrade pipenv \
-  && pipenv install --verbose --system --deploy
+  && pipenv install --verbose --system --deploy \
+# TODO WORKAROUND FOR https://github.com/pypa/pipenv/issues/3026
+  && pip3 install drf-yasg[validation]
 
 # clean
 RUN apk del build-dependencies
