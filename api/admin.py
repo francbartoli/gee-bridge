@@ -15,6 +15,9 @@ class JsonForm(ModelForm):
         }
 
 
+# TODO https://github.com/abogushov/django-admin-json-editor
+
+
 class ProcessAdmin(admin.ModelAdmin):
     form = JsonForm
 
