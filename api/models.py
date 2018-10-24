@@ -87,35 +87,70 @@ class BaseModel(models.Model):
 
 
 class Process(BaseModel):
-    """This class represents the process model
+    """Model the process interface
 
-    Attributes:
-        id (TYPE): Description
-        input_data (TYPE): Description
-        output_data (TYPE): Description
-        owner (TYPE): Description
+    Parameters
+    ----------
+        id: string
+            An unique identifier for the process
+        type: dict
+            A type of the process identified by a namespace,
+            algorithm and execution mode which can be sync/async
+        owner: string
+            A user who owns the process
+        aoi: dict
+            An area of interest or multiple areas
+        toi: dict
+            A period of interest or multiple periods
+        input_data: dict
+            Data with input datasets
+        output_data: dict
+            Data with output maps, stats, tasks, errors
     """
+
+    class Meta:
+        db_table = 'process'
+        managed = True
+        verbose_name = 'Process'
+        verbose_name_plural = 'Processes'
+
     id = models.UUIDField(
         primary_key=True,
         help_text="Process identifier",
         default=uuid.uuid4
     )
+    type = _JSONField(
+        null=True,
+        blank=True,
+        default={}
+    )
     owner = models.ForeignKey(
         'auth.User',
         default=DEFAULT_OWNER,
         related_name='processes',
-        on_delete=models.CASCADE)
+        on_delete=models.CASCADE
+    )
+    aoi = _JSONField(
+        null=True,
+        blank=True,
+        default=[]
+    )
+    toi = _JSONField(
+        null=True,
+        blank=True,
+        default=[]
+    )
     input_data = _JSONField(
         null=True,
         blank=True,
-        default={}#,
-        #load_kwargs={'object_pairs_hook': OrderedDict}
+        default={}  # ,
+        # load_kwargs={'object_pairs_hook': OrderedDict}
     )
     output_data = _JSONField(
         null=True,
         blank=True,
-        default={}#,
-        #load_kwargs={'object_pairs_hook': OrderedDict}
+        default={}  # ,
+        # load_kwargs={'object_pairs_hook': OrderedDict}
     )
 
     def __str__(self):
@@ -317,63 +352,63 @@ def run_process(sender, instance, created, **kwargs):
     Raises:
         Exception: Description
     """
-    from api.process.wapor import Wapor
+    from api.process.wapor.wapor import Wapor
     input_data = instance.input_data
-    # TODO must be added also in a serializer for validation id:1 gh:7
-    if "process" not in input_data:
-        raise Exception("process must be specified")
-    args = list()
-    proc = input_data.get("process")
-    args.insert(1, proc)
-    input_data.pop("process", None)
-    arguments = input_data.get("arguments")
-    optionals = dict()
-    for argument in arguments:
-        print (argument)
-        if argument.get("positional"):
-            argument.pop("positional")
-            poslst = argument.values()
-            if isinstance(poslst, list):
-                for k in (v for elem in poslst for v in elem):
-                    b = k.values()
-                    for el in b:
-                        print (args)
-                        args.append(el)
-        else:
-            argument.pop("positional")
-            if argument.get("choice"):
-                argument.pop("choice")
-                options = ('c', 'g', 'w')
-                try:
-                    argkey = argument.keys()[0]
-                    data = argument.get(argkey)
-                    option = data.get("option")
-                    if (isinstance(data, dict) and (option in options)):
-                        # julail the cuccudrail
-                        # Jemon the king
-                        # Plutonio the star
-                        Argument = namedtuple('Argument',
-                                              ['option', 'choices']
-                                              )
-                        inner_arg = Argument(data.get("option"),
-                                             data.get("choices")
-                                             )
-                        tpl = tuple(inner_arg)
-                        argument[argkey] = list(tpl)
-                        optionals.update(argument)
-                    else:
-                        raise Exception("Option must be in " + options)
-                except Exception as e:
-                    print (e)
-                    pass
-            else:
-                optionals.update(argument)
-    print ('args=', args)
-    print ('optionals=', optionals)
-    process = Wapor()
-    cmd_result = process.run(*args, **optionals)
+    # # TODO must be added also in a serializer for validation id:1 gh:7
+    # if "process" not in input_data:
+    #     raise Exception("process must be specified")
+
+    data = input_data.get("data")
+    # args.insert(1, proc)
+    # input_data.pop("process", None)
+    # arguments = input_data.get("arguments")
+    # optionals = dict()
+    # for argument in arguments:
+    #     print (argument)
+    #     if argument.get("positional"):
+    #         argument.pop("positional")
+    #         poslst = argument.values()
+    #         if isinstance(poslst, list):
+    #             for k in (v for elem in poslst for v in elem):
+    #                 b = k.values()
+    #                 for el in b:
+    #                     print (args)
+    #                     args.append(el)
+    #     else:
+    #         argument.pop("positional")
+    #         if argument.get("choice"):
+    #             argument.pop("choice")
+    #             options = ('c', 'g', 'w')
+    #             try:
+    #                 argkey = argument.keys()[0]
+    #                 data = argument.get(argkey)
+    #                 option = data.get("option")
+    #                 if (isinstance(data, dict) and (option in options)):
+    #                     # julail the cuccudrail
+    #                     # Jemon the king
+    #                     # Plutonio the star
+    #                     Argument = namedtuple('Argument',
+    #                                           ['option', 'choices']
+    #                                           )
+    #                     inner_arg = Argument(data.get("option"),
+    #                                          data.get("choices")
+    #                                          )
+    #                     tpl = tuple(inner_arg)
+    #                     argument[argkey] = list(tpl)
+    #                     optionals.update(argument)
+    #                 else:
+    #                     raise Exception("Option must be in " + options)
+    #             except Exception as e:
+    #                 print (e)
+    #                 pass
+    #         else:
+    #             optionals.update(argument)
+
+    # process = Wapor('test', **options)
+    # process_result = process.run()
+    process_result = {}
     # TODO async id:6 gh:12
-    output_data = cmd_result
+    output_data = process_result
     # from IPython import embed
     # embed()
     if created:
