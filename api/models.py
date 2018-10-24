@@ -11,7 +11,6 @@ from __future__ import unicode_literals
 
 import re
 import uuid
-# import json
 from collections import OrderedDict, namedtuple
 
 from django.contrib.auth.models import User
@@ -24,7 +23,6 @@ from django.contrib.postgres.fields import JSONField as PGJSONField
 from jsonfield import JSONField as SLJSONField
 from polymorphic.models import PolymorphicModel
 from rest_framework.authtoken.models import Token
-
 # Create your models here.
 
 # init
@@ -152,6 +150,8 @@ class Process(BaseModel):
         default={}  # ,
         # load_kwargs={'object_pairs_hook': OrderedDict}
     )
+    # TODO validate against a json schema
+    # https://stackoverflow.com/questions/37642742/django-postgresql-json-field-schema-validation
 
     def __str__(self):
         """Return a human readable representation of the model instance.

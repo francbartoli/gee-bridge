@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'storages',
     'corsheaders',
     'bootstrap4',
+    'prettyjson',
     # rest
     'rest_framework',
     'drf_yasg',
