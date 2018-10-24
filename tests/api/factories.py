@@ -15,6 +15,7 @@ def seq_type():
         }
     }
 
+
 def seq_aoi():
     """
     Sequence for aoi json field
@@ -52,6 +53,7 @@ def seq_aoi():
         ]
     }]
 
+
 def seq_toi():
     """
     Sequence for toi json field
@@ -62,6 +64,7 @@ def seq_toi():
             "startdate": "2015-12-31"
         }
     ]
+
 
 def seq_inputdata():
     """
@@ -86,6 +89,7 @@ def seq_inputdata():
         ],
         "outputs": ""
     }
+
 
 def seq_outputdata():
     """
