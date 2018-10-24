@@ -58,7 +58,7 @@ class BaseModel(models.Model):
         date_modified (TYPE): Description
         name (TYPE): Description
     """
-    name = models.CharField(max_length=255, blank=False, unique=True)
+    name = models.CharField(max_length=255, blank=False)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now_add=True)
 
