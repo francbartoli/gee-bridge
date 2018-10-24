@@ -9,3 +9,4 @@ def test_process_model():
     process = ProcessFactory()
     assert process.type["mode"] == "sync"
     assert 'wapor' in process.type
+    assert 'inputs' and 'outputs' in process.input_data
