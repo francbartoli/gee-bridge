@@ -1,9 +1,9 @@
-"""Summary
+"""Serializers
 """
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
-from api.utils.geo import GeoUtil
+from api.utils.geo import GeoJsonUtil
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -190,53 +190,61 @@ class RasterbucketSerializer(serializers.ModelSerializer):
 
 
 class ProcessSerializer(serializers.ModelSerializer):
-    """Define an actionable process api representation
-    with json data for input and output.
+    """Define an actionable process api serializer.
 
-    Attributes:
-        input_data (TYPE): Description
-        output_data (TYPE): Description
-        owner (TYPE): Description
+    Parameters
+    ----------
+        type: dict
+            Type of a process
+        owner: string
+            Owner of a process
+        aoi: dict
+            Area of interest GeoJson formatted,
+            it can be multiple
+        toi: dict
+            Time of interest, it can be multiple
+        input_data: dict
+            Input data for a process
+        output_data: dict
+            Output data for a process
     """
 
+    type = serializers.JSONField()
     owner = serializers.ReadOnlyField(source='owner.username')
+    aoi = serializers.JSONField()
+    toi = serializers.JSONField()
     input_data = serializers.JSONField()
     output_data = serializers.JSONField()
 
-    def validate_input_data(self, value):
+    def validate_aoi(self, value):
         """
-        Check that the input_data contains valid GeoJSON.
+        Check that the aoi contains valid GeoJSON.
         """
 
-        arealstat_dict = [
-            tpl[1] for tpl in [
-                el[1] for el in [key.items() for key in value['arguments']]
-            ] if tpl[0] == 'arealstat'
-        ][0]
-        if arealstat_dict['option'] == 'g':
-            if not GeoUtil().is_featurecollection_valid(
-                GeoUtil().extract_geojson_obj(
-                    arealstat_dict['choices']
-                )
-            ):
-                raise serializers.ValidationError("GeoJSON is not valid.")
-            return value
-
+        # arealstat_dict = [
+        #     tpl[1] for tpl in [
+        #         el[1] for el in [key.items() for key in value['arguments']]
+        #     ] if tpl[0] == 'arealstat'
+        # ][0]
+        # if arealstat_dict['option'] == 'g':
+        #     if not GeoJsonUtil().is_featurecollection_valid(
+        #         GeoJsonUtil().extract_geojson_obj(
+        #             arealstat_dict['choices']
+        #         )
+        #     ):
+        # can be an array of multiple valid geojson
+        if isinstance(value, dict):
+            raise serializers.ValidationError("GeoJSON is not valid.")
         else:
             return value
 
     class Meta:
         """Meta class.
-
-        Attributes:
-            fields (TYPE): Description
-            model (TYPE): Description
-            read_only_fields (TYPE): Description
         """
 
         model = models.Process
         fields = (
-            'id', 'name', 'input_data', 'owner',
+            'id', 'name', 'type', 'owner', 'aoi', 'toi', 'input_data',
             'output_data', 'date_created', 'date_modified')
         read_only_fields = (
             'date_created',

@@ -138,5 +138,4 @@ class ProcessFactory(factory.django.DjangoModelFactory):
             self.input_data = extracted
             output_data = extracted
             output_data.update(outputs=output)
-            print(output_data)
             self.output_data = output_data
