@@ -1,30 +1,31 @@
-from geojson import (GeoJSON,
-                     FeatureCollection,
-                     Feature
-                    )
+import geojson
 import json
 
 
-class GeoUtil(object):
-    """Exploit geospatial utilities"""
+class GeoJsonUtil:
+    """Exploit geospatial utilities
 
-    def __init__(self):
-        pass
+    Parameters
+    ----------
+        geojson: dict
 
-    def extract_geojson_obj(self, json_dict):
-        """Extract geojson from a defined json key"""
+    """
+
+    def __init__(self, geojson):
+        self.geojson = geojson
+
+    @property
+    def instance(self):
+        """Create geojson instance from a defined json key"""
         try:
-            if isinstance(json_dict, dict):
-                val_inst = GeoJSON.to_instance(json_dict)
-                return val_inst
+            if isinstance(self.geojson, dict):
+                gj_instance = geojson.loads(json.dumps(self.geojson))
+                return gj_instance
         except KeyError as e:
             raise Exception(e)
-    
-    def is_featurecollection_valid(self, fc):
-            fc_to_validate = FeatureCollection(fc)
-            for ft in fc_to_validate:
-                ft_to_validate = Feature(ft)
-                if ft_to_validate.errors():
-                    return False
-            return True
-        
+
+    def validate(self):
+        """Validate a geojson object"""
+        if not self.instance.is_valid:
+            return False
+        return True
