@@ -97,6 +97,7 @@ def seq_outputdata():
     """
     return {}
 
+
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
@@ -120,9 +121,22 @@ class ProcessFactory(factory.django.DjangoModelFactory):
 
     @factory.post_generation
     def input_data(self, create, extracted, **kwargs):
+        empty_output = [
+            {
+                "maps": {},
+                "stats": {},
+                "tasks": {},
+                "errors": {}
+            }
+        ]
+        output = json.dumps(empty_output)
+
         if not create:
             return
 
-        if extracted:
-            for manager in extracted:
-                self.output_data.add(manager)
+        if extracted and isinstance(extracted, dict):
+            self.input_data = extracted
+            output_data = extracted
+            output_data.update(outputs=output)
+            print(output_data)
+            self.output_data = output_data
