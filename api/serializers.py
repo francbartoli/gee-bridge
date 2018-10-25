@@ -221,21 +221,38 @@ class ProcessSerializer(serializers.ModelSerializer):
         Check that the aoi contains valid GeoJSON.
         """
 
-        # arealstat_dict = [
-        #     tpl[1] for tpl in [
-        #         el[1] for el in [key.items() for key in value['arguments']]
-        #     ] if tpl[0] == 'arealstat'
-        # ][0]
-        # if arealstat_dict['option'] == 'g':
-        #     if not GeoJsonUtil().is_featurecollection_valid(
-        #         GeoJsonUtil().extract_geojson_obj(
-        #             arealstat_dict['choices']
-        #         )
-        #     ):
         # can be an array of multiple valid geojson
-        if isinstance(value, dict):
-            raise serializers.ValidationError("GeoJSON is not valid.")
+        if not isinstance(value, list):
+            try:
+                if isinstance(
+                    value, dict
+                ) and GeoJsonUtil(
+                    value
+                ).validate():
+                    return value
+                else:
+                    raise serializers.ValidationError(
+                        "GeoJSON is not valid."
+                    )
+            except Exception as e:
+                raise serializers.ValidationError(
+                    "GeoJSON is not valid."
+                )
         else:
+            for gj_item in value:
+                try:
+                    if not isinstance(
+                        gj_item, dict
+                    ) or not GeoJsonUtil(
+                        gj_item
+                    ).validate():
+                        raise serializers.ValidationError(
+                            "GeoJSON is not valid."
+                        )
+                except Exception as e:
+                    raise serializers.ValidationError(
+                        "GeoJSON is not valid."
+                    )
             return value
 
     class Meta:
