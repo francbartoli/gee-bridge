@@ -112,15 +112,21 @@ class ProcessList(GenericAPIView):
         operation_description="Create a processing instance",
         request_body=yasg_openapi.Schema(
             type=yasg_openapi.TYPE_OBJECT,
-            required=['name', 'input_data', 'output_data'],
+            required=['name', 'type', 'aoi', 'toi', 'input_data'],
             properties={
                 'name': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_STRING
                 ),
-                'input_data': yasg_openapi.Schema(
+                'type': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_OBJECT
                 ),
-                'output_data': yasg_openapi.Schema(
+                'aoi': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_ARRAY
+                ),
+                'toi': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_ARRAY
+                ),
+                'input_data': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_OBJECT
                 )
             },
@@ -228,6 +234,11 @@ class ProcessDetail(GenericAPIView):
         format: str, optional
             Format for the rendered response (the default is None)
 
+        Raises
+        ------
+        PermissionDenied
+            Return HTTP 403 error code if the user is denied
+
         Returns
         -------
         Response
@@ -276,6 +287,11 @@ class ProcessDetail(GenericAPIView):
             Identifier of the process
         format : str, optional
             Format for the rendered response (the default is None)
+
+        Raises
+        ------
+        PermissionDenied
+            Return HTTP 403 error code if the user is denied
 
         Returns
         -------
