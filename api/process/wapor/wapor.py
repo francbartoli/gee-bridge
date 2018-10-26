@@ -1,7 +1,7 @@
 """Generic class for Wapor processing
 """
 from api.process.base import Base
-
+from api.process.alg import ALG
 
 NAMESPACE = "wapor"
 SYNC = "SYNC"
@@ -30,7 +30,7 @@ class Wapor(Base):
         if mode not in (SYNC, ASYNC):
             raise ValueError(
                 "{0} is not a valid mode.".format(
-                    title
+                    mode
                 )
             )
         self.namespace = NAMESPACE
@@ -66,21 +66,23 @@ class Wapor(Base):
         -------
         dict
             An object that contains the primary keys 'maps',
-            'stats' and eventually 'errors' for any failure during
+            'stats', 'tasks' and eventually 'errors' for any failure during
             the execution.
         """
         # dynamic import of class https://www.bnmetrics.com/blog/dynamic-import-in-python3
         # from wapor.algorithms.uda.wp import WP
 
-        alg = ALG(**kwargs)
+        alg = ALG()
+
         if self.mode == SYNC:
-            output = wp.execute()
+            output = alg.execute()
         else:
             pass
 
         result = {
             "maps": output["outputs"]["maps"],
             "stats": output["outputs"]["stats"],
+            "tasks": output["outputs"]["tasks"],
             "errors": output["errors"]
         }
 

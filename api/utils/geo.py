@@ -8,7 +8,6 @@ class GeoJsonUtil:
     Parameters
     ----------
         geojson: dict
-
     """
 
     def __init__(self, geojson):
