@@ -148,7 +148,7 @@ class ProcessList(GenericAPIView):
 
         serializer = serializers.ProcessSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -187,8 +187,9 @@ class ProcessDetail(GenericAPIView):
 
         Parameters
         ----------
-        id : str
+        id: string
             Identifier of the process
+
         Raises
         ------
         Http404
@@ -218,11 +219,11 @@ class ProcessDetail(GenericAPIView):
 
         Parameters
         ----------
-        request : Request
+        request: Request
             HTTP GET request
-        id : str
+        id: str
             Identifier of the process
-        format : str, optional
+        format: str, optional
             Format for the rendered response (the default is None)
 
         Returns
@@ -277,7 +278,7 @@ class ProcessDetail(GenericAPIView):
         process = self.get_object(id)
         serializer = serializers.ProcessSerializer(process, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=self.request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
