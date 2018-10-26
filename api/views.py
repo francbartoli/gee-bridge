@@ -18,6 +18,7 @@ from rest_framework.renderers import (
     JSONRenderer)
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
+from rest_framework.exceptions import PermissionDenied
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 from rest_framework_yaml.renderers import YAMLRenderer
 
@@ -80,7 +81,7 @@ class ProcessList(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsOwner)
 
     @swagger_auto_schema(
         operation_description="List all created processes",
@@ -103,7 +104,7 @@ class ProcessList(GenericAPIView):
             Return the response with all serialized processes
         """
 
-        processes = models.Process.objects.all()
+        processes = models.Process.objects.filter(owner=self.request.user)
         serializer = serializers.ProcessSerializer(processes, many=True)
         return Response(serializer.data)
 
@@ -180,7 +181,7 @@ class ProcessDetail(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsOwner)
 
     def get_object(self, id):
         """Get the process object.
@@ -210,6 +211,7 @@ class ProcessDetail(GenericAPIView):
         operation_description="Obtain a process instance by its identifier",
         responses={
             200: serializers.ProcessSerializer(many=False),
+            403: "Not authorized",
             404: "Object doesn't exist"
         },
         security=[None]
@@ -232,6 +234,10 @@ class ProcessDetail(GenericAPIView):
             Return the response with the serialized process
         """
         process = self.get_object(id)
+        if not process.owner == self.request.user:
+            raise PermissionDenied(
+                "You are not authorized to get this process."
+            )
         serializer = serializers.ProcessSerializer(process)
         return Response(serializer.data)
 
@@ -254,6 +260,7 @@ class ProcessDetail(GenericAPIView):
         ),
         responses={
             200: serializers.ProcessSerializer(many=False),
+            403: "Not authorized",
             404: "Object doesn't exist"
         },
         security=[None]
@@ -276,6 +283,10 @@ class ProcessDetail(GenericAPIView):
             Return the response with the serialized process
         """
         process = self.get_object(id)
+        if not process.owner == self.request.user:
+            raise PermissionDenied(
+                "You are not authorized to change this process."
+            )
         serializer = serializers.ProcessSerializer(process, data=request.data)
         if serializer.is_valid():
             serializer.save(owner=self.request.user)
@@ -286,6 +297,7 @@ class ProcessDetail(GenericAPIView):
         operation_description="Delete a process instance by its identifier",
         responses={
             204: "Operation completed with no content",
+            403: "Not authorized",
             404: "Object doesn't exist"
         },
         security=[None]
@@ -308,18 +320,12 @@ class ProcessDetail(GenericAPIView):
             Return the response with the result code of the deletion
         """
         process = self.get_object(id)
+        if not process.owner == self.request.user:
+            raise PermissionDenied(
+                "You are not authorized to delete this process."
+            )
         process.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# FBV
-# class MyOpenAPIRenderer(OpenAPIRenderer):
-#     def get_customizations(self):
-#         data = super(MyOpenAPIRenderer, self).get_customizations()
-#         data['paths'] = custom_data['paths']
-#         data['info'] = custom_data['info']
-#         data['basePath'] = custom_data['basePath']
-#         return data
 
 
 @api_view()
