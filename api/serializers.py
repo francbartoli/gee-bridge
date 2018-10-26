@@ -221,7 +221,7 @@ class ProcessSerializer(serializers.ModelSerializer):
         Check that the aoi contains valid GeoJSON.
         """
 
-        # can be an array of multiple valid geojson
+        # can be single or an array of multiple valid geojson
         if not isinstance(value, list):
             try:
                 if isinstance(
@@ -277,6 +277,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     rasterbuckets = serializers.PrimaryKeyRelatedField(
         many=True, queryset=models.Rasterbucket.objects.all())
+    processes = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=models.Process.objects.all())
 
     class Meta:
         """Map this serializer to the default django user model.
@@ -286,7 +288,7 @@ class UserSerializer(serializers.ModelSerializer):
             model (TYPE): Description
         """
         model = User
-        fields = ('id', 'username', 'rasterbuckets')
+        fields = ('id', 'username', 'rasterbuckets', 'processes')
 
     def create(self, validated_data):
         """Create and returns a new user.
