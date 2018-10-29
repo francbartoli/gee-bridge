@@ -341,82 +341,58 @@ post_save.connect(create_tilemap, sender=GEEMapService)
 
 @receiver(post_save, sender=Process)
 def run_process(sender, instance, created, **kwargs):
-    """Summary
+    """Signal for triggering the run of processes on post-save
 
-    Args:
-        sender (TYPE): Description
-        instance (TYPE): Description
-        created (TYPE): Description
-        **kwargs: Description
+    Parameters
+    ----------
+        sender: Process
+            The model that triggers the signal
+        instance: Process
+            Instance of the Process model
+        created: boolean
+            Property that indicates if the instance is saved
+        kwargs: dict
 
     Raises:
         Exception: Description
     """
     from api.process.wapor.wapor import Wapor
+    type = instance.type
+    aois = instance.aoi
+    tois = instance.toi
     input_data = instance.input_data
-    # # TODO must be added also in a serializer for validation id:1 gh:7
-    # if "process" not in input_data:
-    #     raise Exception("process must be specified")
 
-    data = input_data.get("data")
-    # args.insert(1, proc)
-    # input_data.pop("process", None)
-    # arguments = input_data.get("arguments")
-    # optionals = dict()
-    # for argument in arguments:
-    #     print (argument)
-    #     if argument.get("positional"):
-    #         argument.pop("positional")
-    #         poslst = argument.values()
-    #         if isinstance(poslst, list):
-    #             for k in (v for elem in poslst for v in elem):
-    #                 b = k.values()
-    #                 for el in b:
-    #                     print (args)
-    #                     args.append(el)
-    #     else:
-    #         argument.pop("positional")
-    #         if argument.get("choice"):
-    #             argument.pop("choice")
-    #             options = ('c', 'g', 'w')
-    #             try:
-    #                 argkey = argument.keys()[0]
-    #                 data = argument.get(argkey)
-    #                 option = data.get("option")
-    #                 if (isinstance(data, dict) and (option in options)):
-    #                     # julail the cuccudrail
-    #                     # Jemon the king
-    #                     # Plutonio the star
-    #                     Argument = namedtuple('Argument',
-    #                                           ['option', 'choices']
-    #                                           )
-    #                     inner_arg = Argument(data.get("option"),
-    #                                          data.get("choices")
-    #                                          )
-    #                     tpl = tuple(inner_arg)
-    #                     argument[argkey] = list(tpl)
-    #                     optionals.update(argument)
-    #                 else:
-    #                     raise Exception("Option must be in " + options)
-    #             except Exception as e:
-    #                 print (e)
-    #                 pass
-    #         else:
-    #             optionals.update(argument)
+    mode = type.get("mode")
+    # TODO search in the catalog for validation of namespace
+    algorithm = type["wapor"].get("template")
+    # TODO cycle over all multiple aoi
+    aoi = aois[0]
+    # TODO cycle over all multiple toi
+    toi = tois[0]
+    inputs = input_data.get("inputs")
 
-    # process = Wapor('test', **options)
-    # process_result = process.run()
-    process_result = {}
+    options = dict(
+        wapor_name=instance.name,
+        wapor_inputs=inputs,
+        wapor_options=dict(
+            spatial_extent=aoi,
+            temporal_extent=toi
+        )
+    )
+
+    process = Wapor(**options)
+    process_result = process.run(algorithm)
     # TODO async id:6 gh:12
-    output_data = process_result
+    output_data = [process_result]
     # from IPython import embed
     # embed()
     if created:
-        Process.objects.filter(
-            id=instance.id
-        ).update(
-            output_data=output_data
-        )
+        if mode == "sync":
+            Process.objects.filter(
+                id=instance.id
+            ).update(
+                output_data=output_data
+            )
 
 
 post_save.connect(run_process, sender=Process)

@@ -121,10 +121,10 @@ class ProcessList(GenericAPIView):
                     type=yasg_openapi.TYPE_OBJECT
                 ),
                 'aoi': yasg_openapi.Schema(
-                    type=yasg_openapi.TYPE_ARRAY
+                    type=yasg_openapi.TYPE_OBJECT
                 ),
                 'toi': yasg_openapi.Schema(
-                    type=yasg_openapi.TYPE_ARRAY
+                    type=yasg_openapi.TYPE_OBJECT
                 ),
                 'input_data': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_OBJECT
@@ -329,6 +329,11 @@ class ProcessDetail(GenericAPIView):
             Identifier of the process
         format : str, optional
             Format for the rendered response (the default is None)
+
+        Raises
+        ------
+        PermissionDenied
+            Return HTTP 403 error code if the user is denied
 
         Returns
         -------
