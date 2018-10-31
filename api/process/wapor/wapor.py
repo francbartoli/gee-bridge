@@ -76,7 +76,7 @@ class Wapor(Base):
         # TODO: the algorithm has to be choosen dynamically and match the
         # list from the catalog
         # alg = ALG()
-        alg = UDWP(filters=self.options)
+        alg = UDWP(name=self.name, inputs=self.inputs, filters=self.options)
 
         if self.mode == SYNC:
             output = alg.execute()

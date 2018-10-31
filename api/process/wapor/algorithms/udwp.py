@@ -1,6 +1,7 @@
 import logging
 from api.utils.geo import GeoJsonUtil
 from geojson.geometry import Polygon
+from collections import namedtuple
 from rest_framework.serializers import ValidationError
 
 
@@ -8,11 +9,36 @@ class UDWP:
 
     def __init__(self, **kwargs):
 
+        Collection = namedtuple(
+            'Collection',
+            ['name', 'id', 'metadata', 'bands']
+        )
+
         self.logger = logging.getLogger(__name__)
         self.__name = "UDWP"
+        self.logger.debug("Received kwargs are:\n{}".format(kwargs))
+        # inputs
+        self.npp = Collection(name="NPP", id="", metadata={}, bands=[])
+        self.aeti = Collection(name="AETI", id="", metadata={}, bands=[])
+        try:
+            if kwargs["inputs"]:
+                for input in kwargs["inputs"]:
+                    if "NPP" in input["dataset"]:
+                        self.npp._replace(id=input["dataset"])
+                        self.npp._replace(metadata=input["metadata"])
+                        self.npp._replace(bands=input["bands"])
+                    elif "AETI" in input["dataset"]:
+                        self.aeti._replace(id=input["dataset"])
+                        self.aeti._replace(metadata=input["metadata"])
+                        self.aeti._replace(bands=input["bands"])
+                    else:
+                        raise ValidationError(
+                            "Input datasets are not valid for Water Productivity"
+                        )
+        except KeyError as e:
+            raise
         # filters
         self.__filters = {}
-        self.logger.debug("Received kwargs are:\n{}".format(kwargs))
         try:
             if kwargs["filters"]:
                 for filter_k, filter_v in kwargs["filters"].items():
