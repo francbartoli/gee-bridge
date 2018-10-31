@@ -2,6 +2,7 @@
 """
 from api.process.base import Base
 from api.process.alg import ALG
+from api.process.wapor.algorithms.udwp import UDWP
 
 NAMESPACE = "wapor"
 SYNC = "SYNC"
@@ -69,10 +70,13 @@ class Wapor(Base):
             'stats', 'tasks' and eventually 'errors' for any failure during
             the execution.
         """
-        # dynamic import of class https://www.bnmetrics.com/blog/dynamic-import-in-python3
+        # dynamic import of class
+        # https://www.bnmetrics.com/blog/dynamic-import-in-python3
         # from wapor.algorithms.uda.wp import WP
-
-        alg = ALG()
+        # TODO: the algorithm has to be choosen dynamically and match the
+        # list from the catalog
+        # alg = ALG()
+        alg = UDWP(filters=self.options)
 
         if self.mode == SYNC:
             output = alg.execute()

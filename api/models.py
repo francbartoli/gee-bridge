@@ -371,7 +371,7 @@ def run_process(sender, instance, created, **kwargs):
     toi = tois[0]
     inputs = input_data.get("inputs")
 
-    options = dict(
+    kwargs = dict(
         wapor_name=instance.name,
         wapor_inputs=inputs,
         wapor_options=dict(
@@ -380,7 +380,7 @@ def run_process(sender, instance, created, **kwargs):
         )
     )
 
-    process = Wapor(**options)
+    process = Wapor(**kwargs)
     process_result = process.run(algorithm)
     # TODO async id:6 gh:12
     output_data = [process_result]
