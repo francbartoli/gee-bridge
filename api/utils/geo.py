@@ -52,6 +52,20 @@ class GeoJsonUtil:
         except KeyError as e:
             raise
 
+    @property
+    def geometries(self):
+        try:
+            if isinstance(self.type, FeatureCollection):
+                return [ft["geometry"] for ft in self.instance["features"]]
+            elif isinstance(self.type, Feature):
+                return [self.instance["geometry"]]
+            elif isinstance(self.type, GeometryCollection):
+                return self.instance["geometries"]
+            else:
+                return [self.instance]
+        except KeyError as e:
+            raise
+
     def validate(self):
         """Validate a geojson object"""
         if not self.instance.is_valid:
