@@ -8,6 +8,7 @@ class GeoJsonUtil:
     Parameters
     ----------
         geojson: dict
+            Geojson object to handle
     """
 
     def __init__(self, geojson):
@@ -18,8 +19,8 @@ class GeoJsonUtil:
         """Create geojson instance from a defined json key"""
         try:
             if isinstance(self.geojson, dict):
-                gj_instance = geojson.loads(json.dumps(self.geojson))
-                return gj_instance
+                gj = geojson.loads(json.dumps(self.geojson))
+                return geojson.GeoJSON(gj)
         except KeyError as e:
             raise Exception(e)
 
