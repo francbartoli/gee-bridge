@@ -1,4 +1,8 @@
 import geojson
+from geojson.factory import (
+    FeatureCollection, Feature, GeometryCollection,
+    Point, LineString, Polygon, MultiLineString, MultiPoint, MultiPolygon
+)
 import json
 
 
@@ -9,6 +13,8 @@ class GeoJsonUtil:
     ----------
         geojson: dict
             Geojson object to handle
+        instance: geojson.GeoJSON
+            Instance of the class
     """
 
     def __init__(self, geojson):
@@ -23,6 +29,28 @@ class GeoJsonUtil:
                 return geojson.GeoJSON(gj)
         except KeyError as e:
             raise Exception(e)
+
+    @property
+    def type(self):
+        """Identify the type of the instance"""
+
+        geojson_types = {
+            'Point': Point,
+            'MultiPoint': MultiPoint,
+            'LineString': LineString,
+            'MultiLineString': MultiLineString,
+            'Polygon': Polygon,
+            'MultiPolygon': MultiPolygon,
+            'GeometryCollection': GeometryCollection,
+            'Feature': Feature,
+            'FeatureCollection': FeatureCollection,
+        }
+
+        try:
+            for self.instance["type"] in geojson_types.keys():
+                return geojson_types.get(self.instance["type"])
+        except KeyError as e:
+            raise
 
     def validate(self):
         """Validate a geojson object"""
