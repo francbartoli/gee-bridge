@@ -145,3 +145,25 @@ class EEUtil:
                     raise ValidationError("Input dataset or aoi is not valid")
         except ValueError as e:
             raise
+
+    def is_reduced_empty(self):
+        """Return if the reduced instance collection is empty
+
+        Returns
+        -------
+        bool
+            True/False if the filtered collection is empty
+        """
+
+        if self.reduced:
+            try:
+                if self.reduced.getInfo()["features"]:
+                    return False
+                else:
+                    return True
+            except EEException as e:
+                raise
+        else:
+            raise ValueError(
+                "Calling function while the reduced doesn't exist"
+            )
