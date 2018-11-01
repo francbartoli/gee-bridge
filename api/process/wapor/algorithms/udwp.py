@@ -36,7 +36,10 @@ class UDWP:
                             "Input datasets are not valid for Water Productivity"
                         )
         except KeyError as e:
-            raise
+            self.logger.exception("KeyError exception")
+            raise ValidationError(
+                "Input datasets are not valid for Water Productivity"
+            )
         # filters
         self.__filters = {}
         try:
@@ -51,14 +54,15 @@ class UDWP:
                                 "GeoJSON type from aoi is not of type Polygon"
                             )
                             raise ValidationError(
-                                "Area of interest is not a Polygon"
+                                "Area of interest is not valid"
                             )
                     # extract temporal filter and add it
                     if filter_k == "temporal_extent":
                         self.__filters['{}'.format(filter_k)] = filter_v
         except KeyError as e:
             self.logger.exception("KeyError exception")
-            raise
+            raise ValidationError("Area of interest is not valid")
+
         self.__outputs = {"maps": {}, "stats": {}, "tasks": {}}
         # FIXME into marmee so we can initialize self.__errors as {}
         self.errors = {}
