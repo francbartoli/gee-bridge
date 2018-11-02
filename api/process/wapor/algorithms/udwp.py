@@ -71,6 +71,39 @@ class UDWP:
         # FIXME into marmee so we can initialize self.__errors as {}
         self.__errors = {}
 
+    @property
+    def outputs(self):
+        return self.__outputs
+
+    @property
+    def errors(self):
+        return self.__errors
+
+    # setters
+    @outputs.setter
+    def outputs(self, value):
+        """Sets new value for attribute outputs
+
+        Parameters
+        ----------
+        value: string
+            Assign new outputs to instance
+
+        """
+        self.__outputs = value
+
+    @outputs.setter
+    def errors(self, value):
+        """Sets new value for attribute errors
+
+        Parameters
+        ----------
+        value: string
+            Assign new errors to instance
+
+        """
+        self.__errors = value
+
     def execute(self):
 
         # instantiate filters
