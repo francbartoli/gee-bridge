@@ -1,6 +1,7 @@
 import logging
 from api.utils.geo import GeoJsonUtil
-from api.utils.ee import EEUtil
+from api.utils.gee import EEUtil
+from api.utils.map import Map, MapUtil
 from geojson.geometry import Polygon
 from ee import Filter, DateRange, Geometry
 from collections import namedtuple
@@ -134,6 +135,9 @@ class UDWP:
 
     def execute(self):
 
+        # utils
+        m = MapUtil()
+
         # instantiate filters
         t_filter = Filter(
             DateRange(
@@ -150,16 +154,21 @@ class UDWP:
         coll_npp = EEUtil(self.__npp.id)
 
         # reduce input collections with filters
-        coll_aeti.filterDateRange(
-            filter=t_filter
-        ).filterGeometry(
-            filter=g_filter
+        # AETI
+        coll_aeti.filterDateRange(filter=t_filter)
+        coll_aeti.filterGeometry(filter=g_filter)
+        m_aeti = Map(
+            name=coll_aeti.collection,
+            rel=coll_aeti.collection,
+            url=coll_aeti.mapUrl(reduced=True)
         )
-        coll_npp.filterDateRange(
-            filter=t_filter
-        ).filterGeometry(
-            filter=g_filter
-        )
+        m.add_map(m_aeti)
+
+        # NPP
+        coll_npp.filterDateRange(filter=t_filter)
+        coll_npp.filterGeometry(filter=g_filter)
+
+        self.__outputs["maps"] = m.maps
 
         return {"outputs": self.outputs, "errors": self.errors}
 
