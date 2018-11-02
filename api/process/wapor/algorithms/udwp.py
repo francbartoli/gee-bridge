@@ -1,6 +1,8 @@
 import logging
 from api.utils.geo import GeoJsonUtil
+from api.utils.ee import EEUtil
 from geojson.geometry import Polygon
+from ee import Filter, DateRange, Geometry
 from collections import namedtuple
 from rest_framework.serializers import ValidationError
 
@@ -17,20 +19,21 @@ class UDWP:
         self.logger = logging.getLogger(__name__)
         self.__name = "UDWP"
         self.logger.debug("Received kwargs are:\n{}".format(kwargs))
-        # inputs
-        self.npp = Collection(name="NPP", id="", metadata={}, bands=[])
-        self.aeti = Collection(name="AETI", id="", metadata={}, bands=[])
+
+        # internal inputs
+        self.__npp = Collection(name="NPP", id="", metadata={}, bands=[])
+        self.__aeti = Collection(name="AETI", id="", metadata={}, bands=[])
         try:
             if kwargs["inputs"]:
                 for input in kwargs["inputs"]:
                     if "NPP" in input["dataset"]:
-                        self.npp._replace(id=input["dataset"])
-                        self.npp._replace(metadata=input["metadata"])
-                        self.npp._replace(bands=input["bands"])
+                        self.__npp._replace(id=input["dataset"])
+                        self.__npp._replace(metadata=input["metadata"])
+                        self.__npp._replace(bands=input["bands"])
                     elif "AETI" in input["dataset"]:
-                        self.aeti._replace(id=input["dataset"])
-                        self.aeti._replace(metadata=input["metadata"])
-                        self.aeti._replace(bands=input["bands"])
+                        self.__aeti._replace(id=input["dataset"])
+                        self.__aeti._replace(metadata=input["metadata"])
+                        self.__aeti._replace(bands=input["bands"])
                     else:
                         raise ValidationError(
                             "Input datasets are not valid for Water Productivity"
@@ -40,6 +43,7 @@ class UDWP:
             raise ValidationError(
                 "Input datasets are not valid for Water Productivity"
             )
+
         # filters
         self.__filters = {}
         try:
@@ -65,11 +69,38 @@ class UDWP:
 
         self.__outputs = {"maps": {}, "stats": {}, "tasks": {}}
         # FIXME into marmee so we can initialize self.__errors as {}
-        self.errors = {}
+        self.__errors = {}
 
     def execute(self):
 
-        return {"outputs": self.__outputs, "errors": self.errors}
+        # instantiate filters
+        t_filter = Filter(
+            DateRange(
+                self.filters["temporal_extent"]["startdate"],
+                self.filters["temporal_extent"]["enddate"]
+            )
+        )
+        g_filter = Geometry(
+            self.filters["spatial_extent"]
+        )
+
+        # instantiate input collections
+        coll_aeti = EEUtil(self.__aeti.id)
+        coll_npp = EEUtil(self.__npp.id)
+
+        # reduce input collections
+        redux_aeti = coll_aeti.filterDateRange(
+            filter=t_filter
+        ).filterGeometry(
+            filter=g_filter
+        )
+        redux_npp = coll_npp.filterDateRange(
+            filter=t_filter
+        ).filterGeometry(
+            filter=g_filter
+        )
+
+        return {"outputs": self.outputs, "errors": self.errors}
 
     def is_polygon(self, obj):
         """Retrieve if the spatial extent is of polygon type"""

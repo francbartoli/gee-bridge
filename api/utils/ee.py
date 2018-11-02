@@ -157,7 +157,7 @@ class EEUtil:
 
         if self.reduced:
             try:
-                if self.reduced.getInfo()["features"]:
+                if self.info(reduced=True)["features"]:
                     return False
                 else:
                     return True
@@ -167,3 +167,29 @@ class EEUtil:
             raise ValueError(
                 "Calling function while the reduced doesn't exist"
             )
+
+    def info(self, reduced=False):
+        """Wrap earth engine getInfo operation
+
+        Parameters
+        ----------
+        reduced : bool, optional
+            Evaluate original or reduced instance
+            (the default is False, which gives information of original asset)
+
+        Returns
+        -------
+        dict
+            All information of the asset collection
+
+        """
+
+        try:
+            if reduced:
+                try:
+                    return self.reduced.getInfo()
+                except AttributeError as e:
+                    raise ValueError("Reduced instance collection doesn't exist yet")
+            return self.instance.getInfo()
+        except EEException as e:
+            raise
