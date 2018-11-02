@@ -121,13 +121,13 @@ class UDWP:
         coll_aeti = EEUtil(self.__aeti.id)
         coll_npp = EEUtil(self.__npp.id)
 
-        # reduce input collections
-        redux_aeti = coll_aeti.filterDateRange(
+        # reduce input collections with filters
+        coll_aeti.filterDateRange(
             filter=t_filter
         ).filterGeometry(
             filter=g_filter
         )
-        redux_npp = coll_npp.filterDateRange(
+        coll_npp.filterDateRange(
             filter=t_filter
         ).filterGeometry(
             filter=g_filter
