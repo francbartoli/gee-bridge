@@ -88,6 +88,10 @@ class UDWP:
         return self.__outputs
 
     @property
+    def filters(self):
+        return self.__filters
+
+    @property
     def errors(self):
         return self.__errors
 
@@ -104,7 +108,19 @@ class UDWP:
         """
         self.__outputs = value
 
-    @outputs.setter
+    @filters.setter
+    def filters(self, value):
+        """Sets new value for attribute filters
+
+        Parameters
+        ----------
+        value: string
+            Assign new filters to instance
+
+        """
+        self.__filters = value
+
+    @errors.setter
     def errors(self, value):
         """Sets new value for attribute errors
 
