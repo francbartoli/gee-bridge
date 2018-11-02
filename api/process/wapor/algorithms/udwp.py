@@ -27,13 +27,25 @@ class UDWP:
             if kwargs["inputs"]:
                 for input in kwargs["inputs"]:
                     if "NPP" in input["dataset"]:
-                        self.__npp._replace(id=input["dataset"])
-                        self.__npp._replace(metadata=input["metadata"])
-                        self.__npp._replace(bands=input["bands"])
+                        self.__npp = self.__npp._replace(
+                            id=input["dataset"]
+                        )
+                        self.__npp = self.__npp._replace(
+                            metadata=input["metadata"]
+                        )
+                        self.__npp = self.__npp._replace(
+                            bands=input["bands"]
+                        )
                     elif "AETI" in input["dataset"]:
-                        self.__aeti._replace(id=input["dataset"])
-                        self.__aeti._replace(metadata=input["metadata"])
-                        self.__aeti._replace(bands=input["bands"])
+                        self.__aeti = self.__aeti._replace(
+                            id=input["dataset"]
+                        )
+                        self.__aeti = self.__aeti._replace(
+                            metadata=input["metadata"]
+                        )
+                        self.__aeti = self.__aeti._replace(
+                            bands=input["bands"]
+                        )
                     else:
                         raise ValidationError(
                             "Input datasets are not valid for Water Productivity"
