@@ -41,6 +41,24 @@ def createCollectionUrl(coll_inst):
     )
 
 
+def createCollectionStat(coll_inst):
+    """Create an earth engine statistic for a collection instance
+
+    Parameters
+    ----------
+    coll_inst : str
+        ImageCollection instance
+
+    Returns
+    -------
+    dict
+        Dictionary of the statistic for the evalueted collection
+
+    """
+
+    return coll_inst.aggregate_stats('b1_sum').getInfo()["values"]
+
+
 class GEEUtil:
     """Exploit earth engine utilities
 
@@ -248,5 +266,32 @@ class GEEUtil:
                     raise ValueError(
                         "Reduced instance collection doesn't exist yet")
             return createCollectionUrl(self.instance)
+        except EEException as e:
+            raise
+
+    def getStat(self, reduced=False):
+        """Wrap earth engine aggregate_stats operation
+
+        Parameters
+        ----------
+        reduced : bool, optional
+            Evaluate original or reduced instance
+            (the default is False, which gives stat of original asset)
+
+        Returns
+        -------
+        dict
+            Dictionary of min, max, sum, mean for the asset collection
+
+        """
+
+        try:
+            if reduced:
+                try:
+                    return createCollectionStat(self.reduced)
+                except AttributeError as e:
+                    raise ValueError(
+                        "Reduced instance collection doesn't exist yet")
+            return createCollectionStat(self.instance)
         except EEException as e:
             raise
