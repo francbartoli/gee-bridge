@@ -1,6 +1,6 @@
 import logging
 from api.utils.geo import GeoJsonUtil
-from api.utils.gee import EEUtil
+from api.utils.gee import GEEUtil
 from api.utils.map import Map, MapUtil
 from geojson.geometry import Polygon
 from ee import Filter, DateRange, Geometry
@@ -150,8 +150,8 @@ class UDWP:
         )
 
         # instantiate input collections
-        coll_aeti = EEUtil(self.__aeti.id)
-        coll_npp = EEUtil(self.__npp.id)
+        coll_aeti = GEEUtil(self.__aeti.id)
+        coll_npp = GEEUtil(self.__npp.id)
 
         # reduce input collections with filters
         # AETI

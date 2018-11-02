@@ -41,7 +41,7 @@ def createCollectionUrl(coll_inst):
     )
 
 
-class EEUtil:
+class GEEUtil:
     """Exploit earth engine utilities
 
     Parameters
