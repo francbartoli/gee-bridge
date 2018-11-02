@@ -7,8 +7,38 @@ from ee import (
     DateRange,
     EEException
 )
-from ee.data import getInfo, ASSET_TYPE_FOLDER, ASSET_TYPE_IMAGE_COLL
+from ee.data import (
+    getInfo,
+    getMapId,
+    ASSET_TYPE_FOLDER,
+    ASSET_TYPE_IMAGE_COLL,
+    DEFAULT_TILE_BASE_URL
+)
 from rest_framework.serializers import ValidationError
+
+
+def createUrl(asset_id):
+    """Create an earth engine tile service url for an asset id
+
+    Parameters
+    ----------
+    asset_id : str
+        Asset id
+
+    Returns
+    -------
+    str
+        Url string of the earth engine service
+
+    """
+
+    r = getMapId(asset_id)
+
+    return "{}/map/{}/{{z}}/{{x}}/{{y}}?token={}".format(
+        DEFAULT_TILE_BASE_URL,
+        r["mapid"],
+        r["token"]
+    )
 
 
 class EEUtil:
@@ -191,5 +221,32 @@ class EEUtil:
                 except AttributeError as e:
                     raise ValueError("Reduced instance collection doesn't exist yet")
             return self.instance.getInfo()
+        except EEException as e:
+            raise
+
+    def mapUrl(self, reduced=False):
+        """Wrap earth engine getMapId operation
+
+        Parameters
+        ----------
+        reduced : bool, optional
+            Evaluate original or reduced instance
+            (the default is False, which gives map of original asset)
+
+        Returns
+        -------
+        str
+            URL of the tile service for the asset collection
+
+        """
+
+        try:
+            if reduced:
+                try:
+                    return createUrl(self.reduced)
+                except AttributeError as e:
+                    raise ValueError(
+                        "Reduced instance collection doesn't exist yet")
+            return createUrl(self.instance)
         except EEException as e:
             raise
