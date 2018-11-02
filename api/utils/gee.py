@@ -17,13 +17,13 @@ from ee.data import (
 from rest_framework.serializers import ValidationError
 
 
-def createUrl(asset_id):
-    """Create an earth engine tile service url for an asset id
+def createCollectionUrl(coll_inst):
+    """Create an earth engine tile service url for a collection instance
 
     Parameters
     ----------
-    asset_id : str
-        Asset id
+    coll_inst : str
+        ImageCollection instance
 
     Returns
     -------
@@ -32,7 +32,7 @@ def createUrl(asset_id):
 
     """
 
-    r = getMapId(asset_id)
+    r = coll_inst.getMapId()
 
     return "{}/map/{}/{{z}}/{{x}}/{{y}}?token={}".format(
         DEFAULT_TILE_BASE_URL,
@@ -97,7 +97,7 @@ class EEUtil:
             Assign new reduced to instance
 
         """
-        self.__name = value
+        self.__reduced = value
 
     def filterDateRange(self, filter=None):
         """Filter by period of time
@@ -243,10 +243,10 @@ class EEUtil:
         try:
             if reduced:
                 try:
-                    return createUrl(self.reduced)
+                    return createCollectionUrl(self.reduced)
                 except AttributeError as e:
                     raise ValueError(
                         "Reduced instance collection doesn't exist yet")
-            return createUrl(self.instance)
+            return createCollectionUrl(self.instance)
         except EEException as e:
             raise
