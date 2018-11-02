@@ -42,6 +42,22 @@ class MapUtil:
         map: Map
             Instance of Map object
 
+        Example
+        -------
+        >>c = EEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>generated_map = Map(
+            name='AETI', rel='projects/fao-wapor/L1/L1_AETI_D',
+            url='https://earthengine.googleapis.com/map/e2831907fc7575274fa08097c6c74580/
+            {z}/{x}/{y}.png?token=85e66c7aa8d847c167fa468784fba111')
+        >>m = MapUtil()
+        >>m.add_map(generated_map)
+        >>m.maps
+        [OrderedDict([('name', 'AETI'),
+            ('rel', 'projects/fao-wapor/L1/L1_AETI_D'),
+            ('url',
+            'https://earthengine.googleapis.com/map/e2831907fc7575274fa08097c6c74580/
+            {z}/{x}/{y}.png?token=85e66c7aa8d847c167fa468784fba111')])]
+
         """
 
         if isinstance(map, Map):
