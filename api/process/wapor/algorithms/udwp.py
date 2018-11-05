@@ -182,6 +182,29 @@ class UDWP:
             stat=coll_npp.getStat(reduced=True))
         s.add_stat(s_npp)
 
+        # AGBP
+        coll_npp2agbp = coll_npp.reduced.map(
+            lambda image: image.multiply(0.01444).addBands(
+                image.metadata("n_days_extent")
+            )
+        )
+
+        coll_agbp_dk = coll_npp2agbp.map(
+            lambda image: image.select("b1").multiply(
+                image.select("n_days_extent")
+            )
+        ).sum()
+
+        # ETA
+        coll_eta = coll_aeti.reduced.map(
+            lambda image: image.addBands(image.metadata("n_days_extent"))
+        )
+        coll_eta_dk = coll_eta.map(
+            lambda image: image.select("b1").multiply(
+                image.select("n_days_extent")
+            )
+        ).sum()
+
         self.__outputs["maps"] = m.maps
         self.__outputs["stats"] = s.stats
 
