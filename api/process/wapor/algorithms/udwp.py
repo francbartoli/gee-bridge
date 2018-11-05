@@ -171,6 +171,16 @@ class UDWP:
         # NPP
         coll_npp.filterDateRange(filter=t_filter)
         coll_npp.filterGeometry(filter=g_filter)
+        m_npp = Map(
+            name="{}-{}".format(coll_npp.collection, "filtered"),
+            rel=coll_npp.collection,
+            url=coll_npp.mapUrl(reduced=True))
+        m.add_map(m_npp)
+        s_npp = Stat(
+            name="{}-{}".format(coll_npp.collection, "filtered"),
+            rel=coll_npp.collection,
+            stat=coll_npp.getStat(reduced=True))
+        s.add_stat(s_npp)
 
         self.__outputs["maps"] = m.maps
         self.__outputs["stats"] = s.stats
