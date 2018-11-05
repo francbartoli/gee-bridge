@@ -13,8 +13,7 @@ class GeoJsonUtil:
     ----------
         geojson: dict
             Geojson object to handle
-        instance: geojson.GeoJSON
-            Instance of the class
+
     """
 
     def __init__(self, geojson):
@@ -22,7 +21,14 @@ class GeoJsonUtil:
 
     @property
     def instance(self):
-        """Create geojson instance from a defined json key"""
+        """Create geojson instance from a defined json key
+
+        Returns
+        -------
+            geojson.GeoJSON
+                Instance of the GeoJSON class
+        """
+
         try:
             if isinstance(self.geojson, dict):
                 gj = geojson.loads(json.dumps(self.geojson))
