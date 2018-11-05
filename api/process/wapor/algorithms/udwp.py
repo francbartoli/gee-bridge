@@ -157,16 +157,15 @@ class UDWP:
         coll_aeti.filterDateRange(filter=t_filter)
         coll_aeti.filterGeometry(filter=g_filter)
         m_aeti = Map(
-            name=coll_aeti.collection,
+            name="{}-{}".format(coll_aeti.collection, "filtered"),
             rel=coll_aeti.collection,
             url=coll_aeti.mapUrl(reduced=True)
         )
         m.add_map(m_aeti)
         s_aeti = Stat(
-            name=coll_aeti.collection,
+            name="{}-{}".format(coll_aeti.collection, "filtered"),
             rel=coll_aeti.collection,
-            stat=coll_aeti.getStat(reduced=True)
-        )
+            stat=coll_aeti.getStat(reduced=True))
         s.add_stat(s_aeti)
 
         # NPP
