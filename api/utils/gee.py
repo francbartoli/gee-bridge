@@ -91,12 +91,24 @@ def createImageStat(img_inst, region, band):
     """
 
     img_mean = createImageMeanDictByRegion(img_inst, region)
+    mean_val = img_mean[band]
     img_min_max = createImageMinMaxDictByRegion(img_inst, region)
+    for key in img_min_max.keys():
+        if band and "min" in key:
+            min_val = img_min_max[key]
+        elif band and "max" in key:
+            max_val = img_min_max[key]
+        else:
+            pass
     img_sum = createImageSumDictByRegion(img_inst, region)
+    sum_val = img_sum[band]
     return {
-        "mean": img_mean,
-        "min_max": img_min_max,
-        "sum": img_sum
+        "{}".format(band): {
+            "mean": mean_val,
+            "min": min_val,
+            "max": max_val,
+            "sum": sum_val
+        }
     }
 
 
