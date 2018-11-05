@@ -14,6 +14,11 @@ from ee.data import (
     ASSET_TYPE_IMAGE_COLL,
     DEFAULT_TILE_BASE_URL
 )
+from api.utils.redux import (
+    createImageMeanDictByRegion,
+    createImageSumDictByRegion,
+    createImageMinMaxDictByRegion
+)
 from rest_framework.serializers import ValidationError
 from collections import namedtuple
 
@@ -48,22 +53,51 @@ def createInstanceUrl(inst):
     )
 
 
-def createCollectionStat(coll_inst):
+def createCollectionStat(coll_inst, band):
     """Create an earth engine statistic for a collection instance
 
     Parameters
     ----------
     coll_inst : str
         ImageCollection instance
+    band: str
+        Band where to get statistics
 
     Returns
     -------
     dict
-        Dictionary of the statistic for the evalueted collection
+        Dictionary of the statistic for the evaluated collection
 
     """
 
-    return coll_inst.aggregate_stats('b1_sum').getInfo()["values"]
+    return coll_inst.aggregate_stats(band).getInfo()["values"]
+
+
+def createImageStat(img_inst, region, band):
+    """Create an earth engine statistic for an image instance
+
+    Parameters
+    ----------
+    img_inst : str
+        Image instance
+    band: str
+        Band where to get statistics
+
+    Returns
+    -------
+    dict
+        Dictionary of the statistic for the evaluated image
+
+    """
+
+    img_mean = createImageMeanDictByRegion(img_inst, region)
+    img_min_max = createImageMinMaxDictByRegion(img_inst, region)
+    img_sum = createImageSumDictByRegion(img_inst, region)
+    return {
+        "mean": img_mean,
+        "min_max": img_min_max,
+        "sum": img_sum
+    }
 
 
 class GEEUtil:
@@ -201,6 +235,13 @@ class GEEUtil:
         except ValueError as e:
             raise
 
+    def getBands(self):
+        """Return the bands from the first image of the collection
+        """
+
+        bands = self.info()["features"][0]["bands"]
+        return [band["id"] for band in bands]
+
     def is_reduced_empty(self):
         """Return if the reduced instance collection is empty
 
@@ -276,12 +317,15 @@ class GEEUtil:
         except EEException as e:
             raise
 
-    def getStat(self, reduced=False):
+    def getStat(self, band=None, reduced=False):
         """Wrap earth engine aggregate_stats operation
 
         Parameters
         ----------
-        reduced : bool, optional
+        band: str, optional
+            Band of the collection
+            (the default is None, which gives stat with first band of images)
+        reduced: bool, optional
             Evaluate original or reduced instance
             (the default is False, which gives stat of original asset)
 
@@ -293,12 +337,17 @@ class GEEUtil:
         """
 
         try:
+            bands = self.getBands()
+            if band and band not in bands:
+                raise ValidationError("Provided band is not valid")
+            else:
+                band = bands[0]
             if reduced:
                 try:
-                    return createCollectionStat(self.reduced)
+                    return createCollectionStat(self.reduced, band)
                 except AttributeError as e:
                     raise ValueError(
                         "Reduced instance collection doesn't exist yet")
-            return createCollectionStat(self.instance)
+            return createCollectionStat(self.instance, band)
         except EEException as e:
             raise

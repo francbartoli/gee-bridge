@@ -3,6 +3,8 @@ from api.utils.geo import GeoJsonUtil
 from api.utils.gee import (
     GEEUtil,
     Collection,
+    createImageStat,
+    createInstanceUrl
 )
 from api.utils.map import Map, MapUtil
 from api.utils.stat import Stat, StatUtil
@@ -204,6 +206,21 @@ class UDWP:
                 image.select("n_days_extent")
             )
         ).sum()
+
+        # WPBM
+        wpbm = coll_agbp_dk.divide(coll_eta_dk)
+        # print("wpbm={}".format(wpbm.getInfo()))
+        m_wpbm = Map(
+            name="{}-{}".format("WPBM", "calculated"),
+            rel="WPBM",
+            url=createInstanceUrl(wpbm))
+        m.add_map(m_wpbm)
+        s_wpbm = Stat(
+            name="{}-{}".format("WPBM", "calculated"),
+            rel="WPBM",
+            stat=createImageStat(img_inst=wpbm, region=g_filter, band="b1"))
+        s.add_stat(s_wpbm)
+        # print("stats={}".format(createImageStat(img_inst=wpbm, region=g_filter, band="b1")))
 
         self.__outputs["maps"] = m.maps
         self.__outputs["stats"] = s.stats
