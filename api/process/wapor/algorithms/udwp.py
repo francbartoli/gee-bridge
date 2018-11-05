@@ -1,22 +1,19 @@
 import logging
 from api.utils.geo import GeoJsonUtil
-from api.utils.gee import GEEUtil
+from api.utils.gee import (
+    GEEUtil,
+    Collection,
+)
 from api.utils.map import Map, MapUtil
 from api.utils.stat import Stat, StatUtil
 from geojson.geometry import Polygon
 from ee import Filter, DateRange, Geometry
-from collections import namedtuple
 from rest_framework.serializers import ValidationError
 
 
 class UDWP:
 
     def __init__(self, **kwargs):
-
-        Collection = namedtuple(
-            'Collection',
-            ['name', 'id', 'metadata', 'bands']
-        )
 
         self.logger = logging.getLogger(__name__)
         self.__name = "UDWP"

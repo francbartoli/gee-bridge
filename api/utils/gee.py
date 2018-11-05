@@ -15,9 +15,10 @@ from ee.data import (
     DEFAULT_TILE_BASE_URL
 )
 from rest_framework.serializers import ValidationError
+from collections import namedtuple
 
 
-def createCollectionUrl(coll_inst):
+Collection = namedtuple('Collection', ['name', 'id', 'metadata', 'bands'])
     """Create an earth engine tile service url for a collection instance
 
     Parameters
