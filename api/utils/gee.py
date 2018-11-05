@@ -19,12 +19,15 @@ from collections import namedtuple
 
 
 Collection = namedtuple('Collection', ['name', 'id', 'metadata', 'bands'])
-    """Create an earth engine tile service url for a collection instance
+
+
+def createInstanceUrl(inst):
+    """Create an earth engine tile service url for an instance
 
     Parameters
     ----------
-    coll_inst : str
-        ImageCollection instance
+    inst : ee.ImageCollection or ee.Image
+        ImageCollection or Image instance
 
     Returns
     -------
@@ -33,7 +36,10 @@ Collection = namedtuple('Collection', ['name', 'id', 'metadata', 'bands'])
 
     """
 
-    r = coll_inst.getMapId()
+    try:
+        r = inst.getMapId()
+    except EEException as e:
+        raise
 
     return "{}/map/{}/{{z}}/{{x}}/{{y}}?token={}".format(
         DEFAULT_TILE_BASE_URL,
@@ -262,11 +268,11 @@ class GEEUtil:
         try:
             if reduced:
                 try:
-                    return createCollectionUrl(self.reduced)
+                    return createInstanceUrl(self.reduced)
                 except AttributeError as e:
                     raise ValueError(
                         "Reduced instance collection doesn't exist yet")
-            return createCollectionUrl(self.instance)
+            return createInstanceUrl(self.instance)
         except EEException as e:
             raise
 
