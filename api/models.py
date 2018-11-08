@@ -11,7 +11,6 @@ from __future__ import unicode_literals
 
 import re
 import uuid
-# import json
 from collections import OrderedDict, namedtuple
 
 from django.contrib.auth.models import User
@@ -20,12 +19,19 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from gee_bridge import settings
 # from jsonfield_compat.fields import JSONField
-from jsonfield import JSONField
+from django.contrib.postgres.fields import JSONField as PGJSONField
+from jsonfield import JSONField as SLJSONField
 from polymorphic.models import PolymorphicModel
 from rest_framework.authtoken.models import Token
-
 # Create your models here.
+
+# init
 DEFAULT_OWNER = 1
+
+if settings.INTERNAL_USE_NATIVE_JSONFIELD:
+    _JSONField = PGJSONField
+else:
+    _JSONField = SLJSONField
 
 
 def normalize(query_string):
@@ -50,7 +56,7 @@ class BaseModel(models.Model):
         date_modified (TYPE): Description
         name (TYPE): Description
     """
-    name = models.CharField(max_length=255, blank=False, unique=True)
+    name = models.CharField(max_length=255, blank=False)
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now_add=True)
 
@@ -79,36 +85,73 @@ class BaseModel(models.Model):
 
 
 class Process(BaseModel):
-    """This class represents the process model
+    """Model the process interface
 
-    Attributes:
-        id (TYPE): Description
-        input_data (TYPE): Description
-        output_data (TYPE): Description
-        owner (TYPE): Description
+    Parameters
+    ----------
+        id: string
+            An unique identifier for the process
+        type: dict
+            A type of the process identified by a namespace,
+            algorithm and execution mode which can be sync/async
+        owner: string
+            A user who owns the process
+        aoi: dict
+            An area of interest or multiple areas
+        toi: dict
+            A period of interest or multiple periods
+        input_data: dict
+            Data with input datasets
+        output_data: dict
+            Data with output maps, stats, tasks, errors
     """
+
+    class Meta:
+        db_table = 'process'
+        managed = True
+        verbose_name = 'Process'
+        verbose_name_plural = 'Processes'
+
     id = models.UUIDField(
         primary_key=True,
         help_text="Process identifier",
         default=uuid.uuid4
     )
+    type = _JSONField(
+        null=True,
+        blank=True,
+        default={}
+    )
     owner = models.ForeignKey(
         'auth.User',
         default=DEFAULT_OWNER,
         related_name='processes',
-        on_delete=models.CASCADE)
-    input_data = JSONField(
+        on_delete=models.CASCADE
+    )
+    aoi = _JSONField(
         null=True,
         blank=True,
-        default={},
-        load_kwargs={'object_pairs_hook': OrderedDict}
+        default=[]
     )
-    output_data = JSONField(
+    toi = _JSONField(
         null=True,
         blank=True,
-        default={},
-        load_kwargs={'object_pairs_hook': OrderedDict}
+        default=[]
     )
+    input_data = _JSONField(
+        null=True,
+        blank=True,
+        default={}  # ,
+        # load_kwargs={'object_pairs_hook': OrderedDict}
+    )
+    output_data = _JSONField(
+        null=True,
+        blank=True,
+        default={}  # ,
+        # load_kwargs={'object_pairs_hook': OrderedDict}
+    )
+    # TODO validate against a json schema
+    # https://stackoverflow.com/questions/37642742/django-postgresql-json-field-schema-validation
 
     def __str__(self):
         """Return a human readable representation of the model instance.
@@ -298,82 +341,58 @@ post_save.connect(create_tilemap, sender=GEEMapService)
 
 @receiver(post_save, sender=Process)
 def run_process(sender, instance, created, **kwargs):
-    """Summary
+    """Signal for triggering the run of processes on post-save
 
-    Args:
-        sender (TYPE): Description
-        instance (TYPE): Description
-        created (TYPE): Description
-        **kwargs: Description
+    Parameters
+    ----------
+        sender: Process
+            The model that triggers the signal
+        instance: Process
+            Instance of the Process model
+        created: boolean
+            Property that indicates if the instance is saved
+        kwargs: dict
 
     Raises:
         Exception: Description
     """
-    from api.process.wapor import Wapor
+    from api.process.wapor.wapor import Wapor
+    type = instance.type
+    aois = instance.aoi
+    tois = instance.toi
     input_data = instance.input_data
-    # TODO must be added also in a serializer for validation id:1 gh:7
-    if "process" not in input_data:
-        raise Exception("process must be specified")
-    args = list()
-    proc = input_data.get("process")
-    args.insert(1, proc)
-    input_data.pop("process", None)
-    arguments = input_data.get("arguments")
-    optionals = dict()
-    for argument in arguments:
-        print argument
-        if argument.get("positional"):
-            argument.pop("positional")
-            poslst = argument.values()
-            if isinstance(poslst, list):
-                for k in (v for elem in poslst for v in elem):
-                    b = k.values()
-                    for el in b:
-                        print args
-                        args.append(el)
-        else:
-            argument.pop("positional")
-            if argument.get("choice"):
-                argument.pop("choice")
-                options = ('c', 'g', 'w')
-                try:
-                    argkey = argument.keys()[0]
-                    data = argument.get(argkey)
-                    option = data.get("option")
-                    if (isinstance(data, dict) and (option in options)):
-                        # julail the cuccudrail
-                        # Jemon the king
-                        # Plutonio the star
-                        Argument = namedtuple('Argument',
-                                              ['option', 'choices']
-                                              )
-                        inner_arg = Argument(data.get("option"),
-                                             data.get("choices")
-                                             )
-                        tpl = tuple(inner_arg)
-                        argument[argkey] = list(tpl)
-                        optionals.update(argument)
-                    else:
-                        raise Exception("Option must be in " + options)
-                except Exception as e:
-                    print e
-                    pass
-            else:
-                optionals.update(argument)
-    print 'args=', args
-    print 'optionals=', optionals
-    process = Wapor()
-    cmd_result = process.run(*args, **optionals)
+
+    mode = type.get("mode")
+    # TODO search in the catalog for validation of namespace
+    algorithm = type["wapor"].get("template")
+    # TODO cycle over all multiple aoi
+    aoi = aois[0]
+    # TODO cycle over all multiple toi
+    toi = tois[0]
+    inputs = input_data.get("inputs")
+
+    kwargs = dict(
+        wapor_name=instance.name,
+        wapor_inputs=inputs,
+        wapor_options=dict(
+            spatial_extent=aoi,
+            temporal_extent=toi
+        )
+    )
+
+    process = Wapor(**kwargs)
+    process_result = process.run(algorithm)
     # TODO async id:6 gh:12
-    output_data = cmd_result
+    output_data = [process_result]
     # from IPython import embed
     # embed()
     if created:
-        Process.objects.filter(
-            id=instance.id
-        ).update(
-            output_data=output_data
-        )
+        if mode == "sync":
+            Process.objects.filter(
+                id=instance.id
+            ).update(
+                output_data=output_data
+            )
 
 
 post_save.connect(run_process, sender=Process)

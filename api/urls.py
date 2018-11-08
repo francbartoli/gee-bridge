@@ -36,18 +36,16 @@ urlpatterns = [
         include('rest_auth.registration.urls')),
     url(r'^security/djoser/',
         include('djoser.urls')),
-    url(r'^security/passwordless/',
-        include('drfpasswordless.urls')),
 
     # Process
     url(r'^processes/$',
         # api_views.process_list, # FBV
         api_views.ProcessList.as_view(),
-        name='api.processes'),
+        name='process-list'),
     url(r'^processes/(?P<id>[^/]+)$',
         # api_views.process_detail, #FBV
         api_views.ProcessDetail.as_view(),
-        name='api.processes.detail'),
+        name='process-detail'),
 
     # Rasterbucket
     url(r'^rasterbuckets/$',

@@ -4,5 +4,5 @@ workers = 5
 timeout = 120
 #capture_output = True
 #loglevel = "debug"
-#errorlog = '/tmp/gunicorn_error.log'
+#errorlog = '/tmp/geebridge.log'
 #daemon = False

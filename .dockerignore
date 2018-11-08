@@ -1,0 +1,6 @@
+Dockerfile
+
+###Django###
+*.pyc
+webmapping/*
+gee_agent/*

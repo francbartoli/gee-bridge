@@ -21,9 +21,9 @@ urlpatterns = [
     # url(r'^$', helloworld.views.index),
     url(r'^geemgr/api/v1/', include('api.urls')),
     # url(r'^maps/', include('gee_agent.urls'))
-    url(r'^geemgr/maps/', include('gee_agent.urls')),
+    # url(r'^geemgr/maps/', include('gee_agent.urls')),
     # url from mapclient
-    url(r'^', include('mapclient.urls')),
+    # url(r'^', include('mapclient.urls')),
     # url from webmapping
-    url(r'^', include('webmapping.urls')),
+    # url(r'^', include('webmapping.urls')),
 ]

@@ -14,10 +14,11 @@ from rest_framework.decorators import (
 )
 from rest_framework.generics import GenericAPIView
 from rest_framework.renderers import (
-    BaseRenderer, BrowsableAPIRenderer,
+    BrowsableAPIRenderer,
     JSONRenderer)
 from rest_framework.response import Response
 from rest_framework.schemas import SchemaGenerator
+from rest_framework.exceptions import PermissionDenied
 from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
 from rest_framework_yaml.renderers import YAMLRenderer
 
@@ -80,7 +81,7 @@ class ProcessList(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsOwner)
 
     @swagger_auto_schema(
         operation_description="List all created processes",
@@ -103,7 +104,7 @@ class ProcessList(GenericAPIView):
             Return the response with all serialized processes
         """
 
-        processes = models.Process.objects.all()
+        processes = models.Process.objects.filter(owner=self.request.user)
         serializer = serializers.ProcessSerializer(processes, many=True)
         return Response(serializer.data)
 
@@ -111,15 +112,21 @@ class ProcessList(GenericAPIView):
         operation_description="Create a processing instance",
         request_body=yasg_openapi.Schema(
             type=yasg_openapi.TYPE_OBJECT,
-            required=['name', 'input_data', 'output_data'],
+            required=['name', 'type', 'aoi', 'toi', 'input_data'],
             properties={
                 'name': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_STRING
                 ),
-                'input_data': yasg_openapi.Schema(
+                'type': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_OBJECT
                 ),
-                'output_data': yasg_openapi.Schema(
+                'aoi': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_OBJECT
+                ),
+                'toi': yasg_openapi.Schema(
+                    type=yasg_openapi.TYPE_OBJECT
+                ),
+                'input_data': yasg_openapi.Schema(
                     type=yasg_openapi.TYPE_OBJECT
                 )
             },
@@ -148,7 +155,7 @@ class ProcessList(GenericAPIView):
 
         serializer = serializers.ProcessSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=self.request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -180,15 +187,16 @@ class ProcessDetail(GenericAPIView):
                         BrowsableAPIRenderer,
                         OpenAPIRenderer,
                         SwaggerUIRenderer, )
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsOwner)
 
     def get_object(self, id):
         """Get the process object.
 
         Parameters
         ----------
-        id : str
+        id: string
             Identifier of the process
+
         Raises
         ------
         Http404
@@ -209,6 +217,7 @@ class ProcessDetail(GenericAPIView):
         operation_description="Obtain a process instance by its identifier",
         responses={
             200: serializers.ProcessSerializer(many=False),
+            403: "Not authorized",
             404: "Object doesn't exist"
         },
         security=[None]
@@ -218,12 +227,17 @@ class ProcessDetail(GenericAPIView):
 
         Parameters
         ----------
-        request : Request
+        request: Request
             HTTP GET request
-        id : str
+        id: str
             Identifier of the process
-        format : str, optional
+        format: str, optional
             Format for the rendered response (the default is None)
+
+        Raises
+        ------
+        PermissionDenied
+            Return HTTP 403 error code if the user is denied
 
         Returns
         -------
@@ -231,6 +245,10 @@ class ProcessDetail(GenericAPIView):
             Return the response with the serialized process
         """
         process = self.get_object(id)
+        if not process.owner == self.request.user:
+            raise PermissionDenied(
+                "You are not authorized to get this process."
+            )
         serializer = serializers.ProcessSerializer(process)
         return Response(serializer.data)
 
@@ -253,6 +271,7 @@ class ProcessDetail(GenericAPIView):
         ),
         responses={
             200: serializers.ProcessSerializer(many=False),
+            403: "Not authorized",
             404: "Object doesn't exist"
         },
         security=[None]
@@ -269,15 +288,24 @@ class ProcessDetail(GenericAPIView):
         format : str, optional
             Format for the rendered response (the default is None)
 
+        Raises
+        ------
+        PermissionDenied
+            Return HTTP 403 error code if the user is denied
+
         Returns
         -------
         Response
             Return the response with the serialized process
         """
         process = self.get_object(id)
+        if not process.owner == self.request.user:
+            raise PermissionDenied(
+                "You are not authorized to change this process."
+            )
         serializer = serializers.ProcessSerializer(process, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(owner=self.request.user)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -285,6 +313,7 @@ class ProcessDetail(GenericAPIView):
         operation_description="Delete a process instance by its identifier",
         responses={
             204: "Operation completed with no content",
+            403: "Not authorized",
             404: "Object doesn't exist"
         },
         security=[None]
@@ -301,24 +330,23 @@ class ProcessDetail(GenericAPIView):
         format : str, optional
             Format for the rendered response (the default is None)
 
+        Raises
+        ------
+        PermissionDenied
+            Return HTTP 403 error code if the user is denied
+
         Returns
         -------
         Response
             Return the response with the result code of the deletion
         """
         process = self.get_object(id)
+        if not process.owner == self.request.user:
+            raise PermissionDenied(
+                "You are not authorized to delete this process."
+            )
         process.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# FBV
-# class MyOpenAPIRenderer(OpenAPIRenderer):
-#     def get_customizations(self):
-#         data = super(MyOpenAPIRenderer, self).get_customizations()
-#         data['paths'] = custom_data['paths']
-#         data['info'] = custom_data['info']
-#         data['basePath'] = custom_data['basePath']
-#         return data
 
 
 @api_view()

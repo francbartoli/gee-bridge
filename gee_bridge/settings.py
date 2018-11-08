@@ -41,13 +41,16 @@ STATICFILES_DIRS = [
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '#gy*!m7zd^(ln*pm(&a&)di1whp9%968+skr_20q1p0$intee='
+if os.getenv('SECRET_KEY'):
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.getenv('DEBUG', True)))
 
-ALLOWED_HOSTS = ['*', ]
-
+if os.getenv('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
+else:
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -61,10 +64,10 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django_extensions',
     'polymorphic',
-    'helloworld',
     'storages',
     'corsheaders',
     'bootstrap4',
+    'prettyjson',
     # rest
     'rest_framework',
     'drf_yasg',
@@ -78,7 +81,6 @@ INSTALLED_APPS = [
     'rest_auth.registration',
     'rest_auth_firebase',
     'djoser',
-    'drfpasswordless',
     # oauth2
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
@@ -181,15 +183,35 @@ SWAGGER_SETTINGS = {
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+SQLITE = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 }
 
-# JSONField
-# USE_NATIVE_JSONFIELD = True
+PG = {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'HOST': os.getenv('POSTGRES_HOST'),
+    'PORT': os.getenv('POSTGRES_PORT'),
+    'USER': os.getenv('POSTGRES_USER'),
+    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+    'NAME': os.getenv('POSTGRES_DB'),
+}
+
+if os.getenv("DOCKER", default=False):
+    DB = PG
+else:
+    DB = SQLITE
+
+DATABASES = {
+    'default': DB
+}
+
+# JSONField with custom switch between native and not native
+# Alternative: https://github.com/kbussell/django-jsonfield-compat
+if os.getenv("DOCKER", default=False):
+    INTERNAL_USE_NATIVE_JSONFIELD = True
+else:
+    INTERNAL_USE_NATIVE_JSONFIELD = False
 
 # Email configuration
 # python -m smtpd -n -c DebuggingServer localhost:1025
@@ -218,53 +240,6 @@ AUTH_PASSWORD_VALIDATORS = [
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
-}
-
-# Passwordless configuration
-PASSWORDLESS_AUTH = {
-    # Allowed auth types, can be EMAIL, MOBILE, or both.
-    'PASSWORDLESS_AUTH_TYPES': ['EMAIL'],
-    # Amount of time that tokens last, in seconds
-    'PASSWORDLESS_TOKEN_EXPIRE_TIME': 15 * 60,
-
-    # The user's email field name
-    'PASSWORDLESS_USER_EMAIL_FIELD_NAME': 'email',
-
-    # The user's mobile field name
-    'PASSWORDLESS_USER_MOBILE_FIELD_NAME': 'mobile',
-
-    # Marks itself as verified the first time a user completes auth via token.
-    # Automatically unmarks itself if email is changed.
-    'PASSWORDLESS_USER_MARK_EMAIL_VERIFIED': False,
-    'PASSWORDLESS_USER_EMAIL_VERIFIED_FIELD_NAME': 'email_verified',
-
-    # Marks itself as verified the first time a user completes auth via token.
-    # Automatically unmarks itself if mobile number is changed.
-    'PASSWORDLESS_USER_MARK_MOBILE_VERIFIED': False,
-    'PASSWORDLESS_USER_MOBILE_VERIFIED_FIELD_NAME': 'mobile_verified',
-
-    # The email the callback token is sent from
-    'PASSWORDLESS_EMAIL_NOREPLY_ADDRESS': None,
-
-    # The email subject
-    'PASSWORDLESS_EMAIL_SUBJECT': "Your Login Token",
-
-    # A plaintext email message overridden by the html message.
-    # Takes one string.
-    'PASSWORDLESS_EMAIL_PLAINTEXT_MESSAGE': "Enter this token to sign in: %s",
-
-    # The email template name.
-    'PASSWORDLESS_EMAIL_TOKEN_HTML_TEMPLATE_NAME':
-        "passwordless_default_token_email.html",
-
-    # The SMS sent to mobile users logging in. Takes one string.
-    'PASSWORDLESS_MOBILE_MESSAGE': "Use this code to log in: %s",
-
-    # Registers previously unseen aliases as new users.
-    'PASSWORDLESS_REGISTER_NEW_USERS': True,
-
-    # Suppresses actual SMS for testing
-    'PASSWORDLESS_TEST_SUPPRESSION': False
 }
 
 # CORS management
