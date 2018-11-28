@@ -19,7 +19,6 @@ class Base:
         state of the process, empty by default
     """
 
-
     def __init__(self, name="", inputs={}, options={}, outputs={}, state=""):
         self.name = name
         self.inputs = inputs
