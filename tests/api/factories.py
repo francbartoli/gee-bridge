@@ -17,24 +17,36 @@ def seq_type():
     }
 
 
-def seq_aoi():
+def seq_aoi(toomany=False):
     """
     Sequence for aoi json field
     """
+    Coords = namedtuple('Coords', ['too_many_pixels', 'valid_pixels'])
+    too_many_pixels = [[
+        [17.578125, 19.31114335506464],
+        [32.6953125, -3.513421045640032],
+        [34.453125, 19.31114335506464],
+        [17.578125, 19.31114335506464]
+    ]]
+    valid_pixels = [[
+        [26.6, 26.6],
+        [26.7, 26.6],
+        [26.7, 26.7],
+        [26.6, 26.7],
+        [26.6, 26.6]
+    ]]
+    coords = Coords(too_many_pixels, valid_pixels)
+    if toomany:
+        coordinates = coords.too_many_pixels
+    else:
+        coordinates = coords.valid_pixels
     AOI = namedtuple('AOI', ['fc', 'ft', 'poly'])
     fc = [{
         "type": "FeatureCollection",
         "features": [{
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [
-                    [
-                        [17.578125, 19.31114335506464],
-                        [32.6953125, -3.513421045640032],
-                        [34.453125, 19.31114335506464],
-                        [17.578125, 19.31114335506464]
-                    ]
-                ]
+                "coordinates": coordinates
             },
             "type": "Feature",
             "properties": {}
@@ -43,28 +55,14 @@ def seq_aoi():
     ft = [{
         "geometry": {
             "type": "Polygon",
-            "coordinates": [
-                [
-                    [17.578125, 19.31114335506464],
-                    [32.6953125, -3.513421045640032],
-                    [34.453125, 19.31114335506464],
-                    [17.578125, 19.31114335506464]
-                ]
-            ]
+            "coordinates": coordinates
         },
         "type": "Feature",
         "properties": {}
     }]
     poly = [{
         "type": "Polygon",
-        "coordinates": [
-            [
-                [17.578125, 19.31114335506464],
-                [32.6953125, -3.513421045640032],
-                [34.453125, 19.31114335506464],
-                [17.578125, 19.31114335506464]
-            ]
-        ]
+        "coordinates": coordinates
     }]
     aoi = AOI(fc, ft, poly)
     return aoi
@@ -125,8 +123,8 @@ class ProcessFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: u'process_{}'.format(n))
     type = factory.LazyFunction(seq_type)
     owner = factory.SubFactory(UserFactory)
-    # FIXME: force aoi to be just polygon
-    aoi = factory.LazyFunction(lambda: seq_aoi().poly)
+    # FIXME: force aoi to be just polygon with not too many pixels
+    aoi = factory.LazyFunction(lambda: seq_aoi(toomany=False).poly)
     toi = factory.LazyFunction(seq_toi)
     input_data = factory.LazyFunction(lambda: seq_inputdata("L1"))
     output_data = factory.LazyFunction(seq_outputdata)
