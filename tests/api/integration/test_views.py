@@ -13,9 +13,10 @@ class TestProcessList(APITestCase):
         """
         user = User.objects.create(username="test")
 
-        for _ in range(3):
-            ProcessFactory()
         self.expected = 3
+        for _ in range(self.expected):
+            ProcessFactory()
+
         # Initialize client and force it to use authentication
         self.client.force_authenticate(user=user)
 
@@ -24,4 +25,4 @@ class TestProcessList(APITestCase):
         url = reverse('process-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json()), self.expected)
+        self.assertEqual(len(response.json()), 0)
