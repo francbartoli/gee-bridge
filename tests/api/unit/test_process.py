@@ -1,18 +1,30 @@
 import pytest
-import json
-from tests.api.factories import ProcessFactory, seq_inputdata
+from ee import EEException
+from tests.api.factories import (
+    ProcessFactory,
+    seq_inputdata,
+    seq_outputdata,
+    seq_aoi,
+    seq_toi,
+    seq_type
+)
 
 
 @pytest.mark.django_db
-def test_process_model():
-    """ Test process model """
-    # create process model instance
-    process = ProcessFactory(input_data=seq_inputdata())
+def test_create_process_model_valid_aoi():
+    """ Test process model with valid aoi"""
+    # create process model instance with valid aoi
+    process = ProcessFactory()
+
     assert process.type["mode"] == "sync"
     assert 'wapor' in process.type
     assert 'inputs' and 'outputs' in process.input_data
-    assert 'inputs' and 'outputs' in process.output_data
-    assert isinstance(json.loads(process.output_data['outputs'])[0], dict)
-    assert 'maps' and 'stats' and 'tasks' and 'errors' in json.loads(
-        process.output_data['outputs']
-    )[0]
+    assert not process.output_data
+
+
+@pytest.mark.django_db
+def test_create_process_model_not_valid_aoi():
+    """ Test process model with too many pixels"""
+    # create process model instance with too many pixels aoi
+    with pytest.raises(EEException):
+        ProcessFactory(aoi=seq_aoi(toomany=True).poly)

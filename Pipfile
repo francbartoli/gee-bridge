@@ -25,9 +25,10 @@ sphinxcontrib-dd = "*"
 plantweb = "*"
 ipython = "*"
 "django-bootstrap4" = "*"
-sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git", editable = true, ref = "master"}
+sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git",editable = true,ref = "master"}
 "flake8" = "*"
 factory-boy = "*"
+pytest-factoryboy = "*"
 
 [packages]
 earthengine-api = "*"
@@ -38,7 +39,7 @@ djangorestframework-yaml = "*"
 djoser = "*"
 Pygments = "*"
 Markdown = "*"
-supervisor = {git = "https://github.com/Supervisor/supervisor.git", editable = true, ref = "master"}
+supervisor = {git = "https://github.com/Supervisor/supervisor.git",editable = true,ref = "master"}
 gunicorn = "*"
 whitenoise = "*"
 django-extensions = "*"
@@ -63,11 +64,11 @@ channels = "==1.1.8"
 "django-bootstrap4" = "*"
 django-oauth-toolkit = "<=1.1.2"
 "enum34" = "*"
-drf-yasg = {extras = ["validation"], version = "*"}
+drf-yasg = {extras = ["validation"],version = "*"}
 django-storages = "*"
 asgi_redis = "*"
 asgiref = "~=1.1"
-django-rest-auth = {extras = ["with-social"], version = "*"}
+django-rest-auth = {extras = ["with-social"],version = "*"}
 django-allauth = "*"
 google-cloud-storage = "*"
 firebase-admin = "*"
