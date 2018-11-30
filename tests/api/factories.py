@@ -1,5 +1,4 @@
 import factory
-import json
 from django.contrib.auth.models import User
 from api.models import Process
 from collections import namedtuple
@@ -128,25 +127,3 @@ class ProcessFactory(factory.django.DjangoModelFactory):
     toi = factory.LazyFunction(seq_toi)
     input_data = factory.LazyFunction(lambda: seq_inputdata("L1"))
     output_data = factory.LazyFunction(seq_outputdata)
-
-    # simulate algorithm execution by changing input/output data
-    # @factory.post_generation
-    # def input_data(self, create, extracted, **kwargs):
-    #     empty_output = [
-    #         {
-    #             "maps": {},
-    #             "stats": {},
-    #             "tasks": {},
-    #             "errors": {}
-    #         }
-    #     ]
-    #     output = json.dumps(empty_output)
-
-    #     if not create:
-    #         return
-
-    #     if extracted and isinstance(extracted, dict):
-    #         self.input_data = extracted
-    #         output_data = extracted
-    #         output_data.update(outputs=output)
-    #         self.output_data = output_data

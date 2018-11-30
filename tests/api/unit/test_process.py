@@ -1,5 +1,4 @@
 import pytest
-import json
 from ee import EEException
 from tests.api.factories import (
     ProcessFactory,
