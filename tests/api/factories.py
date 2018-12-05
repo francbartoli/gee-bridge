@@ -1,5 +1,8 @@
 import factory
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
+from django.contrib.auth.hashers import make_password
+from rest_auth.models import TokenModel
 from api.models import Process
 from collections import namedtuple
 
@@ -111,6 +114,16 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
 
     username = factory.Sequence(lambda n: u'marmee_{}'.format(n))
+    password = factory.LazyAttribute(lambda n: make_password("password"))
+    email = factory.Sequence(lambda n: u'marmee_{}@test.com'.format(n))
+
+
+class TokenFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TokenModel
+
+    key = factory.LazyFunction(get_random_string)
+    user = factory.SubFactory(UserFactory)
 
 
 class ProcessFactory(factory.django.DjangoModelFactory):
