@@ -1,6 +1,15 @@
 import pytest
 from pytest_factoryboy import register
-from tests.api.factories import ProcessFactory, UserFactory, TokenFactory
+from tests.api.factories import (
+    ProcessFactory,
+    UserFactory,
+    TokenFactory,
+    seq_aoi,
+    seq_toi,
+    seq_type,
+    seq_inputdata,
+    seq_outputdata
+)
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework.reverse import reverse
@@ -56,3 +65,20 @@ def create_notowned_process():
     UserFactory(username=username)
     user = User.objects.filter(username=username).first()
     return ProcessFactory(name="test_process", owner=user)
+
+
+@pytest.fixture
+def aoi_outfootprint():
+    return seq_aoi(outfootprint=True).poly
+
+
+@pytest.fixture
+def payload_aoi_outfootprint(aoi_outfootprint):
+    return {
+        "name": "outfootprint test",
+        "type": seq_type(),
+        "aoi": aoi_outfootprint,
+        "toi": seq_toi(),
+        "input_data": seq_inputdata("L1"),
+        "output_data": seq_outputdata()
+    }

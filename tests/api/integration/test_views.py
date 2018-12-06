@@ -21,3 +21,13 @@ class TestProcessList:
         response = jwt_api_client.get(url)
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 0
+
+    @pytest.mark.django_db
+    def test_user_cannot_create_process_outfootprint_aoi(
+        self, jwt_api_client, payload_aoi_outfootprint
+    ):
+        url = reverse('process-list')
+        response = jwt_api_client.post(
+            url, data=payload_aoi_outfootprint, format="json"
+        )
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
