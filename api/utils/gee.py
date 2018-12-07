@@ -71,15 +71,19 @@ def createCollectionStat(coll_inst, band):
     return coll_inst.aggregate_stats(band).getInfo()["values"]
 
 
-def createImageStat(img_inst, region, band):
+def createImageStat(img_inst, region, band, sum=False):
     """Create an earth engine statistic for an image instance
 
     Parameters
     ----------
-    img_inst : str
+    img_inst: ee.Geometry
         Image instance
+    region: ee.Geometry
+        Geometry of the reduced area
     band: str
         Band where to get statistics
+    sum: bool
+        Boolean value to decide if the sum key is returned
 
     Returns
     -------
@@ -99,9 +103,11 @@ def createImageStat(img_inst, region, band):
                 max_val = img_min_max[key]
             else:
                 pass
+        # TODO: Check the consistency of sum value returned
+        # import ipdb; ipdb.set_trace()
         img_sum = createImageSumDictByRegion(img_inst, region)
         sum_val = img_sum[band]
-        return {
+        ret = {
             "{}".format(band): {
                 "mean": mean_val,
                 "min": min_val,
@@ -109,8 +115,11 @@ def createImageStat(img_inst, region, band):
                 "sum": sum_val
             }
         }
+        if not sum:
+            ret[band].pop("sum")
+        return ret
     except KeyError:
-        return {
+        ret = {
             "{}".format(band): {
                 "mean": None,
                 "min": None,
@@ -118,6 +127,9 @@ def createImageStat(img_inst, region, band):
                 "sum": None
             }
         }
+        if not sum:
+            ret[band].pop("sum")
+        return ret
 
 
 class GEEUtil:
