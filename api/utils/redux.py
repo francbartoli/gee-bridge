@@ -1,4 +1,5 @@
-from ee import Reducer, EEException
+from ee import EEException
+import ee
 
 
 def createImageMeanDictByRegion(img_inst, geom):
@@ -19,7 +20,7 @@ def createImageMeanDictByRegion(img_inst, geom):
 
     try:
         stat = img_inst.reduceRegion(
-            reducer=Reducer.mean(),
+            reducer=ee.Reducer.mean(),
             geometry=geom,
             scale=30,
             maxPixels=1e9
@@ -47,7 +48,7 @@ def createImageSumDictByRegion(img_inst, geom):
 
     try:
         stat = img_inst.reduceRegion(
-            reducer=Reducer.sum(),
+            reducer=ee.Reducer.sum(),
             geometry=geom,
             scale=30,
             maxPixels=1e9
@@ -75,7 +76,7 @@ def createImageMinMaxDictByRegion(img_inst, geom):
 
     try:
         stat = img_inst.reduceRegion(
-            reducer=Reducer.minMax(),
+            reducer=ee.Reducer.minMax(),
             geometry=geom,
             scale=30,
             maxPixels=1e9
