@@ -4,12 +4,10 @@ from ee import (
     Image,
     Filter,
     Geometry,
-    DateRange,
     EEException
 )
 from ee.data import (
     getInfo,
-    getMapId,
     ASSET_TYPE_FOLDER,
     ASSET_TYPE_IMAGE_COLL,
     DEFAULT_TILE_BASE_URL
@@ -191,7 +189,7 @@ class GEEUtil:
 
         Example
         -------
-        >>c = EEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
         >>range = DateRange("2017-01-01", "2018-01-01")
         >>f = ee.Filter(range)
         >>c.filterDateRange(filter=f)
@@ -226,7 +224,7 @@ class GEEUtil:
 
         Example
         -------
-        >>c = EEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
         >>geojson = {
             "type": "Polygon",
             "coordinates": [
@@ -257,8 +255,21 @@ class GEEUtil:
         except ValueError as e:
             raise
 
+    def getFootprint(self):
+        """Return the footprint from the collection.
+
+        Returns
+        -------
+        dict
+            Footprint of all geometries from a collection
+        """
+
+        footprint = self.instance.geometry()
+        return footprint.toGeoJSON()
+
     def getBands(self):
         """Return the bands from the first image of the collection
+
         """
 
         bands = self.info()["features"][0]["bands"]
