@@ -23,7 +23,7 @@ guzzle_sphinx_theme = "*"
 sphinx-autobuild = "*"
 sphinxcontrib-dd = "*"
 plantweb = "*"
-ipython = "*"
+ipython = "<7.0"
 "django-bootstrap4" = "*"
 sphinxcontrib-golangdomain = {git = "https://bitbucket.org/ymotongpoo/sphinxcontrib-golangdomain.git",editable = true,ref = "master"}
 "flake8" = "*"
