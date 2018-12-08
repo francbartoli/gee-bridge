@@ -3,7 +3,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
-from api.utils.geo import GeoJsonUtil
+from api.exceptions import GEEValidationError
+from api.utils.geo import GeoJsonUtil as geojson_util
+from api.utils.gee import GEEUtil as gee_util
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -216,6 +218,26 @@ class ProcessSerializer(serializers.ModelSerializer):
     input_data = serializers.JSONField()
     output_data = serializers.JSONField()
 
+    def validate(self, data):
+        """
+        Check if several semantic rules are met
+        """
+
+        best_footprint = [
+            gee_util(input[
+                "dataset"
+            ]).getFootprint() for input in data[
+                "input_data"
+            ]["inputs"]
+        ]
+        # check if aoi and datasets' footprint overlap
+        if not geojson_util(data["aoi"]).overlap(best_footprint[0]):
+            raise GEEValidationError(
+                "aoi",
+                detail="Area of Interest out of datasets' footprint"
+            )
+        return data
+
     def validate_aoi(self, value):
         """
         Check that the aoi contains valid GeoJSON.
@@ -226,7 +248,7 @@ class ProcessSerializer(serializers.ModelSerializer):
             try:
                 if isinstance(
                     value, dict
-                ) and GeoJsonUtil(
+                ) and geojson_util(
                     value
                 ).validate():
                     return value
@@ -243,7 +265,7 @@ class ProcessSerializer(serializers.ModelSerializer):
                 try:
                     if not isinstance(
                         gj_item, dict
-                    ) or not GeoJsonUtil(
+                    ) or not geojson_util(
                         gj_item
                     ).validate():
                         raise serializers.ValidationError(

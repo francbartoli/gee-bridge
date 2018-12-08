@@ -77,3 +77,6 @@ class GeoJsonUtil:
         if not self.instance.is_valid:
             return False
         return True
+
+    def overlap(self, geom):
+        return False

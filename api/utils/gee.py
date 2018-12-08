@@ -104,7 +104,6 @@ def createImageStat(img_inst, region, band, sum=False):
             else:
                 pass
         # TODO: Check the consistency of sum value returned
-        # import ipdb; ipdb.set_trace()
         img_sum = createImageSumDictByRegion(img_inst, region)
         sum_val = img_sum[band]
         ret = {
@@ -277,7 +276,7 @@ class GEEUtil:
         """
 
         footprint = self.instance.geometry()
-        return footprint.toGeoJSON()
+        return footprint.getInfo()
 
     def getBands(self):
         """Return the bands from the first image of the collection
