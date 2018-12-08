@@ -15,7 +15,8 @@ from ee.data import (
 from api.utils.redux import (
     createImageMeanDictByRegion,
     createImageSumDictByRegion,
-    createImageMinMaxDictByRegion
+    createImageMinMaxDictByRegion,
+    createImageNumPixelsDictByRegion
 )
 from rest_framework.serializers import ValidationError
 from collections import namedtuple
@@ -29,7 +30,7 @@ def createInstanceUrl(inst):
 
     Parameters
     ----------
-    inst : ee.ImageCollection or ee.Image
+    inst: ee.ImageCollection or ee.Image
         ImageCollection or Image instance
 
     Returns
@@ -56,7 +57,7 @@ def createCollectionStat(coll_inst, band):
 
     Parameters
     ----------
-    coll_inst : str
+    coll_inst : ee.ImageCollection
         ImageCollection instance
     band: str
         Band where to get statistics
@@ -76,7 +77,7 @@ def createImageStat(img_inst, region, band, sum=False):
 
     Parameters
     ----------
-    img_inst: ee.Geometry
+    img_inst: ee.Image
         Image instance
     region: ee.Geometry
         Geometry of the reduced area
@@ -129,6 +130,37 @@ def createImageStat(img_inst, region, band, sum=False):
         if not sum:
             ret[band].pop("sum")
         return ret
+
+
+def _getNumPixels(img_inst, region, band):
+    return createImageNumPixelsDictByRegion(img_inst, region)[band]
+
+
+def tooManyPixels(collection, geometry, band):
+    """Check if the collection has too many pixels for the geometry
+
+    Parameters
+    ----------
+    collection: str
+        Asset id of the collection
+    geometry: dict
+        Geometry in GeoJSON format
+    band: str
+        Band of the image
+
+    Returns
+    -------
+    bool
+        Boolean value if number is lower than max value 100000
+    """
+
+    coll_inst = ImageCollection(collection)
+    geom_inst = Geometry(geometry)
+    npixels = _getNumPixels(coll_inst.first(), geom_inst, band)
+    if npixels < 100000:
+        return False
+    else:
+        return True
 
 
 class GEEUtil:

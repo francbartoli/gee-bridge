@@ -6,6 +6,7 @@ from api import models
 from api.exceptions import GEEValidationError
 from api.utils.geo import GeoJsonUtil as geojson_util
 from api.utils.gee import GEEUtil as gee_util
+from api.utils.gee import tooManyPixels as too_many_pixels
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -223,15 +224,25 @@ class ProcessSerializer(serializers.ModelSerializer):
         Check if several semantic rules are met
         """
 
-        best_footprint = [
-            gee_util(input[
-                "dataset"
-            ]).getFootprint() for input in data[
-                "input_data"
-            ]["inputs"]
-        ]
+        # TODO: avoid the assumption that aoi is an one item array
+        aoi = data["aoi"][0]
+        inputs = data["input_data"]["inputs"]
+        datasets = [input["dataset"] for input in inputs]
+        # TODO: find the best method to extract bands for dataset
+        bands = ["b1"]
+        for ds in datasets:
+            for band in bands:
+                if too_many_pixels(ds, aoi, band):
+                    raise GEEValidationError(
+                        "aoi",
+                        detail="Area of Interest has too many pixels"
+                    )
+        import ipdb ; ipdb.set_trace()
         # check if aoi and datasets' footprint overlap
-        if not geojson_util(data["aoi"]).overlap(best_footprint[0]):
+        best_footprint = [
+            gee_util(input["dataset"]).getFootprint() for input in inputs
+        ]
+        if not geojson_util(aoi).overlap(best_footprint[0]):
             raise GEEValidationError(
                 "aoi",
                 detail="Area of Interest out of datasets' footprint"
