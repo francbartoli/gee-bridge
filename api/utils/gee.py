@@ -151,13 +151,13 @@ def tooManyPixels(collection, geometry, band):
     Returns
     -------
     bool
-        Boolean value if number is lower than max value 100000
+        Boolean value if number is lower than max value 10000000
     """
 
     coll_inst = ImageCollection(collection)
     geom_inst = Geometry(geometry)
     npixels = _getNumPixels(coll_inst.first(), geom_inst, band)
-    if npixels < 100000:
+    if npixels < 10000000:
         return False
     else:
         return True
