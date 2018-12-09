@@ -156,7 +156,7 @@ def tooManyPixels(collection, geometry, band):
 
     coll_inst = ImageCollection(collection)
     geom_inst = Geometry(geometry)
-    npixels = _getNumPixels(coll_inst.first(), geom_inst, band)
+    npixels = _getNumPixels(coll_inst.first().unmask(), geom_inst, band)
     if npixels < 10000000:
         return False
     else:
