@@ -133,7 +133,14 @@ def createImageStat(img_inst, region, band, sum=False):
 
 
 def _getNumPixels(img_inst, region, band):
-    return createImageNumPixelsDictByRegion(img_inst, region)[band]
+    try:
+        ret = createImageNumPixelsDictByRegion(img_inst, region)[band]
+    except EEException as e:
+        msg = e.args[0]
+        if "Too many pixels" in msg:
+            ret = int(msg.rsplit("Found")[1].rsplit(",")[0])
+    finally:
+        return ret
 
 
 def tooManyPixels(collection, geometry, band):
