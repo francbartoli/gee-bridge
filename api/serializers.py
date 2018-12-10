@@ -227,12 +227,11 @@ class ProcessSerializer(serializers.ModelSerializer):
         # TODO: avoid the assumption that aoi is an one item array
         aoi = data["aoi"][0]
         inputs = data["input_data"]["inputs"]
-        datasets = [input["dataset"] for input in inputs]
-        # TODO: find the best method to extract bands for dataset
-        bands = ["b1"]
+        datasets = [(input["dataset"], input["bands"],) for input in inputs]
+        # check if one of the dataset has too many pixels
         for ds in datasets:
-            for band in bands:
-                if too_many_pixels(ds, aoi, band):
+            for band in ds[1]:
+                if too_many_pixels(ds[0], aoi, band):
                     raise GEEValidationError(
                         "aoi",
                         detail="Area of Interest has too many pixels"
