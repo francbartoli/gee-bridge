@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from api import models
 from api.exceptions import GEEValidationError
 from api.utils.geo import GeoJsonUtil as geojson_util
+from api.utils.geo import getBestFootprint as get_best_footprint
 from api.utils.gee import GEEUtil as gee_util
 from api.utils.gee import tooManyPixels as too_many_pixels
 
@@ -236,12 +237,12 @@ class ProcessSerializer(serializers.ModelSerializer):
                         "aoi",
                         detail="Area of Interest has too many pixels"
                     )
-        import ipdb ; ipdb.set_trace()
         # check if aoi and datasets' footprint overlap
-        best_footprint = [
+        footprints = [
             gee_util(input["dataset"]).getFootprint() for input in inputs
         ]
-        if not geojson_util(aoi).overlap(best_footprint[0]):
+        best_footprint = get_best_footprint(footprints)
+        if not geojson_util(aoi).overlap(best_footprint):
             raise GEEValidationError(
                 "aoi",
                 detail="Area of Interest out of datasets' footprint"

@@ -3,7 +3,55 @@ from geojson.factory import (
     FeatureCollection, Feature, GeometryCollection,
     Point, LineString, Polygon, MultiLineString, MultiPoint, MultiPolygon
 )
+from shapely.geometry import (
+    shape,
+    MultiPolygon as multi_polygon,
+    Polygon as polygon
+)
+import geopandas as gpd
 import json
+
+
+def getBestFootprint(footprints):
+    """Create an intersection geometry of the footprints of datasets
+
+    Parameters
+    ----------
+    footprints: list
+        Array of footprint as GeoJSON of Polygon or MultiPolygon type
+
+    Raises
+    ------
+    ValueError
+        Error if each item of the array is not a Polygon or MultiPolygon
+        geometry
+
+    Returns
+    -------
+    dict
+        GeoJSON of the resulting FeatureCollection
+    """
+
+    # TODO: check if footprints is a list
+    shapes = []
+    # TODO: move block to get geoseries to a private method
+    for footprint in footprints:
+        if isinstance(
+            shape(footprint), multi_polygon
+        ) or isinstance(
+                shape(footprint), polygon
+        ):
+            shapes.append(list(shape(footprint)))
+        else:
+            raise ValueError("Footprints are not Polygon or MultiPolygon")
+
+    geoseries = [gpd.GeoSeries(shape) for shape in shapes]
+    geodataframes = [
+        gpd.GeoDataFrame({'geometry': geoserie}) for geoserie in geoseries
+    ]
+    return geodataframes[0].intersection(
+        geodataframes[1]
+    ).geometry.__geo_interface__
 
 
 class GeoJsonUtil:
@@ -78,5 +126,43 @@ class GeoJsonUtil:
             return False
         return True
 
-    def overlap(self, geom):
-        return False
+    def overlap(self, ft_coll):
+        """Calculate if the GeoJSON overlaps with an external input
+
+        Parameters
+        ----------
+        ft_coll : [type]
+            [description]
+
+        Raises
+        ------
+        ValueError
+            [description]
+
+        Returns
+        -------
+        [type]
+            [description]
+        """
+
+        gdf_ds = gpd.GeoDataFrame.from_features(ft_coll['features'])
+        shapes = []
+        for geometry in self.geometries:
+            if isinstance(shape(geometry), multi_polygon):
+                shapes.append(list(shape(geometry)))
+            elif isinstance(shape(geometry), polygon):
+                shapes.append(shape(geometry))
+            else:
+                raise ValueError("Geometries are not Polygon or MultiPolygon")
+        gs_aoi = [gpd.GeoSeries(shape) for shape in shapes]
+        gdf_aoi = [
+            gpd.GeoDataFrame({
+                'geometry': gs
+            }) for gs in gs_aoi
+        ]
+        gs_res = gdf_aoi[0].intersects(gdf_ds)
+        bools = [item[1] for item in gs_res.items()]
+        if True in bools:
+            return True
+        else:
+            return False
