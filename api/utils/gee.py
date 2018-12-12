@@ -305,6 +305,49 @@ class GEEUtil:
         except ValueError as e:
             raise
 
+    def filterValues(self, gte=None, lte=None):
+        """Filter by gte or lte values
+
+        Parameters
+        ----------
+        gte: int
+            Integer number for filtering values greater than equal to
+        lte: int
+            Integer number for filtering values less than equal to
+
+        Example
+        -------
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c.filterValues(gte=0, lte=254)
+
+        """
+
+        try:
+            if not (gte or lte):
+                try:
+                    # TODO: Make this working for both gte and lte
+                    if not self.reduced:
+                        redux = self.instance.map(
+                            lambda image, gte_val=gte: image.updateMask(
+                                image.gte(gte_val)
+                            )
+                        )
+                    else:
+                        redux = self.reduced.map(
+                            lambda image, gte_val=gte: image.updateMask(
+                                image.gte(gte_val)
+                            )
+                        )
+                    self.__reduced = redux
+                except EEException as e:
+                    raise ValidationError("Input datasets are not valid")
+            else:
+                raise AttributeError(
+                    "A valid number has to be provided for one of gte or lte"
+                )
+        except ValueError as e:
+            raise
+
     def getFootprint(self):
         """Return the footprint from the collection.
 
