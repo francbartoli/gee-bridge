@@ -13,16 +13,21 @@ RUN apk --update --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/ed
 # See https://github.com/appropriate/docker-postgis/blob/master/Dockerfile.alpine.template
 # See https://hub.docker.com/r/dangerfarms/geodrf-alpine/~/dockerfile/
 RUN apk --update --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ add \
-  geos gdal proj4 protobuf-c postgresql-client gdal-dev jpeg-dev zlib-dev graphviz-dev
-RUN apk --update add --virtual build-dependencies gcc musl-dev libffi-dev python3-dev build-base \
+  geos gdal proj4 protobuf-c postgresql-client gdal-dev jpeg-dev zlib-dev graphviz-dev geos-dev
+# See https://www.merixstudio.com/blog/docker-multi-stage-builds-python-development/
+RUN apk --upgrade --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main add alpine-sdk
+RUN apk --update add --virtual build-dependencies libffi-dev python3-dev \
   && apk add postgresql-dev \
+  && ln -sf /usr/lib/libproj.so.13 /usr/lib/libproj.so \
+  && ln -sf /usr/lib/libgdal.so.20 /usr/lib/libgdal.so \
+  && ln -sf /usr/lib/libgeos_c.so.1 /usr/lib/libgeos_c.so \
   && pip3 install --upgrade pip \
   && pip3 install --upgrade pipenv \
   && pipenv install --verbose --system --deploy
 
 # clean
 RUN apk del build-dependencies
-RUN apk del -r postgresql-libs postgresql-dev gdal-dev jpeg-dev zlib-dev
+RUN apk del -r postgresql-libs postgresql-dev gdal-dev jpeg-dev zlib-dev geos-dev
 
 # prep
 ENV PYTHONUNBUFFERED 1
