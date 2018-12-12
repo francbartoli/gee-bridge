@@ -127,22 +127,23 @@ class GeoJsonUtil:
         return True
 
     def overlap(self, ft_coll):
-        """Calculate if the GeoJSON overlaps with an external input
+        """Check if the GeoJSON overlaps with an external input
 
         Parameters
         ----------
-        ft_coll : [type]
-            [description]
+        ft_coll : dict
+            GeoJSON object for the comparison
 
         Raises
         ------
         ValueError
-            [description]
+            Error raised if the geometries are not of type Polygon
+            or MultiPolygon
 
         Returns
         -------
-        [type]
-            [description]
+        bool
+            True/False if there is at least an overlap
         """
 
         gdf_ds = gpd.GeoDataFrame.from_features(ft_coll['features'])
