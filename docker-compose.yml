@@ -28,13 +28,11 @@ services:
     env_file:
       - ./.env
       - ./.env.secret
-    command: python manage.py rundramatiq
+    command: python manage.py rungeequeue
     volumes:
       - .:/app
     depends_on:
       - webapi
-      - db
-      - rabbitmq
 
   db:
     image: "postgres:10.3-alpine"

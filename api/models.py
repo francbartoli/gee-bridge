@@ -18,7 +18,6 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from gee_bridge import settings
-from api.tasks import generate_process
 from django.contrib.postgres.fields import JSONField as PGJSONField
 from jsonfield import JSONField as SLJSONField
 from polymorphic.models import PolymorphicModel
@@ -401,7 +400,6 @@ def run_process(sender, instance, created, **kwargs):
     if created:
         if mode == "sync":
             process_result = process.run(algorithm)
-            # TODO async id:6 gh:12
             output_data = [process_result]
             Process.objects.filter(
                 id=instance.id
@@ -410,7 +408,9 @@ def run_process(sender, instance, created, **kwargs):
                 status=Process.STATUS_DONE
             )
         if mode == "async":
-            generate_process.send(str(instance.pk))
+            from .tasks import geeprocess
+            geeprocess.actor_name = 'geeprocess'
+            geeprocess.send(str(instance.pk))
 
 
 post_save.connect(run_process, sender=Process)
