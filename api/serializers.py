@@ -211,6 +211,8 @@ class ProcessSerializer(serializers.ModelSerializer):
             Input data for a process
         output_data: dict
             Output data for a process
+        status: string
+            State of the process job
     """
 
     type = serializers.JSONField()
@@ -219,6 +221,7 @@ class ProcessSerializer(serializers.ModelSerializer):
     toi = serializers.JSONField()
     input_data = serializers.JSONField()
     output_data = serializers.JSONField()
+    status = serializers.ReadOnlyField()
 
     def validate(self, data):
         """
@@ -295,8 +298,9 @@ class ProcessSerializer(serializers.ModelSerializer):
         model = models.Process
         fields = (
             'id', 'name', 'type', 'owner', 'aoi', 'toi', 'input_data',
-            'output_data', 'date_created', 'date_modified')
+            'output_data', 'status', 'date_created', 'date_modified')
         read_only_fields = (
+            'status',
             'date_created',
             'date_modified')
 

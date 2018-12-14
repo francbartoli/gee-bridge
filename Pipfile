@@ -81,3 +81,5 @@ geopandas = "*"
 numpy = "*"
 shapely = "*"
 gevent = "*"
+dramatiq = {extras = ["rabbitmq", "watch"],version = "*"}
+django-dramatiq = "*"

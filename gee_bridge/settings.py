@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    # dramatiq
+    'django_dramatiq',
     'django_extensions',
     'polymorphic',
     'storages',
@@ -283,6 +285,41 @@ GOOGLE_CLOUD_STORAGE_UPLOAD_FOLDER = 'geebridge'
 
 # To be removed since the development database is complaining about this
 GOOGLE_DRIVE_STORAGE_JSON_KEY_FILE = GOOGLE_APPLICATION_CREDENTIALS
+
+DRAMATIQ_BROKER = {
+    "BROKER":
+    "dramatiq.brokers.rabbitmq.RabbitmqBroker",
+    "OPTIONS": {
+        "url": os.getenv(
+            "RABBITMQ_URL", default="amqp://guest:guest@localhost:5672/"
+        ),
+    },
+    "MIDDLEWARE": [
+        "dramatiq.middleware.Prometheus",
+        "dramatiq.middleware.AgeLimit",
+        "dramatiq.middleware.TimeLimit",
+        "dramatiq.middleware.Callbacks",
+        "dramatiq.middleware.Retries",
+        "django_dramatiq.middleware.AdminMiddleware",
+        "django_dramatiq.middleware.DbConnectionsMiddleware",
+    ]
+}
+
+# Defines which database should be used to persist Task objects when the
+# AdminMiddleware is enabled.  The default value is "default".
+DRAMATIQ_TASKS_DATABASE = "default"
+
+DRAMATIQ_RESULT_BACKEND = {
+    "BACKEND": "dramatiq.results.backends.redis.RedisBackend",
+    "BACKED_OPTIONS": {
+        "url": os.getenv(
+            "REDIS_URL", default="redis://localhost:6379/0"
+        ),
+    },
+    "MIDDLEWARE_OPTIONS": {
+        "result_ttl": 60000
+    }
+}
 
 # Google Earth Engine Settings
 #
