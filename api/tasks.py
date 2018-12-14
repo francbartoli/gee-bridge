@@ -1,4 +1,5 @@
 import dramatiq
+from dramatiq import actor
 from api.process.wapor.wapor import Wapor
 from api import models
 from gee_bridge.settings import (
@@ -19,15 +20,29 @@ broker.add_middleware(Results(backend=result_backend))
 dramatiq.set_broker(broker)
 
 
-@dramatiq.actor
-def generate_process(pk, process, alg):
-    proc = models.Process.objects.get(pk=pk)
+@actor
+def generate_process(pk):
+
+    process = models.Process.objects.get(pk=pk)
 
     try:
-        if isinstance(process, Wapor):
-            proc.output_data = [process.run(alg)]
-            proc.status = models.Process.STATUS_DONE
+        type = process.type
+        aois = process.aoi
+        tois = process.toi
+        input_data = process.input_data
+        algorithm = type["wapor"].get("template")
+        aoi = aois[0]
+        toi = tois[0]
+        inputs = input_data.get("inputs")
+        kwargs = dict(
+            wapor_name=process.name,
+            wapor_inputs=inputs,
+            wapor_options=dict(spatial_extent=aoi, temporal_extent=toi)
+        )
+        gee_processing = Wapor(**kwargs)
+        process.output_data = [gee_processing.run(algorithm)]
+        process.status = models.Process.STATUS_DONE
     except Exception:
-        proc.status = models.Process.STATUS_FAILED
+        process.status = models.Process.STATUS_FAILED
 
-    proc.save()
+    process.save()

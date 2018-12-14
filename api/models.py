@@ -410,7 +410,7 @@ def run_process(sender, instance, created, **kwargs):
                 status=Process.STATUS_DONE
             )
         if mode == "async":
-            generate_process.send(instance.id, process, algorithm)
+            generate_process.send(str(instance.pk))
 
 
 post_save.connect(run_process, sender=Process)
