@@ -33,8 +33,8 @@ services:
       - .:/app
     depends_on:
       - webapi
-      - rabbitmq
       - db
+      - rabbitmq
 
   db:
     image: "postgres:10.3-alpine"
@@ -47,10 +47,15 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq
+    image: "rabbitmq:3.7-alpine"
     restart: unless-stopped
     stdin_open: true
     tty: true
+    env_file:
+        - ./.env.secret
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
 
 volumes:

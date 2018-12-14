@@ -62,14 +62,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    # dramatiq
+    'django_dramatiq',
     'django_extensions',
     'polymorphic',
     'storages',
     'corsheaders',
     'bootstrap4',
     'prettyjson',
-    # dramatiq
-    'django_dramatiq',
     # rest
     'rest_framework',
     'drf_yasg',
@@ -291,7 +291,7 @@ DRAMATIQ_BROKER = {
     "dramatiq.brokers.rabbitmq.RabbitmqBroker",
     "OPTIONS": {
         "url": os.getenv(
-            "RABBITMQ_URL", default="amqp://localhost:5672"
+            "RABBITMQ_URL", default="amqp://guest:guest@localhost:5672/"
         ),
     },
     "MIDDLEWARE": [
@@ -313,7 +313,7 @@ DRAMATIQ_RESULT_BACKEND = {
     "BACKEND": "dramatiq.results.backends.redis.RedisBackend",
     "BACKED_OPTIONS": {
         "url": os.getenv(
-            "REDIS_URL", default="redis://localhost:6379"
+            "REDIS_URL", default="redis://localhost:6379/0"
         ),
     },
     "MIDDLEWARE_OPTIONS": {
