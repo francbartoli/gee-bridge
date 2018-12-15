@@ -3,7 +3,11 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from api import models
-from api.utils.geo import GeoJsonUtil
+from api.exceptions import GEEValidationError
+from api.utils.geo import GeoJsonUtil as geojson_util
+from api.utils.geo import getBestFootprint as get_best_footprint
+from api.utils.gee import GEEUtil as gee_util
+from api.utils.gee import tooManyPixels as too_many_pixels
 
 
 class MapServiceSerializer(serializers.ModelSerializer):
@@ -207,6 +211,8 @@ class ProcessSerializer(serializers.ModelSerializer):
             Input data for a process
         output_data: dict
             Output data for a process
+        status: string
+            State of the process job
     """
 
     type = serializers.JSONField()
@@ -215,6 +221,36 @@ class ProcessSerializer(serializers.ModelSerializer):
     toi = serializers.JSONField()
     input_data = serializers.JSONField()
     output_data = serializers.JSONField()
+    status = serializers.ReadOnlyField()
+
+    def validate(self, data):
+        """
+        Check if several semantic rules are met
+        """
+
+        # TODO: avoid the assumption that aoi is an one item array
+        aoi = data["aoi"][0]
+        inputs = data["input_data"]["inputs"]
+        datasets = [(input["dataset"], input["bands"],) for input in inputs]
+        # check if one of the dataset has too many pixels
+        for ds in datasets:
+            for band in ds[1]:
+                if too_many_pixels(ds[0], aoi, band):
+                    raise GEEValidationError(
+                        "aoi",
+                        detail="Area of Interest has too many pixels"
+                    )
+        # check if aoi and datasets' footprint overlap
+        footprints = [
+            gee_util(input["dataset"]).getFootprint() for input in inputs
+        ]
+        best_footprint = get_best_footprint(footprints)
+        if not geojson_util(aoi).overlap(best_footprint):
+            raise GEEValidationError(
+                "aoi",
+                detail="Area of Interest out of datasets' footprint"
+            )
+        return data
 
     def validate_aoi(self, value):
         """
@@ -226,7 +262,7 @@ class ProcessSerializer(serializers.ModelSerializer):
             try:
                 if isinstance(
                     value, dict
-                ) and GeoJsonUtil(
+                ) and geojson_util(
                     value
                 ).validate():
                     return value
@@ -243,7 +279,7 @@ class ProcessSerializer(serializers.ModelSerializer):
                 try:
                     if not isinstance(
                         gj_item, dict
-                    ) or not GeoJsonUtil(
+                    ) or not geojson_util(
                         gj_item
                     ).validate():
                         raise serializers.ValidationError(
@@ -262,8 +298,9 @@ class ProcessSerializer(serializers.ModelSerializer):
         model = models.Process
         fields = (
             'id', 'name', 'type', 'owner', 'aoi', 'toi', 'input_data',
-            'output_data', 'date_created', 'date_modified')
+            'output_data', 'status', 'date_created', 'date_modified')
         read_only_fields = (
+            'status',
             'date_created',
             'date_modified')
 

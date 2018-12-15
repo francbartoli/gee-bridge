@@ -1,5 +1,8 @@
 import factory
 from django.contrib.auth.models import User
+from django.utils.crypto import get_random_string
+from django.contrib.auth.hashers import make_password
+from rest_auth.models import TokenModel
 from api.models import Process
 from collections import namedtuple
 
@@ -16,11 +19,15 @@ def seq_type():
     }
 
 
-def seq_aoi(toomany=False):
+def seq_aoi(toomany=False, outfootprint=False):
     """
     Sequence for aoi json field
     """
-    Coords = namedtuple('Coords', ['too_many_pixels', 'valid_pixels'])
+    Coords = namedtuple('Coords', [
+        'too_many_pixels',
+        'valid_pixels',
+        'outfootprint'
+    ])
     too_many_pixels = [[
         [17.578125, 19.31114335506464],
         [32.6953125, -3.513421045640032],
@@ -34,11 +41,21 @@ def seq_aoi(toomany=False):
         [26.6, 26.7],
         [26.6, 26.6]
     ]]
-    coords = Coords(too_many_pixels, valid_pixels)
+    outfootprint = [[
+        [12, 41],
+        [13, 41],
+        [13, 42],
+        [12, 42],
+        [12, 41]
+    ]]
+    coords = Coords(too_many_pixels, valid_pixels, outfootprint)
     if toomany:
         coordinates = coords.too_many_pixels
+    elif outfootprint:
+        coordinates = coords.outfootprint
     else:
         coordinates = coords.valid_pixels
+
     AOI = namedtuple('AOI', ['fc', 'ft', 'poly'])
     fc = [{
         "type": "FeatureCollection",
@@ -111,6 +128,16 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
 
     username = factory.Sequence(lambda n: u'marmee_{}'.format(n))
+    password = factory.LazyAttribute(lambda n: make_password("password"))
+    email = factory.Sequence(lambda n: u'marmee_{}@test.com'.format(n))
+
+
+class TokenFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TokenModel
+
+    key = factory.LazyFunction(get_random_string)
+    user = factory.SubFactory(UserFactory)
 
 
 class ProcessFactory(factory.django.DjangoModelFactory):

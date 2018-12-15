@@ -49,7 +49,8 @@ class UDWP:
                         )
                     else:
                         raise ValidationError(
-                            "Input datasets are not valid for Water Productivity"
+                            "\
+Input datasets are not valid for Water Productivity"
                         )
         except KeyError as e:
             self.logger.exception("KeyError exception")
@@ -153,6 +154,10 @@ class UDWP:
         # instantiate input collections
         coll_aeti = GEEUtil(self.__aeti.id)
         coll_npp = GEEUtil(self.__npp.id)
+
+        # get rid of anomalies closed to no data values -9999
+        # lambda to filter: pixel >=0 over the NPP collection
+        coll_npp.filterValues(gte=0)
 
         # reduce input collections with filters
         # AETI

@@ -18,7 +18,6 @@ from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from gee_bridge import settings
-# from jsonfield_compat.fields import JSONField
 from django.contrib.postgres.fields import JSONField as PGJSONField
 from jsonfield import JSONField as SLJSONField
 from polymorphic.models import PolymorphicModel
@@ -89,7 +88,7 @@ class Process(BaseModel):
 
     Parameters
     ----------
-        id: string
+        id: str
             An unique identifier for the process
         type: dict
             A type of the process identified by a namespace,
@@ -104,7 +103,18 @@ class Process(BaseModel):
             Data with input datasets
         output_data: dict
             Data with output maps, stats, tasks, errors
+        status: str
+            State of the processing job
     """
+
+    STATUS_PENDING = "pending"
+    STATUS_FAILED = "failed"
+    STATUS_DONE = "done"
+    STATUSES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_FAILED, "Failed"),
+        (STATUS_DONE, "Done"),
+    ]
 
     class Meta:
         db_table = 'process'
@@ -149,6 +159,11 @@ class Process(BaseModel):
         blank=True,
         default={}  # ,
         # load_kwargs={'object_pairs_hook': OrderedDict}
+    )
+    status = models.CharField(
+        max_length=10,
+        default=STATUS_PENDING,
+        choices=STATUSES,
     )
     # TODO validate against a json schema
     # https://stackoverflow.com/questions/37642742/django-postgresql-json-field-schema-validation
@@ -381,18 +396,21 @@ def run_process(sender, instance, created, **kwargs):
     )
 
     process = Wapor(**kwargs)
-    process_result = process.run(algorithm)
-    # TODO async id:6 gh:12
-    output_data = [process_result]
-    # from IPython import embed
-    # embed()
+
     if created:
         if mode == "sync":
+            process_result = process.run(algorithm)
+            output_data = [process_result]
             Process.objects.filter(
                 id=instance.id
             ).update(
-                output_data=output_data
+                output_data=output_data,
+                status=Process.STATUS_DONE
             )
+        if mode == "async":
+            from .tasks import geeprocess
+            geeprocess.actor_name = 'geeprocess'
+            geeprocess.send(str(instance.pk))
 
 
 post_save.connect(run_process, sender=Process)

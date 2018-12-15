@@ -4,12 +4,10 @@ from ee import (
     Image,
     Filter,
     Geometry,
-    DateRange,
     EEException
 )
 from ee.data import (
     getInfo,
-    getMapId,
     ASSET_TYPE_FOLDER,
     ASSET_TYPE_IMAGE_COLL,
     DEFAULT_TILE_BASE_URL
@@ -17,7 +15,8 @@ from ee.data import (
 from api.utils.redux import (
     createImageMeanDictByRegion,
     createImageSumDictByRegion,
-    createImageMinMaxDictByRegion
+    createImageMinMaxDictByRegion,
+    createImageNumPixelsDictByRegion
 )
 from rest_framework.serializers import ValidationError
 from collections import namedtuple
@@ -31,7 +30,7 @@ def createInstanceUrl(inst):
 
     Parameters
     ----------
-    inst : ee.ImageCollection or ee.Image
+    inst: ee.ImageCollection or ee.Image
         ImageCollection or Image instance
 
     Returns
@@ -58,7 +57,7 @@ def createCollectionStat(coll_inst, band):
 
     Parameters
     ----------
-    coll_inst : str
+    coll_inst : ee.ImageCollection
         ImageCollection instance
     band: str
         Band where to get statistics
@@ -73,15 +72,19 @@ def createCollectionStat(coll_inst, band):
     return coll_inst.aggregate_stats(band).getInfo()["values"]
 
 
-def createImageStat(img_inst, region, band):
+def createImageStat(img_inst, region, band, sum=False):
     """Create an earth engine statistic for an image instance
 
     Parameters
     ----------
-    img_inst : str
+    img_inst: ee.Image
         Image instance
+    region: ee.Geometry
+        Geometry of the reduced area
     band: str
         Band where to get statistics
+    sum: bool
+        Boolean value to decide if the sum key is returned
 
     Returns
     -------
@@ -90,26 +93,81 @@ def createImageStat(img_inst, region, band):
 
     """
 
-    img_mean = createImageMeanDictByRegion(img_inst, region)
-    mean_val = img_mean[band]
-    img_min_max = createImageMinMaxDictByRegion(img_inst, region)
-    for key in img_min_max.keys():
-        if band and "min" in key:
-            min_val = img_min_max[key]
-        elif band and "max" in key:
-            max_val = img_min_max[key]
-        else:
-            pass
-    img_sum = createImageSumDictByRegion(img_inst, region)
-    sum_val = img_sum[band]
-    return {
-        "{}".format(band): {
-            "mean": mean_val,
-            "min": min_val,
-            "max": max_val,
-            "sum": sum_val
+    try:
+        img_mean = createImageMeanDictByRegion(img_inst, region)
+        mean_val = img_mean[band]
+        img_min_max = createImageMinMaxDictByRegion(img_inst, region)
+        for key in img_min_max.keys():
+            if band and "min" in key:
+                min_val = img_min_max[key]
+            elif band and "max" in key:
+                max_val = img_min_max[key]
+            else:
+                pass
+        # TODO: Check the consistency of sum value returned
+        img_sum = createImageSumDictByRegion(img_inst, region)
+        sum_val = img_sum[band]
+        ret = {
+            "{}".format(band): {
+                "mean": mean_val,
+                "min": min_val,
+                "max": max_val,
+                "sum": sum_val
+            }
         }
-    }
+        if not sum:
+            ret[band].pop("sum")
+        return ret
+    except KeyError:
+        ret = {
+            "{}".format(band): {
+                "mean": None,
+                "min": None,
+                "max": None,
+                "sum": None
+            }
+        }
+        if not sum:
+            ret[band].pop("sum")
+        return ret
+
+
+def _getNumPixels(img_inst, region, band):
+    try:
+        ret = createImageNumPixelsDictByRegion(img_inst, region)[band]
+    except EEException as e:
+        msg = e.args[0]
+        if "Too many pixels" in msg:
+            ret = int(msg.rsplit("Found")[1].rsplit(",")[0])
+    finally:
+        return ret
+
+
+def tooManyPixels(collection, geometry, band):
+    """Check if the collection has too many pixels for the geometry
+
+    Parameters
+    ----------
+    collection: str
+        Asset id of the collection
+    geometry: dict
+        Geometry in GeoJSON format
+    band: str
+        Band of the image
+
+    Returns
+    -------
+    bool
+        Boolean value if number is lower than max value 10000000
+    """
+
+    coll_inst = ImageCollection(collection)
+    geom_inst = Geometry(geometry)
+    npixels = _getNumPixels(coll_inst.first().unmask(), geom_inst, band)
+    if npixels < 10000000:
+        return False
+    else:
+        return True
 
 
 class GEEUtil:
@@ -181,7 +239,7 @@ class GEEUtil:
 
         Example
         -------
-        >>c = EEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
         >>range = DateRange("2017-01-01", "2018-01-01")
         >>f = ee.Filter(range)
         >>c.filterDateRange(filter=f)
@@ -216,7 +274,7 @@ class GEEUtil:
 
         Example
         -------
-        >>c = EEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
         >>geojson = {
             "type": "Polygon",
             "coordinates": [
@@ -247,8 +305,64 @@ class GEEUtil:
         except ValueError as e:
             raise
 
+    def filterValues(self, gte=None, lte=None):
+        """Filter by gte or lte values
+
+        Parameters
+        ----------
+        gte: int
+            Integer number for filtering values greater than equal to
+        lte: int
+            Integer number for filtering values less than equal to
+
+        Example
+        -------
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c.filterValues(gte=0, lte=254)
+
+        """
+
+        try:
+            if not (gte or lte):
+                try:
+                    # TODO: Make this working for both gte and lte
+                    if not self.reduced:
+                        redux = self.instance.map(
+                            lambda image, gte_val=gte: image.updateMask(
+                                image.gte(gte_val)
+                            )
+                        )
+                    else:
+                        redux = self.reduced.map(
+                            lambda image, gte_val=gte: image.updateMask(
+                                image.gte(gte_val)
+                            )
+                        )
+                    self.__reduced = redux
+                except EEException as e:
+                    raise ValidationError("Input datasets are not valid")
+            else:
+                raise AttributeError(
+                    "A valid number has to be provided for one of gte or lte"
+                )
+        except ValueError as e:
+            raise
+
+    def getFootprint(self):
+        """Return the footprint from the collection.
+
+        Returns
+        -------
+        dict
+            Footprint of all geometries from a collection
+        """
+
+        footprint = self.instance.geometry()
+        return footprint.getInfo()
+
     def getBands(self):
         """Return the bands from the first image of the collection
+
         """
 
         bands = self.info()["features"][0]["bands"]
