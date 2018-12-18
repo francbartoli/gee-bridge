@@ -139,6 +139,10 @@ def _getNumPixels(img_inst, region, band):
         msg = e.args[0]
         if "Too many pixels" in msg:
             ret = int(msg.rsplit("Found")[1].rsplit(",")[0])
+        else:
+            ret = ValidationError(
+                "Something went wrong with the check of pixels' number"
+            )
     finally:
         return ret
 
@@ -164,7 +168,9 @@ def tooManyPixels(collection, geometry, band):
     coll_inst = ImageCollection(collection)
     geom_inst = Geometry(geometry)
     npixels = _getNumPixels(coll_inst.first().unmask(), geom_inst, band)
-    if npixels < 10000000:
+    if isinstance(npixels, ValidationError):
+        raise npixels
+    elif npixels < 10000000:
         return False
     else:
         return True
