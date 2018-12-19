@@ -354,16 +354,40 @@ class GEEUtil:
         except ValueError as e:
             raise
 
-    def getFootprint(self):
+    def getFootprint(self, metadata=None):
         """Return the footprint from the collection.
+
+        Parameters
+        ----------
+        metadata: dict
+            Dictionary of key/value for filtering the collection
+            (the default is None, which doesn't filter)
 
         Returns
         -------
         dict
             Footprint of all geometries from a collection
+
+        Example
+        -------
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c.getFootprint()
         """
 
-        footprint = self.instance.geometry()
+        if not metadata:
+            footprint = self.instance.geometry()
+        elif not isinstance(metadata, dict):
+            raise ValueError("metadata is not a dictionary")
+        else:
+            equals = [
+                (item[0], "equals", item[1]) for item in metadata.items()
+            ]
+            for equal in equals:
+                if not self.reduced:
+                    self.__reduced = self.instance.filterMetadata(*equal)
+                else:
+                    self.__reduced = self.reduced.filterMetadata(*equal)
+            footprint = self.reduced.geometry()
         return footprint.getInfo()
 
     def getBands(self):

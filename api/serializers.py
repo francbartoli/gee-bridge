@@ -231,19 +231,37 @@ class ProcessSerializer(serializers.ModelSerializer):
         # TODO: avoid the assumption that aoi is an one item array
         aoi = data["aoi"][0]
         inputs = data["input_data"]["inputs"]
-        datasets = [(input["dataset"], input["bands"],) for input in inputs]
+        datasets = [
+            (
+                input["dataset"],
+                input["metadata"],
+                input["bands"],
+            ) for input in inputs
+        ]
         # check if one of the dataset has too many pixels
         for ds in datasets:
-            for band in ds[1]:
+            for band in ds[2]:
                 if too_many_pixels(ds[0], aoi, band):
                     raise GEEValidationError(
                         "aoi",
                         detail="Area of Interest has too many pixels"
                     )
         # check if aoi and datasets' footprint overlap
-        footprints = [
-            gee_util(input["dataset"]).getFootprint() for input in inputs
-        ]
+        footprints = []
+        for dataset in datasets:
+            if dataset[1]:
+                footprints.append(
+                    gee_util(
+                        dataset[0]
+                    ).getFootprint(metadata=dataset[1][0])
+                )
+            else:
+                footprints.append(
+                    gee_util(
+                        dataset[0]
+                    ).getFootprint(metadata=None)
+                )
+
         best_footprint = get_best_footprint(footprints)
         if not geojson_util(aoi).overlap(best_footprint):
             raise GEEValidationError(
