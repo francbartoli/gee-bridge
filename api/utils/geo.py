@@ -42,7 +42,7 @@ def getBestFootprint(footprints):
         ) or isinstance(
                 shape(footprint), polygon
         ):
-            shapes.append(list(shape(footprint)))
+            shapes.append([shape(footprint)])
         else:
             raise ValidationError("Footprint is not Polygon or MultiPolygon")
 
