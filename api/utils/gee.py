@@ -139,6 +139,10 @@ def _getNumPixels(img_inst, region, band):
         msg = e.args[0]
         if "Too many pixels" in msg:
             ret = int(msg.rsplit("Found")[1].rsplit(",")[0])
+        else:
+            ret = ValidationError(
+                "Something went wrong with the check of pixels' number"
+            )
     finally:
         return ret
 
@@ -164,7 +168,9 @@ def tooManyPixels(collection, geometry, band):
     coll_inst = ImageCollection(collection)
     geom_inst = Geometry(geometry)
     npixels = _getNumPixels(coll_inst.first().unmask(), geom_inst, band)
-    if npixels < 10000000:
+    if isinstance(npixels, ValidationError):
+        raise npixels
+    elif npixels < 10000000:
         return False
     else:
         return True
@@ -348,16 +354,40 @@ class GEEUtil:
         except ValueError as e:
             raise
 
-    def getFootprint(self):
+    def getFootprint(self, metadata=None):
         """Return the footprint from the collection.
+
+        Parameters
+        ----------
+        metadata: dict
+            Dictionary of key/value for filtering the collection
+            (the default is None, which doesn't filter)
 
         Returns
         -------
         dict
             Footprint of all geometries from a collection
+
+        Example
+        -------
+        >>c = GEEUtil('projects/fao-wapor/L1/L1_AETI_D')
+        >>c.getFootprint()
         """
 
-        footprint = self.instance.geometry()
+        if not metadata:
+            footprint = self.instance.geometry()
+        elif not isinstance(metadata, dict):
+            raise ValueError("metadata is not a dictionary")
+        else:
+            equals = [
+                (item[0], "equals", item[1]) for item in metadata.items()
+            ]
+            for equal in equals:
+                if not self.reduced:
+                    self.__reduced = self.instance.filterMetadata(*equal)
+                else:
+                    self.__reduced = self.reduced.filterMetadata(*equal)
+            footprint = self.reduced.geometry()
         return footprint.getInfo()
 
     def getBands(self):

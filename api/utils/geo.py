@@ -8,6 +8,7 @@ from shapely.geometry import (
     MultiPolygon as multi_polygon,
     Polygon as polygon
 )
+from rest_framework.serializers import ValidationError
 import geopandas as gpd
 import json
 
@@ -36,14 +37,17 @@ def getBestFootprint(footprints):
     shapes = []
     # TODO: move block to get geoseries to a private method
     for footprint in footprints:
-        if isinstance(
-            shape(footprint), multi_polygon
-        ) or isinstance(
-                shape(footprint), polygon
-        ):
-            shapes.append(list(shape(footprint)))
+        if isinstance(shape(footprint), multi_polygon):
+            # Reduce MultiPolygon to list of Polygon
+            polys = [
+                item for item in [geom for geom in shape(footprint).geoms]
+            ]
+            for poly in polys:
+                shapes.append(poly)
+        elif isinstance(shape(footprint), polygon):
+            shapes.append(shape(footprint))
         else:
-            raise ValueError("Footprints are not Polygon or MultiPolygon")
+            raise ValidationError("Footprint is not Polygon or MultiPolygon")
 
     geoseries = [gpd.GeoSeries(shape) for shape in shapes]
     geodataframes = [
@@ -150,7 +154,12 @@ class GeoJsonUtil:
         shapes = []
         for geometry in self.geometries:
             if isinstance(shape(geometry), multi_polygon):
-                shapes.append(list(shape(geometry)))
+                # Reduce MultiPolygon to list of Polygon
+                polys = [
+                    item for item in [geom for geom in shape(geometry).geoms]
+                ]
+                for poly in polys:
+                    shapes.append(poly)
             elif isinstance(shape(geometry), polygon):
                 shapes.append(shape(geometry))
             else:
