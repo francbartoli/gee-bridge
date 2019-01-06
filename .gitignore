@@ -26,3 +26,5 @@ assets
 assets/
 
 src/
+
+\.DS_Store
